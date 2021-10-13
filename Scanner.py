@@ -1,3 +1,16 @@
+from enum import Enum
+class Token(Enum):
+    id = "ID"
+    keyword = "KEYWORD"
+    num = "NUM"
+    symbol = "SYMBOL"
+    comment = "COMMENT"
+    white_space = "WHITESPACE"
+class Error(Enum):
+    invalid_input = "Invalid input"
+    invalid_number = "Invalid number"
+    unmatched_comment = "Unmatched comment"
+    unclosed_comment = "Unclosed comment"
 
 class Scanner:
     def __init__(self,path):
@@ -17,6 +30,17 @@ class Scanner:
 
         pass #TODO
 class Symbol_tabel:
+    def __init__(self):
+        self.table = {"if":1, "else":2, "void": 3, "int":4, "repeat":5, "break":6, "until":7, "return":8}
+        self.last_id = 9
+    def get_token(self,ID:str):
+        temp = self.table.get(ID,None)
+        if temp == None:
+            self.table[ID] = self.last_id
+            self.last_id+=1
+            return ()
+        else:
+
     pass
 
 class DFA:
@@ -33,7 +57,8 @@ class DFA:
                 self.save_dfa(save_path)
         except:
             pass
-        self.accept_mode_with_lookahead = {3:True,5:True,6:False,8:False,9:True,10:False,14:False}
+        self.accept_node_lookahead_check = {3:True,5:True,9:False,8:True,11:True,14:True,17:True}
+        self.error_node = {2:Error.invalid_number,-1:Error.invalid_input,13:Error.unmatched_comment}
     def initialize_table(self)-> list:
         """[summary]
             Returns:
