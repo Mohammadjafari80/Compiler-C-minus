@@ -1,4 +1,5 @@
 from enum import Enum
+
 class Token(Enum):
     id = "ID"
     keyword = "KEYWORD"
@@ -6,6 +7,7 @@ class Token(Enum):
     symbol = "SYMBOL"
     comment = "COMMENT"
     white_space = "WHITESPACE"
+
 class Error(Enum):
     invalid_input = "Invalid input"
     invalid_number = "Invalid number"
@@ -49,6 +51,15 @@ class ErrorTable:
     def __init__(self):
         pass
 
+class Node:
+    def __init__(self, node_name, is_it_final = False , is_it_error = False, error_type=None):
+        self.node_name = node_name
+        self.is_it_final = is_it_final
+        self.is_it_error = is_it_error
+        self.error_type = error_type
+
+
+
 class DFA:
     def __init__(self,load_mode = False , save_mode = False,load_path = "dfa.txt",save_path = "dfa.txt"):
         """
@@ -63,8 +74,7 @@ class DFA:
                 self.save_dfa(save_path)
         except:
             pass
-        self.accept_node_lookahead_check = {3:True,5:True,9:False,8:True,11:True,14:True,17:True}
-        self.error_node = {2:Error.invalid_number,-1:Error.invalid_input,13:Error.unmatched_comment}
+
     def initialize_table(self)-> list:
         """[summary]
             Returns:
