@@ -10,7 +10,9 @@ class Scanner:
         self.line_number = 1
         self.char_index = 0
         self.DFA = DFA(load_mode=False,save_mode=True,save_path="dfa.txt")
+
     def get_next_token(self):
+
         pass #TODO
 class DFA:
     def __init__(self,load_mode = False , save_mode = False,load_path = "dfa.txt",save_path = "dfa.txt"):
@@ -108,6 +110,11 @@ class DFA:
         """
         return ( (c >= 97 and c <= 122 ) or (c >= 65 and c <= 90))
     def save_dfa(self,path : str ):
+        """
+        this function save the dfa in file txt
+        :param path: get path to save file as txt
+        :return:
+        """
         wr = ""
         for i in range(len(self.table)):
             for j in range(len(self.table[0])):
@@ -116,26 +123,21 @@ class DFA:
         f = open(path, "w")
         f.write(wr)
         f.close()
-        """
-        this function save the dfa in file txt
-        :param path: get path to save file as txt
-        :return:
-        """
+
     def load_table(self,path:str)->list:
-        self.table = []
-        with open(path,"r") as f:
-            for line in f:
-                line.replace('\n', ' ')
-                temp = list(map(int,line.split()))
-                print(temp)
-                self.table.append(temp)
-        f.close()
-        return self.table
         """
 
         :param path: get input txt file path
         :return: return the 2D array of DFAS
         """
+        self.table = []
+        with open(path,"r") as f:
+            for line in f:
+                line.replace('\n', ' ')
+                temp = list(map(int,line.split()))
+                self.table.append(temp)
+        f.close()
+        return self.table
 
 
 
