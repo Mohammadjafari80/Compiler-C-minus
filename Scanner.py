@@ -29,19 +29,25 @@ class Scanner:
     def get_next_token(self):
 
         pass #TODO
-class Symbol_tabel:
+class SymbolTable:
     def __init__(self):
         self.table = {"if":1, "else":2, "void": 3, "int":4, "repeat":5, "break":6, "until":7, "return":8}
         self.last_id = 9
-    def get_token(self,ID:str):
+    def get_token(self,ID:str) -> (int,Token,str):
         temp = self.table.get(ID,None)
         if temp == None:
             self.table[ID] = self.last_id
             self.last_id+=1
-            return ()
-        else:
+            return (self.last_id,Token.id,ID)
+        if temp <= 8 :
+            return (temp,Token.keyword,ID)
+        return (temp,Token.id,ID)
+
 
     pass
+class ErrorTable:
+    def __init__(self):
+        pass
 
 class DFA:
     def __init__(self,load_mode = False , save_mode = False,load_path = "dfa.txt",save_path = "dfa.txt"):
