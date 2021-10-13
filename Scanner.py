@@ -37,19 +37,21 @@ class SymbolTable:
         self.last_id = 9
     def get_token(self,ID:str) -> (int,Token,str):
         temp = self.table.get(ID,None)
-        if temp == None:
+        if temp is None:
             self.table[ID] = self.last_id
             self.last_id+=1
-            return (self.last_id,Token.id,ID)
+            return self.last_id, Token.id, ID
         if temp <= 8 :
-            return (temp,Token.keyword,ID)
-        return (temp,Token.id,ID)
+            return temp, Token.keyword, ID
+        return temp, Token.id, ID
 
 
     pass
 class ErrorTable:
     def __init__(self):
         pass
+
+    # A suffix
 
 class Node:
     def __init__(self, node_name, is_it_final = False , is_it_error = False, error_type=None):
@@ -65,6 +67,8 @@ class DFA:
         """
         initialize the DFA module
         """
+        self.states = { -1: }
+
         try:
             if load_mode :
                 self.table = self.load_table(load_path)
@@ -74,6 +78,7 @@ class DFA:
                 self.save_dfa(save_path)
         except:
             pass
+
 
     def initialize_table(self)-> list:
         """[summary]
@@ -134,18 +139,18 @@ class DFA:
         :param c:
         :return:
         """
-        return (self.is_it_white_space(c) or self.is_it_symbol(c) or c == 47)
+        return self.is_it_white_space(c) or self.is_it_symbol(c) or c == 47
 
     def is_it_unique_symbol(self,c:int)->bool:
         """
         :return:
         """
-        return  (c!= 42) and ((c >= 40 and c <= 45) or (c>= 58 and c <= 60) or (c == 91 ) or c == 93 or c == 123 or c == 126)
+        return  (c!= 42) and ((40 <= c <= 45) or (58 <= c <= 60) or (c == 91) or c == 93 or c == 123 or c == 126)
     def is_it_symbol(self,c:int)->bool:
         """
         :return:
         """
-        return  ((c >= 40 and c <= 45) or (c>= 58 and c <= 61) or (c == 91 ) or c == 93 or c == 123 or c == 126)
+        return (40 <= c <= 45) or (58 <= c <= 61) or (c == 91) or c == 93 or c == 123 or c == 126
     def is_it_white_space(self,c:int)->bool:
         """
 
