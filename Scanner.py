@@ -15,6 +15,7 @@ class Error(Enum):
     unclosed_comment = "Unclosed comment"
 
 class Scanner:
+
     def __init__(self,path):
         """
         this function is called at the instantiation of module Scanner
@@ -26,15 +27,17 @@ class Scanner:
         self.char_index = 0
         self.current_state = 0
         self.current_token = ""
-        self.DFA = DFA(load_mode=False,save_mode=True,save_path="dfa.txt")
+        self.DFA = DFA(load_mode=False, save_mode=True, save_path="dfa.txt")
 
     def get_next_token(self):
 
         pass #TODO
 class SymbolTable:
+
     def __init__(self):
         self.table = {"if":1, "else":2, "void": 3, "int":4, "repeat":5, "break":6, "until":7, "return":8}
         self.last_id = 9
+
     def get_token(self,ID:str) -> (int,Token,str):
         temp = self.table.get(ID,None)
         if temp is None:
@@ -52,6 +55,9 @@ class ErrorTable:
         pass
 
     # A suffix
+    # Write
+    # Add Error
+    # Track Line Numbers
 
 class Node:
     def __init__(self, node_name, is_it_final = False , is_it_error = False, error_type=None):
@@ -67,7 +73,28 @@ class DFA:
         """
         initialize the DFA module
         """
-        self.states = { -1: }
+        self.states = {  -1: Node(-1, True, True, Error.invalid_input),
+                          0: Node(0),
+                          1: Node(1),
+                          2: Node(2, True, True, Error.invalid_number),
+                          3: Node(3, True),
+                          4: Node(4),
+                          5: Node(5, True),
+                          6: Node(6, True),
+                          7: Node(7),
+                          8: Node(8, True),
+                          9: Node(9, True),
+                         10: Node(10),
+                         11: Node(11, True),
+                         12: Node(12),
+                         13: Node(13, True, True, Error.unmatched_comment),
+                         14: Node(14, True),
+                         15: Node(15),
+                         16: Node(16),
+                         17: Node(17),
+                         18: Node(18),
+                         19: Node(19),
+                        }
 
         try:
             if load_mode :
