@@ -67,11 +67,12 @@ class ErrorTable:
 
 
 class Node:
-    def __init__(self, node_name, is_it_final=False, is_it_error=False, error_type=None):
+    def __init__(self, node_name, is_it_final=False, is_it_error=False, error_type=None,lookahead = False):
         self.node_name = node_name
         self.is_it_final = is_it_final
         self.is_it_error = is_it_error
         self.error_type = error_type
+        self.lookahead = lookahead
 
 
 
@@ -85,18 +86,18 @@ class DFA:
                         0: Node(node_name=0),
                         1: Node(node_name=1),
                         2: Node(node_name=2, is_it_final=True, is_it_error=True, error_type=Error.invalid_number),
-                        3: Node(node_name=3, is_it_final=True),
+                        3: Node(node_name=3, is_it_final=True,lookahead=True),
                         4: Node(node_name=4),
-                        5: Node(node_name=5, is_it_final=True),
+                        5: Node(node_name=5, is_it_final=True,lookahead=True),
                         6: Node(node_name=6, is_it_final=True),
                         7: Node(node_name=7),
-                        8: Node(node_name=8, is_it_final=True),
+                        8: Node(node_name=8, is_it_final=True,lookahead=True),
                         9: Node(node_name=9, is_it_final=True),
                        10: Node(node_name=10),
-                       11: Node(node_name=11, is_it_final=True),
+                       11: Node(node_name=11, is_it_final=True,lookahead=True),
                        12: Node(node_name=12),
                        13: Node(node_name=13, is_it_final=True, is_it_error=True, error_type=Error.unmatched_comment),
-                       14: Node(node_name=14, is_it_final=True),
+                       14: Node(node_name=14, is_it_final=True,lookahead=True),
                        15: Node(node_name=15),
                        16: Node(node_name=16),
                        17: Node(node_name=17),
