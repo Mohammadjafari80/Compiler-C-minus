@@ -9,11 +9,16 @@ class Scanner:
         self.input_file = open(path)
         self.line_number = 1
         self.char_index = 0
+        self.current_state = 0
+        self.current_token = ""
         self.DFA = DFA(load_mode=False,save_mode=True,save_path="dfa.txt")
 
     def get_next_token(self):
 
         pass #TODO
+class Symbol_tabel:
+    pass
+
 class DFA:
     def __init__(self,load_mode = False , save_mode = False,load_path = "dfa.txt",save_path = "dfa.txt"):
         """
@@ -34,44 +39,52 @@ class DFA:
             Returns:
                 list: 2D list of all transitions and state
             """
-        table = [[0 for i in range(256)] for j in range(16)]
+        table = [[-1 for i in range(256)] for j in range(20)]
         """ initialization of table """
         for i in range(256):
             if self.is_is_digits(i):
-                table[1][i] = 2
-                table[2][i] = 2
+                table[0][i] = 1
+                table[1][i] = 1
                 table[4][i] = 4
             if self.is_it_letter(i):
-                table[1][i]= 4
+                table[0][i]= 4
                 table[4][i] = 4
+                table[1][i] = 2
             if self.is_it_white_space(i):
-                table[1][i] = 10
-            if self.is_it_symbolwithouteq(i):
-                table[1][i] = 6
+                table[0][i] = 10
+                table[10][i] =10
+            else:
+                table[10][i] = 11
+            if self.is_it_unique_symbol(i):
+                table[0][i] = 6
             elif i == 61: # is input is =
-                table[1][i] = 7
-                table[7][i] = 8
+                table[0][i] = 7
+                table[7][i] = 9
             else:
-                table[7][i] = 9 # remark the others of symbol table
+                table[7][i] = 8 # remark the others of symbol table
             if i == 47 : # if input is /
-                table[1][i] = 11
-                table[11][i] = 15
-                table[13][i] = 14
-            if i == 42: # is input is *
-                table[11][i] = 12
+                table[0][i] = 15
                 table[12][i] = 13
-                table[13][i] = 13
+                table[15][i] = 16
+                table[19][i] = 17
             else:
-                table[12][i] = 12 #remark the others of comment for state 12
+                table[12][i] = 14
+            if i == 42: # is input is *
+                table[0][i] = 12
+                table[15][i] = 18
+                table[18][i] = 19
+                table[19][i]= 19
+            else:
+                table[18][i] = 18 #remark the others of comment for state 12
                 if i != 47 :
-                    table[13][i] = 12 # remark others of comment for state 13
+                    table[19][i] = 18 # remark others of comment for state 13
             if self.is_it_IDorNum_others(i):
-                table[2][i] = 3
+                table[1][i] = 3
                 table[4][i] = 5
             if i == 10 :
-                table[15][i] = 14
+                table[16][i] = 17
             else:
-                table[15][i] = 15
+                table[16][i] = 16
         return table
 
     def is_it_IDorNum_others(self,c:int) -> bool:
@@ -80,13 +93,18 @@ class DFA:
         :param c:
         :return:
         """
-        return not (self.is_it_letter(c) or self.is_is_digits(c))
+        return (self.is_it_white_space(c) or self.is_it_symbol(c) or c == 47)
 
-    def is_it_symbolwithouteq(self,c:int)->bool:
+    def is_it_unique_symbol(self,c:int)->bool:
         """
         :return:
         """
-        return ((c >= 40 and c <= 45) or (c>= 58 and c <= 60) or (c == 91 ) or c == 93 or c == 123 or c == 126)
+        return  (c!= 42) and ((c >= 40 and c <= 45) or (c>= 58 and c <= 60) or (c == 91 ) or c == 93 or c == 123 or c == 126)
+    def is_it_symbol(self,c:int)->bool:
+        """
+        :return:
+        """
+        return  ((c >= 40 and c <= 45) or (c>= 58 and c <= 61) or (c == 91 ) or c == 93 or c == 123 or c == 126)
     def is_it_white_space(self,c:int)->bool:
         """
 
