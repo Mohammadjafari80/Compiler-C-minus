@@ -16,6 +16,11 @@ class Error(Enum):
     unmatched_comment = "Unmatched comment"
     unclosed_comment = "Unclosed comment"
 
+class SymbolTableItem:
+    def __init__(self,token_type,name,id):
+        self.token_type = token_type
+        self.id = id
+        self.name = name
 
 class Scanner:
 
@@ -25,7 +30,10 @@ class Scanner:
         :arg
         path : the path of the file to be written and compiled by program
         """
-        self.input_file = open(path)
+        self.input_address = path
+        self.symbol_address = "symbol_table.txt"
+        self.token_address ="tokens.txt"
+        self.error_address = "lexical_errors.txt"
         self.line_number = 1
         self.char_index = 0
         self.current_state = 0
@@ -33,6 +41,8 @@ class Scanner:
         self.DFA = DFA(load_mode=False, save_mode=True, save_path="dfa.txt")
 
     def get_next_token(self):
+
+
 
         pass  # TODO
 
@@ -67,12 +77,13 @@ class ErrorTable:
 
 
 class Node:
-    def __init__(self, node_name, is_it_final=False, is_it_error=False, error_type=None,lookahead = False):
+    def __init__(self, node_name, is_it_final=False, is_it_error=False, error_type=None,lookahead = False,token_type = None):
         self.node_name = node_name
         self.is_it_final = is_it_final
         self.is_it_error = is_it_error
         self.error_type = error_type
         self.lookahead = lookahead
+        self.token_type = token_type
 
 
 
@@ -86,21 +97,21 @@ class DFA:
                         0: Node(node_name=0),
                         1: Node(node_name=1),
                         2: Node(node_name=2, is_it_final=True, is_it_error=True, error_type=Error.invalid_number),
-                        3: Node(node_name=3, is_it_final=True,lookahead=True),
+                        3: Node(node_name=3, is_it_final=True,lookahead=True,token_type=Token.num),
                         4: Node(node_name=4),
-                        5: Node(node_name=5, is_it_final=True,lookahead=True),
-                        6: Node(node_name=6, is_it_final=True),
+                        5: Node(node_name=5, is_it_final=True,lookahead=True,token_type=Token.id),
+                        6: Node(node_name=6, is_it_final=True,token_type=Token.symbol),
                         7: Node(node_name=7),
-                        8: Node(node_name=8, is_it_final=True,lookahead=True),
-                        9: Node(node_name=9, is_it_final=True),
+                        8: Node(node_name=8, is_it_final=True,lookahead=True,token_type=Token.symbol),
+                        9: Node(node_name=9, is_it_final=True,token_type=Token.symbol),
                        10: Node(node_name=10),
-                       11: Node(node_name=11, is_it_final=True,lookahead=True),
+                       11: Node(node_name=11, is_it_final=True,lookahead=True,token_type=Token.white_space),
                        12: Node(node_name=12),
                        13: Node(node_name=13, is_it_final=True, is_it_error=True, error_type=Error.unmatched_comment),
-                       14: Node(node_name=14, is_it_final=True,lookahead=True),
+                       14: Node(node_name=14, is_it_final=True,lookahead=True,token_type=Token.symbol),
                        15: Node(node_name=15),
                        16: Node(node_name=16),
-                       17: Node(node_name=17),
+                       17: Node(node_name=17,is_it_final=True,token_type=Token.comment),
                        18: Node(node_name=18),
                        19: Node(node_name=19),
                     }
