@@ -37,14 +37,41 @@ class Scanner:
         self.line_number = 1
         self.char_index = 0
         self.current_state = 0
-        self.current_token = ""
+        self.current_lexeme = ""
+        self.buffer = ""
+        self.buffer_size = 0
         self.DFA = DFA(load_mode=False, save_mode=True, save_path="dfa.txt")
 
     def get_next_token(self):
 
 
 
-        pass  # TODO
+        while self.char_index < self.buffer_size:
+            input_char = self.buffer[self.char_index]
+            ascii_code = ord(input_char)
+            next_state = self.DFA.get_state(self.current_state,ascii_code)
+            if next_state.is_it_final:
+                if next_state.token_matter:
+                    if next_state.lookahead:
+                        token = self.get_token_string(next_state,self.current_lexeme)
+                    else:
+                        self.char_index +=1
+                        token = self.get_token_string(next_state,self.current_lexeme+input_char)
+                    self.current_state = 0
+                    self.current_lexeme = ""
+                    return token
+                if next_state.is_it_error:
+                    pass #TODO
+                self.current_lexeme = ""
+                self.current_state = 0
+            else:
+                self.current_lexeme+=input_char
+                self.current_state = next_state.node_name
+            self.char_index += 1
+            if next_state.lookahead:
+                self.char_index -= 1
+
+
 
 
 class SymbolTable:
@@ -77,13 +104,14 @@ class ErrorTable:
 
 
 class Node:
-    def __init__(self, node_name, is_it_final=False, is_it_error=False, error_type=None,lookahead = False,token_type = None):
+    def __init__(self, node_name, is_it_final=False, is_it_error=False, error_type=None,lookahead = False,token_type = None,token_matter = False):
         self.node_name = node_name
         self.is_it_final = is_it_final
         self.is_it_error = is_it_error
         self.error_type = error_type
         self.lookahead = lookahead
         self.token_type = token_type
+        self.token_matter = token_matter
 
 
 
@@ -97,18 +125,18 @@ class DFA:
                         0: Node(node_name=0),
                         1: Node(node_name=1),
                         2: Node(node_name=2, is_it_final=True, is_it_error=True, error_type=Error.invalid_number),
-                        3: Node(node_name=3, is_it_final=True,lookahead=True,token_type=Token.num),
+                        3: Node(node_name=3, is_it_final=True,lookahead=True,token_type=Token.num,token_matter=True),
                         4: Node(node_name=4),
-                        5: Node(node_name=5, is_it_final=True,lookahead=True,token_type=Token.id),
-                        6: Node(node_name=6, is_it_final=True,token_type=Token.symbol),
+                        5: Node(node_name=5, is_it_final=True,lookahead=True,token_type=Token.id,token_matter=True),
+                        6: Node(node_name=6, is_it_final=True,token_type=Token.symbol,token_matter=True),
                         7: Node(node_name=7),
-                        8: Node(node_name=8, is_it_final=True,lookahead=True,token_type=Token.symbol),
-                        9: Node(node_name=9, is_it_final=True,token_type=Token.symbol),
+                        8: Node(node_name=8, is_it_final=True,lookahead=True,token_type=Token.symbol,token_matter=True),
+                        9: Node(node_name=9, is_it_final=True,token_type=Token.symbol,token_matter=True),
                        10: Node(node_name=10),
                        11: Node(node_name=11, is_it_final=True,lookahead=True,token_type=Token.white_space),
                        12: Node(node_name=12),
                        13: Node(node_name=13, is_it_final=True, is_it_error=True, error_type=Error.unmatched_comment),
-                       14: Node(node_name=14, is_it_final=True,lookahead=True,token_type=Token.symbol),
+                       14: Node(node_name=14, is_it_final=True,lookahead=True,token_type=Token.symbol,token_matter=True),
                        15: Node(node_name=15),
                        16: Node(node_name=16),
                        17: Node(node_name=17,is_it_final=True,token_type=Token.comment),
@@ -125,8 +153,8 @@ class DFA:
                 self.save_dfa(save_path)
         except:
             pass
-
-
+    def get_state(self,current_state:int,c:int) -> Node:
+        return self.state.get(self.table[current_state][c])
     def initialize_table(self)-> list:
         """[summary]
             Returns:
