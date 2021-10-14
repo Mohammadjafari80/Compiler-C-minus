@@ -51,7 +51,6 @@ class Scanner:
                 input_char = self.buffer[self.char_index]
                 ascii_code = ord(input_char)
                 next_state = self.DFA.get_state(self.current_state,ascii_code)
-                print(next_state.node_name)
                 if next_state.is_it_final:
                     if next_state.token_matter:
                         if next_state.lookahead:
@@ -84,7 +83,6 @@ class Scanner:
         self.error_table.append(str(line_number)+".\t("+str(error_lexeme)+", "+str(error_type.value)+")")
     def read_next_line(self):
         self.buffer = self.input_file.readline()
-        print(self.buffer)
         self.buffer_size = len(self.buffer)
         self.line_number +=1
         self.char_index = 0

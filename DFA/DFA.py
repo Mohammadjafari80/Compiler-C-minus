@@ -127,7 +127,7 @@ class DFA:
         """
         :return:
         """
-        return (c != 42) and ((40 <= c <= 45) or (58 <= c <= 60) or (c == 91) or c == 93 or c == 123 or c == 126)
+        return (c != 42) and ((40 <= c <= 45) or (58 <= c <= 60) or (c == 91) or c == 93 or c == 123 or c == 125)
 
     def is_it_symbol(self, c: int) -> bool:
         """
