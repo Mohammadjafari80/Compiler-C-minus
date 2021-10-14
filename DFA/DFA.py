@@ -1,3 +1,27 @@
+from enum import Enum
+class Node:
+    def __init__(self, node_name, is_it_final=False, is_it_error=False, error_type=None,lookahead = False,token_type = None,token_matter = False):
+        self.node_name = node_name
+        self.is_it_final = is_it_final
+        self.is_it_error = is_it_error
+        self.error_type = error_type
+        self.lookahead = lookahead
+        self.token_type = token_type
+        self.token_matter = token_matter
+class Token(Enum):
+    id = "ID"
+    keyword = "KEYWORD"
+    num = "NUM"
+    symbol = "SYMBOL"
+    comment = "COMMENT"
+    white_space = "WHITESPACE"
+
+
+class Error(Enum):
+    invalid_input = "Invalid input"
+    invalid_number = "Invalid number"
+    unmatched_comment = "Unmatched comment"
+    unclosed_comment = "Unclosed comment"
 class DFA:
     def __init__(self, load_mode=False, save_mode=False, load_path="dfa.txt", save_path="dfa.txt"):
         """

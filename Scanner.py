@@ -1,21 +1,6 @@
 from enum import Enum
 import DFA.DFA
-
-class Token(Enum):
-    id = "ID"
-    keyword = "KEYWORD"
-    num = "NUM"
-    symbol = "SYMBOL"
-    comment = "COMMENT"
-    white_space = "WHITESPACE"
-
-
-class Error(Enum):
-    invalid_input = "Invalid input"
-    invalid_number = "Invalid number"
-    unmatched_comment = "Unmatched comment"
-    unclosed_comment = "Unclosed comment"
-
+from DFA import *
 class SymbolTableItem:
     def __init__(self,token_type,name,id):
         self.token_type = token_type
@@ -40,7 +25,7 @@ class Scanner:
         self.current_lexeme = ""
         self.buffer = ""
         self.buffer_size = 0
-        self.DFA = DFA(load_mode=False, save_mode=True, save_path="dfa.txt")
+        self.DFA = DFA.DFA(load_mode=False, save_mode=True, save_path="dfa.txt")
         self.symbol_Table = SymbolTable()
 
     def get_next_token(self):
@@ -80,7 +65,7 @@ class SymbolTable:
         self.table = {"if":1, "else":2, "void": 3, "int":4, "repeat":5, "break":6, "until":7, "return":8}
         self.last_id = 9
 
-    def get_token(self, lexeme:str) -> (int,Token,str):
+    def get_token(self, lexeme:str) -> (int,DFA.Token,str):
         temp = self.table.get(lexeme,None)
         if temp is None:
             self.table[lexeme] = self.last_id
@@ -93,25 +78,6 @@ class SymbolTable:
     pass
 
 
-class ErrorTable:
-    def __init__(self):
-        pass
-
-    # A suffix
-    # Write
-    # Add Error
-    # Track Line Numbers
-
-
-class Node:
-    def __init__(self, node_name, is_it_final=False, is_it_error=False, error_type=None,lookahead = False,token_type = None,token_matter = False):
-        self.node_name = node_name
-        self.is_it_final = is_it_final
-        self.is_it_error = is_it_error
-        self.error_type = error_type
-        self.lookahead = lookahead
-        self.token_type = token_type
-        self.token_matter = token_matter
 
 
 
