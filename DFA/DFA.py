@@ -133,7 +133,7 @@ class DFA:
         """
         :return:
         """
-        return (40 <= c <= 45) or (58 <= c <= 61) or (c == 91) or c == 93 or c == 123 or c == 126
+        return (40 <= c <= 45) or (58 <= c <= 61) or (c == 91) or c == 93 or c == 123 or c == 125
 
     def is_it_white_space(self, c: int) -> bool:
         """

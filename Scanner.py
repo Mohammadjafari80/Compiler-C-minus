@@ -28,31 +28,30 @@ class Scanner:
         self.current_lexeme = ""
         self.buffer = "not empty"
         self.buffer_size = 0
-        self.DFA = DFA.DFA(load_mode=False, save_mode=True, save_path="dfa.txt")
+        self.DFA = DFA.DFA(load_mode=False, save_mode=False, save_path="dfa.txt")
         self.symbol_Table = SymbolTable()
         self.error_table = []
         self.token_table = {}
     def scan(self):
-        try:
-            while True:
-                token = self.get_next_token()
-                self.insert_token(token=token,line_number=self.line_number)
-                print("fuck")
-        except EOFERROR:
-            if self.current_state == 18 or self.current_state == 19:
-                self.insert_error(line_number= self.line_number,error_type=DFA.Error.unclosed_comment,error_lexeme=self.current_lexeme)
-            self.input_file.close()
-        finally:
-            self.save_token()
-            self.save_errors()
-            return
+        while True:
+            token = self.get_next_token()
+            if token == False:
+                if self.current_state == 18 or self.current_state == 19:
+                    self.insert_error(line_number=self.line_number, error_type=DFA.Error.unclosed_comment,
+                                      error_lexeme=self.current_lexeme)
+                self.input_file.close()
+                self.save_token()
+                self.save_errors()
+                self.symbol_Table.save_symbol_table(self.symbol_address)
+                return
+            self.insert_token(token=token,line_number=self.line_number)
     def get_next_token(self):
-        while self.buffer != None:
+        while self.buffer != "":
             while self.char_index < self.buffer_size:
-                print("fuck2")
                 input_char = self.buffer[self.char_index]
                 ascii_code = ord(input_char)
                 next_state = self.DFA.get_state(self.current_state,ascii_code)
+                print(next_state.node_name)
                 if next_state.is_it_final:
                     if next_state.token_matter:
                         if next_state.lookahead:
@@ -62,9 +61,11 @@ class Scanner:
                             token = self.get_token_string(next_state,self.current_lexeme+input_char)
                         self.current_state = 0
                         self.current_lexeme = ""
+                        if ascii_code == 10:
+                            self.read_next_line()
                         return token
                     if next_state.is_it_error:
-                        self.insert_error(self.line_number,next_state.error_type,self.current_lexeme)
+                        self.insert_error(self.line_number,next_state.error_type,self.current_lexeme+str(input_char))
                     self.current_lexeme = ""
                     self.current_state = 0
                 else:
@@ -74,14 +75,16 @@ class Scanner:
                 if next_state.lookahead:
                     self.char_index -= 1
             self.read_next_line()
-        raise EOFERROR
+        return False
 
     def insert_error(self,line_number,error_type :DFA.Error,error_lexeme):
         if error_type == DFA.Error.unclosed_comment:
-            error_lexeme = error_lexeme[0:7 if 7 >= len(error_lexeme) else len(error_lexeme)]
-        self.error_table.append(str(line_number)+".\t("+str(error_lexeme)+", "+str(error_type.values)+")")
+            pass
+            #error_lexeme = error_lexeme[0:(7 if 7 >= len(error_lexeme) else len(error_lexeme))]
+        self.error_table.append(str(line_number)+".\t("+str(error_lexeme)+", "+str(error_type.value)+")")
     def read_next_line(self):
         self.buffer = self.input_file.readline()
+        print(self.buffer)
         self.buffer_size = len(self.buffer)
         self.line_number +=1
         self.char_index = 0
@@ -90,13 +93,13 @@ class Scanner:
             (id,type_of_token,lexeme) = self.symbol_Table.get_token(lexeme)
             return "("+str(type_of_token.value)+", "+str(lexeme)+")"
         else:
-            return "("+str(state.token_type.values)+", "+str(lexeme)+")"
+            return "("+str(state.token_type.value)+", "+str(lexeme)+")"
     def insert_token(self, token:str,line_number) -> (int,DFA.Token,str):
         temp = self.token_table.get(line_number,None)
         if temp is None:
             self.token_table[line_number] = token
         else:
-            self.token_table[line_number] = temp+" "+toke
+            self.token_table[line_number] = temp+" "+token
     def save_token(self):
         f = open(self.token_address,"w")
         for (key,val) in self.token_table.items():
@@ -123,8 +126,8 @@ class SymbolTable:
             self.last_id+=1
             return self.last_id, DFA.Token.id, lexeme
         if temp <= 8 :
-            return temp, Token.keyword, lexeme
-        return temp, Token.id, lexeme
+            return temp, DFA.Token.keyword, lexeme
+        return temp, DFA.Token.id, lexeme
     def save_symbol_table(self,address):
         f = open(address, "w")
         for (key,val) in self.table.items():
