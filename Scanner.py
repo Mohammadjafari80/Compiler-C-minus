@@ -32,12 +32,13 @@ class Scanner:
         self.symbol_Table = SymbolTable()
         self.error_table = []
         self.token_table = {}
+        self.line_number_of_comment = 0
     def scan(self):
         while True:
             token = self.get_next_token()
             if token == False:
                 if self.current_state == 18 or self.current_state == 19:
-                    self.insert_error(line_number=self.line_number, error_type=DFA.Error.unclosed_comment,
+                    self.insert_error(line_number=self.line_number_of_comment, error_type=DFA.Error.unclosed_comment,
                                       error_lexeme=self.current_lexeme)
                 self.input_file.close()
                 self.save_token()
@@ -51,6 +52,9 @@ class Scanner:
                 input_char = self.buffer[self.char_index]
                 ascii_code = ord(input_char)
                 next_state = self.DFA.get_state(self.current_state,ascii_code)
+                #TODO check for better solution
+                if next_state.node_name == 15:
+                    self.line_number_of_comment = self.line_number
                 if next_state.is_it_final:
                     if next_state.token_matter:
                         if next_state.lookahead:
@@ -78,7 +82,12 @@ class Scanner:
 
     def insert_error(self,line_number,error_type :DFA.Error,error_lexeme):
         if error_type == DFA.Error.unclosed_comment:
-            pass
+            if len(error_lexeme) > 7:
+                print(error_lexeme)
+                error_lexeme = str(error_lexeme[0:7])+str("...")
+                print(error_lexeme)
+            else:
+                error_lexeme = str(error_lexeme)+str("...")
             #error_lexeme = error_lexeme[0:(7 if 7 >= len(error_lexeme) else len(error_lexeme))]
         self.error_table.append(str(line_number)+".\t("+str(error_lexeme)+", "+str(error_type.value)+")")
     def read_next_line(self):

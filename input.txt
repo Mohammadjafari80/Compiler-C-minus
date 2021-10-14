@@ -1,10 +1,3 @@
-help 
-
-
-jisjdff
-jsadij jpc j lj cu
-;kjsd liij sadp uv
-
 void main ( void ) {
     int a = 0;
     // comment1
