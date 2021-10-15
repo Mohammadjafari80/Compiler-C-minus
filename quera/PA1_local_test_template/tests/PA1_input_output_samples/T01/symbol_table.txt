@@ -6,8 +6,8 @@
 6.	break
 7.	until
 8.	return
-9.	f
+9.	main
 10.	a
-11.	g
+11.	cde
 12.	b
-13.	output
+13.	e

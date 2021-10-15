@@ -30,7 +30,7 @@ class Scanner:
         self.buffer_size = 0
         self.DFA = DFA.DFA(load_mode=False, save_mode=False, save_path="dfa.txt")
         self.symbol_Table = SymbolTable()
-        self.error_table = []
+        self.error_table = {}
         self.token_table = {}
         self.line_number_of_comment = 0
     def scan(self):
@@ -40,6 +40,12 @@ class Scanner:
                 if self.current_state == 18 or self.current_state == 19:
                     self.insert_error(line_number=self.line_number_of_comment, error_type=DFA.Error.unclosed_comment,
                                       error_lexeme=self.current_lexeme)
+                if self.current_state == 1 or self.current_state == 4 or self.current_state == 7 or self.current_state == 12:
+                    next = self.current_state +1
+                    if self.current_state == 12 or self.current_state == 1:
+                        next+=1
+                    token = self.get_token_string(self.DFA.states[next],self.current_lexeme)
+                    self.insert_token(token=token, line_number=self.line_number)
                 self.input_file.close()
                 self.save_token()
                 self.save_errors()
@@ -64,8 +70,8 @@ class Scanner:
                             token = self.get_token_string(next_state,self.current_lexeme+input_char)
                         self.current_state = 0
                         self.current_lexeme = ""
-                        if ascii_code == 10:
-                            self.read_next_line()
+                        #if ascii_code == 10:
+                            #self.read_next_line()
                         return token
                     if next_state.is_it_error:
                         self.insert_error(self.line_number,next_state.error_type,self.current_lexeme+str(input_char))
@@ -80,17 +86,23 @@ class Scanner:
             self.read_next_line()
         return False
 
-    def insert_error(self,line_number,error_type :DFA.Error,error_lexeme):
+    def insert_error(self,line_number,error_type :DFA.Error,error_lexeme:str):
+        error_lexeme = error_lexeme.replace("\n", "")
         if error_type == DFA.Error.unclosed_comment:
             if len(error_lexeme) > 7:
                 error_lexeme = str(error_lexeme[0:7])+str("...")
             else:
                 error_lexeme = str(error_lexeme)+str("...")
-        self.error_table.append(str(line_number)+".\t("+str(error_lexeme)+", "+str(error_type.value)+")")
+        temp = self.error_table.get(line_number,None)
+        if temp is None:
+            self.error_table[line_number] = "("+str(error_lexeme)+", "+str(error_type.value)+")"
+        else:
+            self.error_table[line_number] = temp+" "+"("+str(error_lexeme)+", "+str(error_type.value)+")"
     def read_next_line(self):
         self.buffer = self.input_file.readline()
         self.buffer_size = len(self.buffer)
-        self.line_number +=1
+        if self.buffer_size !=0:
+            self.line_number +=1
         self.char_index = 0
     def get_token_string(self,state,lexeme):
         if state.token_type == DFA.Token.id:
@@ -107,12 +119,14 @@ class Scanner:
     def save_token(self):
         f = open(self.token_address,"w")
         for (key,val) in self.token_table.items():
-            f.write(str(key)+".\t"+val+"\n")
+            f.write(str(key)+".\t"+val+" \n")
         f.close()
     def save_errors(self):
-        f = open(self.error_address, "w")
-        for i in self.error_table:
-            f.write(str(i) +"\n")
+        f = open(self.error_address,"w")
+        for (key,val) in self.error_table.items():
+            f.write(str(key)+".\t"+val+" \n")
+        if len(self.error_table) == 0:
+            f.write("There is no lexical error.\n")
         f.close()
 
 

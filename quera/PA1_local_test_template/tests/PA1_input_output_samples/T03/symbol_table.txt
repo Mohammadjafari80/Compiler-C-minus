@@ -7,7 +7,12 @@
 7.	until
 8.	return
 9.	f
-10.	a
-11.	g
-12.	b
-13.	output
+10.	n
+11.	main
+12.	a
+13.	b
+14.	c
+15.	num
+16.	cha
+17.	t
+18.	ans
