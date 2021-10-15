@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
-    <content url="file://$MODULE_DIR$" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/quera/PA1/PA1_testcases1.2" isTestSource="true" />
+    </content>
     <orderEntry type="jdk" jdkName="Python 3.8 (StormStone-Django-S1m3Fsld)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
