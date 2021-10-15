@@ -83,12 +83,9 @@ class Scanner:
     def insert_error(self,line_number,error_type :DFA.Error,error_lexeme):
         if error_type == DFA.Error.unclosed_comment:
             if len(error_lexeme) > 7:
-                print(error_lexeme)
                 error_lexeme = str(error_lexeme[0:7])+str("...")
-                print(error_lexeme)
             else:
                 error_lexeme = str(error_lexeme)+str("...")
-            #error_lexeme = error_lexeme[0:(7 if 7 >= len(error_lexeme) else len(error_lexeme))]
         self.error_table.append(str(line_number)+".\t("+str(error_lexeme)+", "+str(error_type.value)+")")
     def read_next_line(self):
         self.buffer = self.input_file.readline()
