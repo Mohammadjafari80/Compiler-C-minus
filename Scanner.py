@@ -70,8 +70,6 @@ class Scanner:
                             token = self.get_token_string(next_state,self.current_lexeme+input_char)
                         self.current_state = 0
                         self.current_lexeme = ""
-                        #if ascii_code == 10:
-                            #self.read_next_line()
                         return token
                     if next_state.is_it_error:
                         self.insert_error(self.line_number,next_state.error_type,self.current_lexeme+str(input_char))
@@ -128,11 +126,6 @@ class Scanner:
         if len(self.error_table) == 0:
             f.write("There is no lexical error.\n")
         f.close()
-
-
-
-
-
 class SymbolTable:
     def __init__(self):
         self.table = {"if":1, "else":2, "void": 3, "int":4, "repeat":5, "break":6, "until":7, "return":8}
