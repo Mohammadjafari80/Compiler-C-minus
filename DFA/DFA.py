@@ -151,7 +151,7 @@ class DFA:
         """
         return c >= 48 and c <= 57
     def is_it_valid(self,c:int)->bool:
-        return (97 <= c <= 122) or (65 <= c <= 90) or (c >= 48 and c <= 57) or ((40 <= c <= 45) or (58 <= c <= 61) or (c == 91) or c == 93 or c == 123 or c == 125) or ((9 <= c <= 13) or (c == 32))
+        return (97 <= c <= 122) or (65 <= c <= 90) or (c >= 47 and c <= 57) or ((40 <= c <= 45) or (58 <= c <= 61) or (c == 91) or c == 93 or c == 123 or c == 125) or ((9 <= c <= 13) or (c == 32))
 
     def is_it_letter(self, c: int) -> bool:
         """

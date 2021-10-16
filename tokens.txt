@@ -1,1 +1,1 @@
-1.	(ID, a) (SYMBOL, *) (ID, sjdj) (NUM, 4) 
+1.	(ID, a) (SYMBOL, =) (NUM, 4) 
