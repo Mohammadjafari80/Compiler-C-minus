@@ -96,17 +96,17 @@ class DFA:
             if is_it_unique_symbol(i):
                 self.__unique_symbol_dfa_handler(table, i)
             elif i == 61:  # is input is =
-                self.__equal_sign_dfa_handler(table, i)
+                self.__equal_sign_dfa_handler(table)
             elif is_it_valid(i):
                 table[7][i] = 8  # remark the others of symbol table
 
             if i == 47:  # if input is /
-                self.__slash_sign_dfa_handler(table, i)
+                self.__slash_sign_dfa_handler(table)
             elif is_it_valid(i):
                 table[12][i] = 14
 
             if i == 42:  # if input is *
-                self.__star_sign_dfa_handler(table, i)
+                self.__star_sign_dfa_handler(table)
             else:
                 table[18][i] = 18  # remark the others of comment for state 12
                 if i != 47:  # input is not /
@@ -122,55 +122,92 @@ class DFA:
 
         return table
 
+
     @staticmethod
     def __digit_dfa_handler(table, i):
+        """Arranges Actions for the case that input character is a digit([0-9])
+
+        :param table: The table we want to modify
+        :param i: The input digit character Unicode code
+        """
         table[0][i] = 1
         table[1][i] = 1
         table[4][i] = 4
 
     @staticmethod
     def __letter_dfa_handler(table, i):
+        """Arranges Actions for the case that input character is a letter([a-z,A-Z])
+
+        :param table: The table we want to modify
+        :param i: The input letter character Unicode code
+        """
         table[0][i] = 4
         table[4][i] = 4
         table[1][i] = 2
 
     @staticmethod
     def __white_space_dfa_handler(table, i):
+        """Arranges Actions for the case that input character is a white space
+
+        :param table: The table we want to modify
+        :param i: The input white space character Unicode code
+        """
         table[0][i] = 10
         table[10][i] = 10
 
     @staticmethod
     def __unique_symbol_dfa_handler(table, i):
-        table[0][i] = 10
-        table[10][i] = 10
+        """Arranges Actions for the case that input character is a unique symbol
+
+        :param table: The table we want to modify
+        :param i: The input unique symbol character Unicode code
+        """
+        table[0][i] = 6
 
     @staticmethod
-    def __equal_sign_dfa_handler(table, i):
-        table[0][i] = 7
-        table[7][i] = 9
+    def __equal_sign_dfa_handler(table):
+        """Arranges Actions for the case that input character is =
+
+        :param table: The table we want to modify
+        """
+        table[0][61] = 7
+        table[7][61] = 9
 
     @staticmethod
-    def __slash_sign_dfa_handler(table, i):
-        table[0][i] = 15
-        table[12][i] = 13
-        table[15][i] = 16
-        table[19][i] = 17
+    def __slash_sign_dfa_handler(table):
+        """Arranges Actions for the case that input character is a /
+
+        :param table: The table we want to modify
+        """
+        table[0][47] = 15
+        table[12][47] = 13
+        table[15][47] = 16
+        table[19][47] = 17
 
     @staticmethod
-    def __star_sign_dfa_handler(table, i):
-        table[0][i] = 12
-        table[15][i] = 18
-        table[18][i] = 19
-        table[19][i] = 19
+    def __star_sign_dfa_handler(table):
+        """Arranges Actions for the case that input character is *
+
+        :param table: The table we want to modify
+        """
+        table[0][42] = 12
+        table[15][42] = 18
+        table[18][42] = 19
+        table[19][42] = 19
 
     @staticmethod
     def __id_and_number_dfa_handler(table, i):
+        """Arranges Actions for the case that input character is a id or number
+
+        :param table: The table we want to modify
+        :param i: The input character Unicode code
+        """
         table[1][i] = 3
         table[4][i] = 5
 
     def save_dfa(self, path: str):
-        """
-        this function save the dfa in file txt
+        """This function save the dfa in txt file
+
         :param path: get path to save file as txt
         :return:
         """
@@ -187,7 +224,7 @@ class DFA:
         """
 
         :param path: get input txt file path
-        :return: return the 2D array of DFAS
+        :return: return the 2D array of DFA
         """
         self.table = []
         with open(path, "r") as f:

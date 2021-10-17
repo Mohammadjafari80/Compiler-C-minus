@@ -1,5 +1,3 @@
-
-
 def is_it_symbol(c: int) -> bool:
     """Gets a character unicode and determines if it is a symbol
 
