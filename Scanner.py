@@ -6,6 +6,8 @@ from DFA import *
 class SymbolTableItem:
 
     def __init__(self, token_type, name, id):
+        """Initializes the symbol table item
+        """
         self.token_type = token_type
         self.id = id
         self.name = name
@@ -41,6 +43,7 @@ class Scanner:
         self.line_number_of_comment = 0
 
     def scan(self):
+        """Handles the scan and whole process of making the tables if we reach the end of file"""
         while True:
             token = self.get_next_token()
             if not token:
@@ -61,6 +64,10 @@ class Scanner:
             self.insert_token(token=token, line_number=self.line_number)
 
     def get_next_token(self):
+        """Looks for the next Token in the line until it finds one
+
+        :return: The found token
+        """
         while self.buffer != "":
             while self.char_index < self.buffer_size:
                 input_char = self.buffer[self.char_index]
@@ -93,6 +100,12 @@ class Scanner:
         return False
 
     def insert_error(self, line_number, error_type: DFA.Error, error_lexeme: str):
+        """Inserts the error to error table
+
+        :param line_number: The index of the line we're currently in
+        :param error_type: The type of the error
+        :param error_lexeme: The lexeme of the error
+        """
         error_lexeme = error_lexeme.replace("\n", "")
         if error_type == DFA.Error.unclosed_comment:
             if len(error_lexeme) > 7:
@@ -106,6 +119,8 @@ class Scanner:
             self.error_table[line_number] = f"{temp} ({error_lexeme}, {error_type.value})"
 
     def read_next_line(self):
+        """Increments the line number to read the next line
+        """
         self.buffer = self.input_file.readline()
         self.buffer_size = len(self.buffer)
         if self.buffer_size != 0:
@@ -113,13 +128,24 @@ class Scanner:
         self.char_index = 0
 
     def get_token_string(self, state, lexeme):
+        """ Generates the token string in the desired format
+
+        :param state: The state we're currently in
+        :param lexeme: The lexeme of the token
+        :return: Returns the token in a desired format
+        """
         if state.token_type == DFA.Token.id:
-            (id, type_of_token, lexeme) = self.symbol_Table.get_token(lexeme)
+            id, type_of_token, lexeme = self.symbol_Table.get_token(lexeme)
             return f"({type_of_token.value}, {lexeme})"
         else:
             return f"({state.token_type.value}, {lexeme})"
 
     def insert_token(self, token: str, line_number) -> (int, DFA.Token, str):
+        """ Inserts a token to token table
+
+        :param token: The token we want to insert
+        :param line_number: The index of the line we want to insert the token into
+        """
         temp = self.token_table.get(line_number, None)
         if temp is None:
             self.token_table[line_number] = token
@@ -127,22 +153,26 @@ class Scanner:
             self.token_table[line_number] = f"{temp} {token}"
 
     def save_token(self):
-        f = open(self.token_address, "w")
-        for (key, val) in self.token_table.items():
-            f.write(str(key)+".\t"+val+" \n")
-        f.close()
+        """Writes the tokens into a file where is located on self.token_address
+        """
+        with open(self.token_address, "w") as opened_file:
+            for (key, val) in self.token_table.items():
+                opened_file.write(f"{key}.\t{val}\n")
 
     def save_errors(self):
-        f = open(self.error_address, "w")
-        for (key,val) in self.error_table.items():
-            f.write(str(key)+".\t"+val+" \n")
-        if len(self.error_table) == 0:
-            f.write("There is no lexical error.\n")
-        f.close()
+        """Writes the errors into a file where is located on self.error_address
+        """
+        with open(self.error_address, "w") as opened_file:
+            for (key, val) in self.error_table.items():
+                opened_file.write(f"{key}.\t{val}\n")
+            if len(self.error_table) == 0:
+                opened_file.write("There is no lexical error.\n")
 
 
 class SymbolTable:
     def __init__(self):
+        """Initialize the symbol table
+        """
         self.table = {"if": 1,
                       "else": 2,
                       "void": 3,
@@ -155,6 +185,10 @@ class SymbolTable:
         self.last_id = 9
 
     def get_token(self, lexeme: str) -> (int, DFA.Token, str):
+        """Gives the token id and its lexeme and adds it to the symbol table if doesn't already exists
+        :param lexeme: The lexeme of the token
+        :return: Returns the information we need about the token
+        """
         temp = self.table.get(lexeme, None)
         if temp is None:
             self.table[lexeme] = self.last_id
@@ -165,11 +199,10 @@ class SymbolTable:
         return temp, DFA.Token.id, lexeme
 
     def save_symbol_table(self, address):
-        f = open(address, "w")
-        for (key,val) in self.table.items():
-            f.write(str(val)+".\t"+key+"\n")
-        f.close()
+        """Writes the symbol table into a file
 
-
-
-
+        :param address: a path to save the symbol table on
+        """
+        with open(address, "w") as opened_file:
+            for (key, val) in self.table.items():
+                opened_file.write(f"{val}.\t{key}\n")

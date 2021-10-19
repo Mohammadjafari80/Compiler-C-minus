@@ -5,6 +5,9 @@ from .CharHandler import *
 class Node:
     def __init__(self, node_name, is_it_final=False, is_it_error=False, error_type=None,
                  lookahead=False, token_type=None, token_matter=False):
+        """
+            initialize the Node
+        """
         self.node_name = node_name
         self.is_it_final = is_it_final
         self.is_it_error = is_it_error
@@ -70,6 +73,12 @@ class DFA:
             pass
 
     def get_state(self, current_state: int, c: int) -> Node:
+        """Gets the next state we have to go
+
+        :param current_state: The state we're currently in
+        :param c: The character input
+        :return: Returns a node representing the node we should go to
+        """
         return self.states.get(self.table[current_state][c])
 
     def initialize_table(self) -> list:
@@ -206,7 +215,7 @@ class DFA:
         table[4][i] = 5
 
     def save_dfa(self, path: str):
-        """This function save the dfa in txt file
+        """Saves the dfa in txt file
 
         :param path: get path to save file as txt
         :return:
@@ -214,25 +223,24 @@ class DFA:
         wr = ""
         for i in range(len(self.table)):
             for j in range(len(self.table[0])):
-                wr += str(self.table[i][j]) + " "
+                wr += f"{self.table[i][j]} "
             wr += "\n"
-        f = open(path, "w")
-        f.write(wr)
-        f.close()
+        with open(path, "w") as opened_file:
+            opened_file.write(wr)
 
-    def load_table(self,path:str)->list:
-        """
+    def load_table(self, path: str) -> list:
+        """Loads the dfa from a txt file
 
         :param path: get input txt file path
         :return: return the 2D array of DFA
         """
         self.table = []
-        with open(path, "r") as f:
-            for line in f:
+        with open(path, "r") as opened_file:
+            for line in opened_file:
                 line.replace('\n', ' ')
-                temp = list(map(int,line.split()))
+                temp = list(map(int, line.split()))
                 self.table.append(temp)
-        f.close()
+
         return self.table
 
 

@@ -2,11 +2,13 @@ import Scanner
 import os
 
 
-def read_file(path):
-    f = open(path, "r")
-    b = f.readlines()
-    f.close()
-    return b
+def read_file(file_path):
+    """Reads a file from a given path
+
+    :param file_path: a path to the file 
+    """
+    with open(file_path, "r") as opened_file:
+        return opened_file.readlines()
 
 
 for i in range(10):
