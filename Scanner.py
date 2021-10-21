@@ -47,9 +47,11 @@ class Scanner:
         while True:
             token = self.get_next_token()
             if not token:
-                if self.current_state == 18 or self.current_state == 19:
-                    self.insert_error(line_number=self.line_number_of_comment, error_type=DFA.Error.unclosed_comment,
-                                      error_lexeme=self.current_lexeme)
+                if self.current_state == 18 or self.current_state == 19 or self.current_state == 15:
+                    if self.current_state !=15:
+                        self.insert_error(line_number=self.line_number_of_comment, error_type=DFA.Error.unclosed_comment,error_lexeme=self.current_lexeme)
+                    else:
+                        self.insert_error(line_number=self.line_number_of_comment,error_type=DFA.Error.invalid_input,error_lexeme=self.current_lexeme)
                 if self.current_state == 1 or self.current_state == 4 or self.current_state == 7 or self.current_state == 12:
                     next = self.current_state + 1
                     if self.current_state == 12 or self.current_state == 1:

@@ -90,10 +90,10 @@ class DFA:
 
         """ initialization of table """
         for i in range(256):
-
             if is_it_digit(i):
                 self.__digit_dfa_handler(table, i)
-
+            else:
+                table[1][i] = 2
             if is_it_letter(i):
                 self.__letter_dfa_handler(table, i)
 
