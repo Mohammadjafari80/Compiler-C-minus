@@ -1,1 +1,1 @@
-1.	(ID, a) (SYMBOL, =) (NUM, 4) 
+1.	(NUM, 0)

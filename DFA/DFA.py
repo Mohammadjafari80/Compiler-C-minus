@@ -39,7 +39,8 @@ class DFA:
         initialize the DFA module
         """
 
-        self.states = {-1: Node(node_name=-1, is_it_final=True, is_it_error=True, error_type=Error.invalid_input),
+        self.states = {-2: Node(node_name=-2, is_it_final=True, is_it_error=True, error_type=Error.invalid_input,lookahead = True),
+                        -1: Node(node_name=-1, is_it_final=True, is_it_error=True, error_type=Error.invalid_input),
                         0: Node(node_name=0),
                         1: Node(node_name=1),
                         2: Node(node_name=2, is_it_final=True, is_it_error=True, error_type=Error.invalid_number),
@@ -86,7 +87,7 @@ class DFA:
             Returns:
                 list: 2D list of all transitions and state
             """
-        table = [[-1 for i in range(256)] for j in range(20)]
+        table = [[(-2 if is_it_valid(i) else -1) for i in range(256)] for j in range(20)]
 
         """ initialization of table """
         for i in range(256):

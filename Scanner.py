@@ -89,7 +89,11 @@ class Scanner:
                         self.current_lexeme = ""
                         return token
                     if next_state.is_it_error:
-                        self.insert_error(self.line_number, next_state.error_type, self.current_lexeme+str(input_char))
+                        if next_state.lookahead:
+                            self.insert_error(self.line_number, next_state.error_type, self.current_lexeme)
+                        else:
+                            self.insert_error(self.line_number, next_state.error_type,
+                                              self.current_lexeme + str(input_char))
                     self.current_lexeme = ""
                     self.current_state = 0
                 else:
