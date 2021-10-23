@@ -1,6 +1,11 @@
 from enum import Enum
 from .CharHandler import *
 
+"""
+created by Amirhossein Bagheri - 98105621 -> ahbagheri01@gmail.com
+       &   Mohammad Jafari     - 98105654 -> mamad.jafari91@gmail.com
+"""
+
 
 class Node:
     def __init__(self, node_name, is_it_final=False, is_it_error=False, error_type=None,
@@ -39,7 +44,7 @@ class DFA:
         initialize the DFA module
         """
 
-        self.states = {-2: Node(node_name=-2, is_it_final=True, is_it_error=True, error_type=Error.invalid_input,lookahead = True),
+        self.states = {-2: Node(node_name=-2, is_it_final=True, is_it_error=True, error_type=Error.invalid_input, lookahead=True),
                         -1: Node(node_name=-1, is_it_final=True, is_it_error=True, error_type=Error.invalid_input),
                         0: Node(node_name=0),
                         1: Node(node_name=1),
@@ -131,7 +136,6 @@ class DFA:
                 table[16][i] = 16
 
         return table
-
 
     @staticmethod
     def __digit_dfa_handler(table, i):

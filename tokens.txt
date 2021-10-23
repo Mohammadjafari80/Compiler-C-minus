@@ -1,1 +1,1 @@
-1.	(ID, as)
+1.	(ID, hello)

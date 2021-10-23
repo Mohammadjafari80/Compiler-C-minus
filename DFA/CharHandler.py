@@ -1,3 +1,9 @@
+"""
+created by Amirhossein Bagheri - 98105621 -> ahbagheri01@gmail.com
+       &   Mohammad Jafari     - 98105654 -> mamad.jafari91@gmail.com
+"""
+
+
 def is_it_symbol(c: int) -> bool:
     """Gets a character unicode and determines if it is a symbol
 
