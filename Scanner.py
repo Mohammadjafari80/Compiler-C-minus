@@ -112,12 +112,12 @@ class Scanner:
         :param error_type: The type of the error
         :param error_lexeme: The lexeme of the error
         """
-        error_lexeme = error_lexeme.replace("\n", "")
         if error_type == DFA.Error.unclosed_comment:
             if len(error_lexeme) > 7:
                 error_lexeme = f"{error_lexeme[0:7]}..."
             else:
                 error_lexeme = f"{error_lexeme}..."
+            error_lexeme = error_lexeme.replace("\n", "")
         temp = self.error_table.get(line_number, None)
         if temp is None:
             self.error_table[line_number] = f"({error_lexeme}, {error_type.value})"

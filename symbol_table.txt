@@ -6,3 +6,4 @@
 6.	break
 7.	until
 8.	return
+9.	as
