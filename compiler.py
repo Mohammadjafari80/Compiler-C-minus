@@ -5,4 +5,8 @@ import Scanner
 
 path = "./input.txt"
 scanner = Scanner.Scanner(path)
-scanner.scan()
+token = "start"
+while (token != "$"):
+    token = scanner.get_next_token()
+    print(token)
+

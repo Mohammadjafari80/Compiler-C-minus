@@ -42,30 +42,30 @@ class Scanner:
         self.token_table = {}
         self.line_number_of_comment = 0
 
-    def scan(self):
-        """Handles the scan and whole process of making the tables if we reach the end of file"""
-        while True:
-            token = self.get_next_token()
-            if not token:
-                if self.current_state == 18 or self.current_state == 19 or self.current_state == 15:
-                    if self.current_state !=15:
-                        self.insert_error(line_number=self.line_number_of_comment, error_type=DFA.Error.unclosed_comment,error_lexeme=self.current_lexeme)
-                    else:
-                        self.insert_error(line_number=self.line_number_of_comment,error_type=DFA.Error.invalid_input,error_lexeme=self.current_lexeme)
-                if self.current_state == 1 or self.current_state == 4 or self.current_state == 7 or self.current_state == 12:
-                    next = self.current_state + 1
-                    if self.current_state == 12 or self.current_state == 1:
-                        next += 1
-                    token = self.get_token_string(self.DFA.states[next],self.current_lexeme)
-                    self.insert_token(token=token, line_number=self.line_number)
-                self.input_file.close()
-                self.save_token()
-                self.save_errors()
-                self.symbol_Table.save_symbol_table(self.symbol_address)
-                return
-            self.insert_token(token=token, line_number=self.line_number)
-
     def get_next_token(self):
+        """Handles the scan and whole process of making the tables if we reach the end of file"""
+        token = self.get_next_token_scanner()
+        if not token:
+            if self.current_state == 18 or self.current_state == 19 or self.current_state == 15:
+                if self.current_state !=15:
+                    self.insert_error(line_number=self.line_number_of_comment, error_type=DFA.Error.unclosed_comment,error_lexeme=self.current_lexeme)
+                else:
+                    self.insert_error(line_number=self.line_number_of_comment,error_type=DFA.Error.invalid_input,error_lexeme=self.current_lexeme)
+            if self.current_state == 1 or self.current_state == 4 or self.current_state == 7 or self.current_state == 12:
+                next = self.current_state + 1
+                if self.current_state == 12 or self.current_state == 1:
+                    next += 1
+                token = self.get_token_string(self.DFA.states[next],self.current_lexeme)
+                self.insert_token(token=token, line_number=self.line_number)
+            self.input_file.close()
+            self.save_token()
+            self.save_errors()
+            self.symbol_Table.save_symbol_table(self.symbol_address)
+            return "$"
+        self.insert_token(token=token, line_number=self.line_number)
+        return token
+
+    def get_next_token_scanner(self):
         """Looks for the next Token in the line until it finds one
 
         :return: The found token
@@ -75,7 +75,6 @@ class Scanner:
                 input_char = self.buffer[self.char_index]
                 ascii_code = ord(input_char)
                 next_state = self.DFA.get_state(self.current_state, ascii_code)
-                # TODO check for better solution
                 if next_state.node_name == 15:
                     self.line_number_of_comment = self.line_number
                 if next_state.is_it_final:
