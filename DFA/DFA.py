@@ -21,7 +21,7 @@ class Node:
         self.token_type = token_type
         self.token_matter = token_matter
 
-
+from enum import Enum
 class Token(Enum):
     id = "ID"
     keyword = "KEYWORD"
