@@ -1,7 +1,7 @@
 {
-  "Program": ["\u0000"],
+  "Program": ["$"],
   "Declaration-list": [
-    "\u0000",
+    "$",
     "{",
     "break",
     ";",
@@ -16,7 +16,7 @@
   "Declaration": [
     "int",
     "void",
-    "\u0000",
+    "$",
     "{",
     "break",
     ";",
@@ -32,7 +32,7 @@
   "Declaration-prime": [
     "int",
     "void",
-    "\u0000",
+    "$",
     "{",
     "break",
     ";",
@@ -47,7 +47,7 @@
   "Var-declaration-prime": [
     "int",
     "void",
-    "\u0000",
+    "$",
     "{",
     "break",
     ";",
@@ -62,7 +62,7 @@
   "Fun-declaration-prime": [
     "int",
     "void",
-    "\u0000",
+    "$",
     "{",
     "break",
     ";",
@@ -82,7 +82,7 @@
   "Compound-stmt": [
     "int",
     "void",
-    "\u0000",
+    "$",
     "{",
     "break",
     ";",

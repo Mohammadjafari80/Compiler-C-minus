@@ -1,5 +1,5 @@
 {
-  "Program": ["\u0000", "int", "void"],
+  "Program": [null, "int", "void"],
   "Declaration-list": [null, "int", "void"],
   "Declaration": ["int", "void"],
   "Declaration-initial": ["int", "void"],
