@@ -190,7 +190,8 @@ class SymbolTable:
                       "repeat": 5,
                       "break": 6,
                       "until": 7,
-                      "return": 8
+                      "return": 8,
+                      "endif" : 9
                       }
         self.last_id = 9
 
