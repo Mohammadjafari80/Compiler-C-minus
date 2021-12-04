@@ -1,1 +1,1 @@
-2.	(KEYWORD, int) (ID, ftyf) (SYMBOL, =) (NUM, 8)
+1.	(KEYWORD, int) (ID, ftyf) (SYMBOL, =) (NUM, 8)

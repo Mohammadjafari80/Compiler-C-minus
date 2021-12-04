@@ -20,12 +20,10 @@ class parser:
         self.predict = self.transition_diagram.predict
         self.NT = self.transition_diagram.non_terminals
         self.T = self.transition_diagram.terminals
-        print(self.T)
         self.stateN = self.transition_diagram.state_number
         self.scanner = Scanner.Scanner(scanner_path)
         self.stack = []
         self.push(self.diagrams[self.NT[0]])
-        print(self.front())
         self.current_token = self.scanner.get_next_token()
         self.cur_state = self.front()
         self.p_token = parse_token()
@@ -37,6 +35,9 @@ class parser:
         return self.stack.pop()
     def push(self,node:TD.state):
         self.stack.append(node)
+    def get_next_token(self):
+        self.current_token = self.scanner.get_next_token()
+        self.p_token.set_info(self.current_token)
 
 
     def parse(self):
@@ -47,6 +48,8 @@ class parser:
                         temp = self.cur_state.states.get(production,None)
                         if temp != None:
                             self.cur_state = temp
+                            self.get_next_token()
+                            break
                     else:
                         if self.p_token.code_value in self.first[production]:
                             self.push(self.cur_state.states[production])
@@ -54,10 +57,10 @@ class parser:
                             self.cur_state = self.front()
                             break
                         else:
-                            pass
-
-            self.current_token = self.scanner.get_next_token()
+                            print("error")
+            self.pop()
+            self.cur_state = self.pop()
 scanner_path = "./input.txt"
 p = parser(scanner_path)
 p.parse()
-print(self.stack)
+#print(p.stack)
