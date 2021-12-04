@@ -44,22 +44,20 @@ class parser:
             while self.cur_state.stateType != TD.StateType.ACC:
                 for production in self.cur_state.states.keys():
                     if production in self.T:
-                        return
+                        temp = self.cur_state.states.get(production,None)
+                        if temp != None:
+                            self.cur_state = temp
                     else:
                         if self.p_token.code_value in self.first[production]:
                             self.push(self.cur_state.states[production])
                             self.push(self.diagrams[production])
+                            self.cur_state = self.front()
                             break
                         else:
                             pass
-                self.cur_state = self.front()
+
             self.current_token = self.scanner.get_next_token()
-
-
-
-
-
-        pass
 scanner_path = "./input.txt"
 p = parser(scanner_path)
 p.parse()
+print(self.stack)
