@@ -6,7 +6,6 @@
 6.	break
 7.	until
 8.	return
-9.	main
-10.	prod
-11.	i
-12.	output
+9.	endif
+9.	asas
+10.	ftyf

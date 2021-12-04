@@ -1,7 +1,5 @@
 from enum import Enum
 import json
-
-
 class first_follow_predict:
 	firsts = [['ε', 'int', 'void'], ['ε', 'int', 'void'], ['int', 'void'], ['int', 'void'], ['(', ';', '['], [';', '['], ['('], ['int', 'void'], ['int', 'void'], [',', 'ε'], ['int', 'void'], ['[', 'ε'], ['{'], ['ε', '{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM'], ['{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM'], ['break', ';', 'ID', '(', 'NUM'], ['if'], ['endif', 'else'], ['repeat'], ['return'], [';', 'ID', '(', 'NUM'], ['ID', '(', 'NUM'], ['=', '[', '(', '*', '+', '-', '<', '==', 'ε'], ['=', '*', 'ε', '+', '-', '<', '=='], ['(', 'NUM'], ['(', '*', '+', '-', '<', '==', 'ε'], ['ε', '<', '=='], ['<', '=='], ['(', 'ID', 'NUM'], ['(', '*', '+', '-', 'ε'], ['(', 'NUM'], ['ε', '+', '-'], ['+', '-'], ['(', 'ID', 'NUM'], ['(', '*', 'ε'], ['(', 'NUM'], ['*', 'ε'], ['(', 'ID', 'NUM'], ['(', '[', 'ε'], ['[', 'ε'], ['(', 'ε'], ['(', 'NUM'], ['ε', 'ID', '(', 'NUM'], ['ID', '(', 'NUM'], [',', 'ε']]
 	follows = [['$'], ['$', '{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}'], ['int', 'void', '$', '{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}'], ['(', ';', '[', ',', ')'], ['int', 'void', '$', '{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}'], ['int', 'void', '$', '{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}'], ['int', 'void', '$', '{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}'], ['ID'], [')'], [')'], [',', ')'], [',', ')'], ['int', 'void', '$', '{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}', 'endif', 'else', 'until'], ['}'], ['{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}', 'endif', 'else', 'until'], ['{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}', 'endif', 'else', 'until'], ['{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}', 'endif', 'else', 'until'], ['{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}', 'endif', 'else', 'until'], ['{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}', 'endif', 'else', 'until'], ['{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}', 'endif', 'else', 'until'], ['{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}', 'endif', 'else', 'until'], [';', ')', ']', ','], [';', ')', ']', ','], [';', ')', ']', ','], [';', ')', ']', ','], [';', ')', ']', ','], [';', ')', ']', ','], ['(', 'ID', 'NUM'], [';', ')', ']', ','], ['<', '==', ';', ')', ']', ','], ['<', '==', ';', ')', ']', ','], ['<', '==', ';', ')', ']', ','], ['(', 'ID', 'NUM'], ['+', '-', ';', ')', '<', '==', ']', ','], ['+', '-', '<', '==', ';', ')', ']', ','], ['+', '-', '<', '==', ';', ')', ']', ','], ['+', '-', '<', '==', ';', ')', ']', ','], ['*', '+', '-', ';', ')', '<', '==', ']', ','], ['*', '+', '-', ';', ')', '<', '==', ']', ','], ['*', '+', '-', ';', ')', '<', '==', ']', ','], ['*', '+', '-', '<', '==', ';', ')', ']', ','], ['*', '+', '-', '<', '==', ';', ')', ']', ','], [')'], [')'], [')']]
@@ -13,24 +11,14 @@ class StateType(Enum):
     MID = "MID"
     START = "Start"
     ACC = "Acc"
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__,
-            sort_keys=True)
 
-
-class state(object):
+class state:
     def __init__(self,n,state_type = StateType.MID ):
         self.stateType = state_type
-        # if state_type != StateType.ACC:
-        #     print(n)
         self.number = n
         self.states = {}
-
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__, indent=4)
-
-    def add_state(self, n, index, t, accepting):
-        if index >= len(t):
+    def add_state(self,n,index,t,accepting):
+        if (index >= len(t) ):
             return
         if index == len(t) - 1:
             self.states[t[index]] = accepting
@@ -41,17 +29,18 @@ class state(object):
         temp.add_state(temp.number, index+1, t, accepting)
 
 
+
+
 class diagram:
-    def __init__(self, address):
+    def __init__(self):
         self.state_number = 0
-        self.grammar = json.load(open("grammer.json"))
-        self.first = json.load(open("./files/first.json"))
-        self.follow = json.load(open("./files/follow.json"))
-        self.predict = json.load(open("./files/predict.json"))
-        self.non_terminals = set(self.grammar.keys())
-        self.terminals = set(self.flatten(list(self.grammar.values()))) - self.non_terminals
+        self.grammar = json.load(open("./parser_utils/grammer.json"))
+        self.first = json.load(open("./parser_utils/files/first.json"))
+        self.follow = json.load(open("./parser_utils/files/follow.json"))
+        self.predict = json.load(open("./parser_utils/files/predict.json"))
+        self.non_terminals = list(self.grammar.keys())
+        self.terminals = set(self.flatten(list(self.grammar.values()))) - set(self.non_terminals)
         self.diagrams = {}
-        print(self.terminals)
         for NT in self.non_terminals:
             self.diagrams[NT] = self.create_diagram_each(self.grammar[NT])
 
@@ -63,12 +52,10 @@ class diagram:
             self.state_number = accepting.number
         self.state_number = accepting.number + 1
         accepting.number = self.state_number
-        # print(accepting.number)
         self.state_number = self.state_number + 1
         return starting
 
-    def create_action_table(self):
-        pass
+
 
     def flatten(self, x):
         if isinstance(x, list):
@@ -76,8 +63,3 @@ class diagram:
         else:
             return [x]
 
-
-
-
-
-d = diagram("grammer.json")

@@ -1,1 +1,2 @@
-/ as
+
+int ftyf = 8

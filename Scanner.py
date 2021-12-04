@@ -46,6 +46,9 @@ class Scanner:
         self.error_table = {}
         self.token_table = {}
         self.line_number_of_comment = 0
+    def get_line_number(self):
+        return self.line_number
+
 
     def get_next_token(self):
         """Handles the scan and whole process of making the tables if we reach the end of file"""

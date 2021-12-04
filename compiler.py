@@ -4,10 +4,8 @@ created by Amirhossein Bagheri - 98105621 -> ahbagheri01@gmail.com
 """
 import Scanner
 import Parser
-path = "./input.txt"
-scanner = Scanner.Scanner(path)
-token = "start"
-while (token != "$"):
-    token = scanner.get_next_token()
-    print(token)
+scanner_path = "./input.txt"
+#scanner = Scanner.Scanner(path)
+parser = Parser.parser(scanner_path)
+parser.parse()
 

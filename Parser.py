@@ -1,15 +1,65 @@
 import Scanner
-class first_follow_predict:
-	firsts = [['ε', 'int', 'void'], ['ε', 'int', 'void'], ['int', 'void'], ['int', 'void'], ['(', ';', '['], [';', '['], ['('], ['int', 'void'], ['int', 'void'], [',', 'ε'], ['int', 'void'], ['[', 'ε'], ['{'], ['ε', '{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM'], ['{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM'], ['break', ';', 'ID', '(', 'NUM'], ['if'], ['endif', 'else'], ['repeat'], ['return'], [';', 'ID', '(', 'NUM'], ['ID', '(', 'NUM'], ['=', '[', '(', '*', '+', '-', '<', '==', 'ε'], ['=', '*', 'ε', '+', '-', '<', '=='], ['(', 'NUM'], ['(', '*', '+', '-', '<', '==', 'ε'], ['ε', '<', '=='], ['<', '=='], ['(', 'ID', 'NUM'], ['(', '*', '+', '-', 'ε'], ['(', 'NUM'], ['ε', '+', '-'], ['+', '-'], ['(', 'ID', 'NUM'], ['(', '*', 'ε'], ['(', 'NUM'], ['*', 'ε'], ['(', 'ID', 'NUM'], ['(', '[', 'ε'], ['[', 'ε'], ['(', 'ε'], ['(', 'NUM'], ['ε', 'ID', '(', 'NUM'], ['ID', '(', 'NUM'], [',', 'ε']]
-	follows = [['$'], ['$', '{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}'], ['int', 'void', '$', '{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}'], ['(', ';', '[', ',', ')'], ['int', 'void', '$', '{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}'], ['int', 'void', '$', '{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}'], ['int', 'void', '$', '{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}'], ['ID'], [')'], [')'], [',', ')'], [',', ')'], ['int', 'void', '$', '{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}', 'endif', 'else', 'until'], ['}'], ['{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}', 'endif', 'else', 'until'], ['{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}', 'endif', 'else', 'until'], ['{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}', 'endif', 'else', 'until'], ['{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}', 'endif', 'else', 'until'], ['{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}', 'endif', 'else', 'until'], ['{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}', 'endif', 'else', 'until'], ['{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}', 'endif', 'else', 'until'], [';', ')', ']', ','], [';', ')', ']', ','], [';', ')', ']', ','], [';', ')', ']', ','], [';', ')', ']', ','], [';', ')', ']', ','], ['(', 'ID', 'NUM'], [';', ')', ']', ','], ['<', '==', ';', ')', ']', ','], ['<', '==', ';', ')', ']', ','], ['<', '==', ';', ')', ']', ','], ['(', 'ID', 'NUM'], ['+', '-', ';', ')', '<', '==', ']', ','], ['+', '-', '<', '==', ';', ')', ']', ','], ['+', '-', '<', '==', ';', ')', ']', ','], ['+', '-', '<', '==', ';', ')', ']', ','], ['*', '+', '-', ';', ')', '<', '==', ']', ','], ['*', '+', '-', ';', ')', '<', '==', ']', ','], ['*', '+', '-', ';', ')', '<', '==', ']', ','], ['*', '+', '-', '<', '==', ';', ')', ']', ','], ['*', '+', '-', '<', '==', ';', ')', ']', ','], [')'], [')'], [')']]
-	predicts = [['int', 'void', '$'], ['int', 'void'], ['$', '{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM', '}'], ['int', 'void'], ['int', 'void'], ['('], [';', '['], [';'], ['['], ['('], ['int'], ['void'], ['int'], ['void'], [','], [')'], ['int', 'void'], ['['], [',', ')'], ['{'], ['{', 'break', ';', 'if', 'repeat', 'return', 'ID', '(', 'NUM'], ['}'], ['break', ';', 'ID', '(', 'NUM'], ['{'], ['if'], ['repeat'], ['return'], ['ID', '(', 'NUM'], ['break'], [';'], ['if'], ['endif'], ['else'], ['repeat'], ['return'], [';'], ['ID', '(', 'NUM'], ['(', 'NUM'], ['ID'], ['='], ['['], ['(', '*', '+', '-', '<', '==', ';', ')', ']', ','], ['='], ['*', '+', '-', '<', '==', ';', ')', ']', ','], ['(', 'NUM'], ['(', '*', '+', '-', '<', '==', ';', ')', ']', ','], ['<', '=='], [';', ')', ']', ','], ['<'], ['=='], ['(', 'ID', 'NUM'], ['(', '*', '+', '-', '<', '==', ';', ')', ']', ','], ['(', 'NUM'], ['+', '-'], ['<', '==', ';', ')', ']', ','], ['+'], ['-'], ['(', 'ID', 'NUM'], ['(', '*', '+', '-', '<', '==', ';', ')', ']', ','], ['(', 'NUM'], ['*'], ['+', '-', '<', '==', ';', ')', ']', ','], ['('], ['ID'], ['NUM'], ['('], ['[', '*', '+', '-', ';', ')', '<', '==', ']', ','], ['['], ['*', '+', '-', ';', ')', '<', '==', ']', ','], ['('], ['*', '+', '-', '<', '==', ';', ')', ']', ','], ['('], ['NUM'], ['ID', '(', 'NUM'], [')'], ['ID', '(', 'NUM'], [','], [')']]
-	non_terminals = ['Program', 'Declaration_list', 'Declaration', 'Declaration_initial', 'Declaration_prime', 'Var_declaration_prime', 'Fun_declaration_prime', 'Type_specifier', 'Params', 'Param_list', 'Param', 'Param_prime', 'Compound_stmt', 'Statement_list', 'Statement', 'Expression_stmt', 'Selection_stmt', 'Else_stmt', 'Iteration_stmt', 'Return_stmt', 'Return_stmt_prime', 'Expression', 'B', 'H', 'Simple_expression_zegond', 'Simple_expression_prime', 'C', 'Relop', 'Additive_expression', 'Additive_expression_prime', 'Additive_expression_zegond', 'D', 'Addop', 'Term', 'Term_prime', 'Term_zegond', 'G', 'Factor', 'Var_call_prime', 'Var_prime', 'Factor_prime', 'Factor_zegond', 'Args', 'Arg_list', 'Arg_list_prime']
-class parser:
-    def __init__(self,grammer):
-        pass
-    def parse(self):
-        pass
+#import anytree
+import parser_utils.Transition_diagram as TD
+class parse_token:
+    def __init__(self):
+        self.type = None
+        self.value = ""
+        self.code_value = ""
+    def set_info(self,token):
+        token = token.split(",")
+        self.value = token[0][1:]
+        self.code_value = token[1][1:len(token[1])-1]
 
-f = first_follow_predict()
-print(len(f.firsts) == len(f.follows) == len(f.non_terminals))
-print(len(f.firsts) == len(f.follows) == len(f.non_terminals) == len(f.predicts))
+class parser:
+    def __init__(self,scanner_path):
+        self.transition_diagram = TD.diagram()
+        self.diagrams = self.transition_diagram.diagrams
+        self.first = self.transition_diagram.first
+        self.follow = self.transition_diagram.follow
+        self.predict = self.transition_diagram.predict
+        self.NT = self.transition_diagram.non_terminals
+        self.T = self.transition_diagram.terminals
+        print(self.T)
+        self.stateN = self.transition_diagram.state_number
+        self.scanner = Scanner.Scanner(scanner_path)
+        self.stack = []
+        self.push(self.diagrams[self.NT[0]])
+        print(self.front())
+        self.current_token = self.scanner.get_next_token()
+        self.cur_state = self.front()
+        self.p_token = parse_token()
+        self.p_token.set_info(self.current_token)
+
+    def front(self)-> TD.state:
+        return self.stack[len(self.stack)-1]
+    def pop(self)-> TD.state:
+        return self.stack.pop()
+    def push(self,node:TD.state):
+        self.stack.append(node)
+
+
+    def parse(self):
+        while(self.current_token !="$"):
+            while self.cur_state.stateType != TD.StateType.ACC:
+                for production in self.cur_state.states.keys():
+                    if production in self.T:
+                        return
+                    else:
+                        if self.p_token.code_value in self.first[production]:
+                            self.push(self.cur_state.states[production])
+                            self.push(self.diagrams[production])
+                            break
+                        else:
+                            pass
+                self.cur_state = self.front()
+            self.current_token = self.scanner.get_next_token()
+
+
+
+
+
+        pass
+scanner_path = "./input.txt"
+p = parser(scanner_path)
+p.parse()
