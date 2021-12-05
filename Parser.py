@@ -122,10 +122,15 @@ class Parser:
             self.current_node = self.current_node.parent
         if self.stack[0].number == 0 and self.current_token == "$":
             print("accepted")
+        self.write_to_file()
 
+    def write_to_file(self, address='./parse_tree.txt'):
+        tree = ''
         for pre, fill, node in RenderTree(self.root):
-            print("%s%s" % (pre, node.name))
+            tree += "%s%s\n" % (pre, node.name)
 
+        with open(address, "w", encoding="utf-8") as opened_file:
+            opened_file.write(tree)
 
 scanner_path = ".//PA2_testcases/T05/input.txt"
 p = Parser(scanner_path)
