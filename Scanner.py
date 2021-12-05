@@ -29,6 +29,7 @@ class Scanner:
         this function is called at the instantiation of module Scanner
         :arg
         path : the path of the file to be written and compiled by program
+        path : the path of the file to be written and compiled by program
         """
         self.input_address = path
         self.input_file = open(path, "r")
@@ -196,7 +197,8 @@ class SymbolTable:
                       "return": 8,
                       "endif" : 9
                       }
-        self.last_id = 9
+        self.last_keyword = len(self.table)
+        self.last_id = self.last_keyword+1
 
     def get_token(self, lexeme: str) -> (int, DFA.Token, str):
         """Gives the token id and its lexeme and adds it to the symbol table if doesn't already exists
@@ -208,7 +210,7 @@ class SymbolTable:
             self.table[lexeme] = self.last_id
             self.last_id += 1
             return self.last_id, DFA.Token.id, lexeme
-        if temp <= 8:
+        if temp <= self.last_keyword:
             return temp, DFA.Token.keyword, lexeme
         return temp, DFA.Token.id, lexeme
 

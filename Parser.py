@@ -48,7 +48,7 @@ class parser:
             self.p_token.code_value = "$"
     def print_stack(self):
         for i in self.stack:
-            if str(i) == "107":
+            if str(i) == "62":
                print(end = "")
             print(i,end=" ")
         print("")
@@ -57,9 +57,7 @@ class parser:
     def parse(self): # TODO add panic mode recovery and also add tree
         while(True):
             while self.cur_state.stateType != TD.StateType.ACC:
-                self.print_stack()
-                if self.p_token.code_value == "}":
-                    print("hi")
+                #self.print_stack()
                 for production in self.cur_state.states.keys():
                     if production in self.T:
                         if production == self.p_token.code_value:
@@ -92,7 +90,7 @@ class parser:
 
         if self.stack[0].number == 0 and self.current_token == "$":
             print("accepted")
-scanner_path = "./p2Test/PA2_testcases/T03/input.txt"
+scanner_path = "./p2Test/PA2_testcases/T05/input.txt"
 p = parser(scanner_path)
 p.parse()
 print(p.stack)

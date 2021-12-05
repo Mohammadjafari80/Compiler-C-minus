@@ -7,6 +7,8 @@
 7.	until
 8.	return
 9.	endif
-9.	main
-10.	a
-11.	b
+10.	fun
+11.	a
+12.	main
+13.	ozra
+14.	bahram
