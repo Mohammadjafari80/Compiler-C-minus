@@ -1,5 +1,6 @@
 import Scanner
-#import anytree
+import anytree
+#from  Any_tree import anytree as anytree
 import parser_utils.Transition_diagram as TD
 class parse_token:
     def __init__(self):
@@ -15,7 +16,6 @@ class parse_token:
             self.code_value = token[1][1:len(token[1])-1]
         elif self.type == "NUM" or self.type == "ID":
             self.code_value = self.type
-
 class parser:
     def __init__(self,scanner_path):
         self.transition_diagram = TD.diagram()
@@ -33,7 +33,6 @@ class parser:
         self.cur_state = self.front()
         self.p_token = parse_token()
         self.p_token.set_info(self.current_token)
-
     def front(self)-> TD.state:
         return self.stack[len(self.stack)-1]
     def pop(self)-> TD.state:
@@ -52,12 +51,10 @@ class parser:
                print(end = "")
             print(i,end=" ")
         print("")
-
-
     def parse(self): # TODO add panic mode recovery and also add tree
         while(True):
             while self.cur_state.stateType != TD.StateType.ACC:
-                #self.print_stack()
+                self.print_stack()
                 for production in self.cur_state.states.keys():
                     if production in self.T:
                         if production == self.p_token.code_value:
@@ -84,10 +81,6 @@ class parser:
                 break
             self.pop()
             self.cur_state = self.pop()
-
-
-
-
         if self.stack[0].number == 0 and self.current_token == "$":
             print("accepted")
 scanner_path = "./p2Test/PA2_testcases/T05/input.txt"
