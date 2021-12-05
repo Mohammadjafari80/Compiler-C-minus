@@ -2,6 +2,15 @@ import Scanner
 import anytree
 #from  Any_tree import anytree as anytree
 import parser_utils.Transition_diagram as TD
+from anytree import Node, RenderTree
+udo = Node("Udo")
+marc = Node("Marc", parent=udo)
+lian = Node("Lian", parent=marc)
+dan = Node("Dan", parent=udo)
+jet = Node("Jet", parent=dan)
+jan = Node("Jan", parent=dan)
+joe = Node("Joe", parent=dan)
+print(joe)
 class parse_token:
     def __init__(self):
         self.type = None
