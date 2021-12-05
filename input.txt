@@ -1,1 +1,1 @@
-int ftyf = 8
+int ftyf ;

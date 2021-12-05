@@ -8,6 +8,7 @@ class parse_token:
         self.code_value = ""
     def set_info(self,token):
         token = token.split(",")
+        print(token)
         self.value = token[0][1:]
         self.code_value = token[1][1:len(token[1])-1]
 
@@ -37,11 +38,13 @@ class parser:
         self.stack.append(node)
     def get_next_token(self):
         self.current_token = self.scanner.get_next_token()
-        self.p_token.set_info(self.current_token)
+        if self.current_token != "$":
+            self.p_token.set_info(self.current_token)
 
 
     def parse(self):
-        while(self.current_token !="$"):
+
+        while(True):
             while self.cur_state.stateType != TD.StateType.ACC:
                 for production in self.cur_state.states.keys():
                     if production in self.T:
@@ -56,11 +59,18 @@ class parser:
                             self.push(self.diagrams[production])
                             self.cur_state = self.front()
                             break
-                        else:
-                            print("error")
+                        elif None in self.first[production] and self.p_token.code_value in self.follow[production]:
+                            self.pop()
+                            self.cur_state = self.pop()
+                            break
+            if len(self.stack) < 2:
+                break
             self.pop()
             self.cur_state = self.pop()
+
+        if self.stack[0].number == 0 and self.current_token == "$":
+            print("accepted")
 scanner_path = "./input.txt"
 p = parser(scanner_path)
 p.parse()
-#print(p.stack)
+print(p.stack)
