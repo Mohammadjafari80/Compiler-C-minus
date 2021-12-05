@@ -1,33 +1,33 @@
 import Scanner
 import anytree
-#from  Any_tree import anytree as anytree
+# from  Any_tree import anytree as anytree
 import parser_utils.Transition_diagram as TD
 from anytree import Node, RenderTree
-udo = Node("Udo")
-marc = Node("Marc", parent=udo)
-lian = Node("Lian", parent=marc)
-dan = Node("Dan", parent=udo)
-jet = Node("Jet", parent=dan)
-jan = Node("Jan", parent=dan)
-joe = Node("Joe", parent=dan)
-print(joe)
-class parse_token:
+
+EPSILON = None
+
+
+class ParseToken:
     def __init__(self):
         self.type = None
         self.value = ""
         self.code_value = ""
-    def set_info(self,token):
+
+    def set_info(self, token):
         print(token)
         token = token.split(",")
         self.type = token[0][1:]
-        self.value =  token[1][1:len(token[1])-1]
-        if self.type == "KEYWORD"  or  self.type=="SYMBOL":
-            self.code_value = token[1][1:len(token[1])-1]
+        self.value = token[1][1:len(token[1]) - 1]
+        if self.type == "KEYWORD" or self.type == "SYMBOL":
+            self.code_value = token[1][1:len(token[1]) - 1]
         elif self.type == "NUM" or self.type == "ID":
             self.code_value = self.type
-class parser:
-    def __init__(self,scanner_path):
-        self.transition_diagram = TD.diagram()
+
+
+class Parser:
+
+    def __init__(self, path):
+        self.transition_diagram = TD.Diagram()
         self.diagrams = self.transition_diagram.diagrams
         self.first = self.transition_diagram.first
         self.follow = self.transition_diagram.follow
@@ -35,64 +35,99 @@ class parser:
         self.NT = self.transition_diagram.non_terminals
         self.T = self.transition_diagram.terminals
         self.stateN = self.transition_diagram.state_number
-        self.scanner = Scanner.Scanner(scanner_path)
+        self.scanner = Scanner.Scanner(path)
         self.stack = []
         self.push(self.diagrams[self.NT[0]])
         self.current_token = self.scanner.get_next_token()
         self.cur_state = self.front()
-        self.p_token = parse_token()
+        self.p_token = ParseToken()
         self.p_token.set_info(self.current_token)
-    def front(self)-> TD.state:
-        return self.stack[len(self.stack)-1]
-    def pop(self)-> TD.state:
+        self.root = Node(self.cur_state.main_grammar)
+        self.current_node = self.root
+
+    def front(self) -> TD.State:
+        return self.stack[len(self.stack) - 1]
+
+    def pop(self) -> TD.State:
         return self.stack.pop()
-    def push(self,node:TD.state):
+
+    def push(self, node: TD.State):
         self.stack.append(node)
+
     def get_next_token(self):
         self.current_token = self.scanner.get_next_token()
         if self.current_token != "$":
             self.p_token.set_info(self.current_token)
         else:
             self.p_token.code_value = "$"
+
     def print_stack(self):
         for i in self.stack:
             if str(i) == "62":
-               print(end = "")
-            print(i,end=" ")
+                print(end="")
+            print(i, end=" ")
         print("")
-    def parse(self): # TODO add panic mode recovery and also add tree
-        while(True):
+
+    def handle_epsilons(self, state, node):
+        print(state.states.keys())
+        if 'null' in state.states.keys():
+            Node('epsilon', node)
+            return
+
+        for production in self.diagrams[state.main_grammar].states.keys():
+            if production in self.NT:
+                a = Node(self.diagrams[production].main_grammar, node)
+                self.handle_epsilons(self.diagrams[production], a)
+                for next_state in state.states[production].states.keys():
+                    b = Node(next_state, node)
+                    self.handle_epsilons(self.diagrams[next_state], b)
+
+    def parse(self):  # TODO add panic mode recovery and also add tree
+        while True:
             while self.cur_state.stateType != TD.StateType.ACC:
                 self.print_stack()
                 for production in self.cur_state.states.keys():
                     if production in self.T:
                         if production == self.p_token.code_value:
-                            temp = self.cur_state.states.get(production,None)
-                            if temp != None:
+                            temp = self.cur_state.states.get(production, None)
+                            if temp is not None:
+                                Node(f'({self.p_token.type}, {self.p_token.value})' if production != '$' else '$',
+                                     parent=self.current_node)
                                 self.cur_state = temp
                                 self.get_next_token()
                                 break
+
                     else:
                         if self.p_token.code_value in self.first[production]:
+                            self.current_node = Node(self.diagrams[production].main_grammar, parent=self.current_node)
                             self.push(self.cur_state.states[production])
                             self.push(self.diagrams[production])
                             self.cur_state = self.front()
                             break
-                        elif (None in self.first[production]):
+                        elif EPSILON in self.first[production]:
+                            a = Node(self.diagrams[production].main_grammar, parent=self.current_node)
                             self.cur_state = self.cur_state.states[production]
-
+                            self.handle_epsilons(self.diagrams[production], a)
                 else:
-                    if (None in self.first[self.cur_state.main_grammer] and self.p_token.code_value in self.follow[self.cur_state.main_grammer]):
+                    if (EPSILON in self.first[self.cur_state.main_grammar] and
+                            self.p_token.code_value in self.follow[self.cur_state.main_grammar]):
                         self.pop()
                         self.cur_state = self.pop()
+                        self.current_node = self.current_node.parent
 
             if len(self.stack) < 2:
                 break
             self.pop()
             self.cur_state = self.pop()
+            self.current_node = self.current_node.parent
         if self.stack[0].number == 0 and self.current_token == "$":
             print("accepted")
-scanner_path = "./p2Test/PA2_testcases/T05/input.txt"
-p = parser(scanner_path)
+
+        for pre, fill, node in RenderTree(self.root):
+            print("%s%s" % (pre, node.name))
+
+
+scanner_path = ".//PA2_testcases/T05/input.txt"
+p = Parser(scanner_path)
 p.parse()
 print(p.stack)

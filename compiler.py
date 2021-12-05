@@ -6,6 +6,6 @@ import Scanner
 import Parser
 scanner_path = "./input.txt"
 #scanner = Scanner.Scanner(path)
-parser = Parser.parser(scanner_path)
+parser = Parser.Parser(scanner_path)
 parser.parse()
 
