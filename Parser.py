@@ -61,7 +61,7 @@ class parser:
             if str(i) == "62":
                print(end = "")
             print(i,end=" ")
-        print("")
+        print("")#ioj
     def parse(self): # TODO add panic mode recovery and also add tree
         while(True):
             while self.cur_state.stateType != TD.StateType.ACC:
