@@ -11,6 +11,8 @@ jet = Node("Jet", parent=dan)
 jan = Node("Jan", parent=dan)
 joe = Node("Joe", parent=dan)
 print(joe)
+for pre, fill, node in RenderTree(udo):
+    print("%s%s" % (pre, node.name))
 class parse_token:
     def __init__(self):
         self.type = None
@@ -95,4 +97,3 @@ class parser:
 scanner_path = "./p2Test/PA2_testcases/T05/input.txt"
 p = parser(scanner_path)
 p.parse()
-print(p.stack)
