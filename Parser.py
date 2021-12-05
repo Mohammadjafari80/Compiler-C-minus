@@ -7,10 +7,14 @@ class parse_token:
         self.value = ""
         self.code_value = ""
     def set_info(self,token):
-        token = token.split(",")
         print(token)
-        self.value = token[0][1:]
-        self.code_value = token[1][1:len(token[1])-1]
+        token = token.split(",")
+        self.type = token[0][1:]
+        self.value =  token[1][1:len(token[1])-1]
+        if self.type == "KEYWORD"  or  self.type=="SYMBOL":
+            self.code_value = token[1][1:len(token[1])-1]
+        elif self.type == "NUM" or self.type == "ID":
+            self.code_value = self.type
 
 class parser:
     def __init__(self,scanner_path):
@@ -40,37 +44,55 @@ class parser:
         self.current_token = self.scanner.get_next_token()
         if self.current_token != "$":
             self.p_token.set_info(self.current_token)
+        else:
+            self.p_token.code_value = "$"
+    def print_stack(self):
+        for i in self.stack:
+            if str(i) == "107":
+               print(end = "")
+            print(i,end=" ")
+        print("")
 
 
     def parse(self):
-
         while(True):
             while self.cur_state.stateType != TD.StateType.ACC:
+                self.print_stack()
+                if self.p_token.code_value == "}":
+                    print("hi")
                 for production in self.cur_state.states.keys():
                     if production in self.T:
-                        temp = self.cur_state.states.get(production,None)
-                        if temp != None:
-                            self.cur_state = temp
-                            self.get_next_token()
-                            break
+                        if production == self.p_token.code_value:
+                            temp = self.cur_state.states.get(production,None)
+                            if temp != None:
+                                self.cur_state = temp
+                                self.get_next_token()
+                                break
                     else:
                         if self.p_token.code_value in self.first[production]:
                             self.push(self.cur_state.states[production])
                             self.push(self.diagrams[production])
                             self.cur_state = self.front()
                             break
-                        elif None in self.first[production] and self.p_token.code_value in self.follow[production]:
-                            self.pop()
-                            self.cur_state = self.pop()
-                            break
+                        elif (None in self.first[production]):
+                            self.cur_state = self.cur_state.states[production]
+
+                else:
+                    if (None in self.first[self.cur_state.main_grammer] and self.p_token.code_value in self.follow[self.cur_state.main_grammer]):
+                        self.pop()
+                        self.cur_state = self.pop()
+
             if len(self.stack) < 2:
                 break
             self.pop()
             self.cur_state = self.pop()
 
+
+
+
         if self.stack[0].number == 0 and self.current_token == "$":
             print("accepted")
-scanner_path = "./input.txt"
+scanner_path = "./p2Test/PA2_testcases/T02/input.txt"
 p = parser(scanner_path)
 p.parse()
 print(p.stack)

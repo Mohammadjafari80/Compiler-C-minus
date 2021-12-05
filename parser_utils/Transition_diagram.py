@@ -13,20 +13,23 @@ class StateType(Enum):
     ACC = "Acc"
 
 class state:
-    def __init__(self,n,state_type = StateType.MID ):
+    def __init__(self,n,mainG,state_type = StateType.MID ):
+        self.main_grammer = mainG
         self.stateType = state_type
         self.number = n
         self.states = {}
-    def add_state(self,n,index,t,accepting):
+    def add_state(self,n,index,t,accepting,NT):
         if (index >= len(t) ):
             return
         if index == len(t) - 1:
             self.states[t[index]] = accepting
             accepting.number = n
             return
-        temp = state(n+1)
+        temp = state(n+1,NT)
         self.states[t[index]] = temp
-        temp.add_state(temp.number, index+1, t, accepting)
+        temp.add_state(temp.number, index+1, t, accepting,NT)
+    def __str__(self):
+        return str(self.number)
 
 
 
@@ -42,13 +45,13 @@ class diagram:
         self.terminals = set(self.flatten(list(self.grammar.values()))) - set(self.non_terminals)
         self.diagrams = {}
         for NT in self.non_terminals:
-            self.diagrams[NT] = self.create_diagram_each(self.grammar[NT])
+            self.diagrams[NT] = self.create_diagram_each(self.grammar[NT],NT)
 
-    def create_diagram_each(self,productions):
-        starting = state(self.state_number, StateType.START)
-        accepting = state(self.state_number, StateType.ACC)
+    def create_diagram_each(self,productions,NT):
+        starting = state(self.state_number,NT, StateType.START)
+        accepting = state(self.state_number,NT, StateType.ACC)
         for product in productions:
-            starting.add_state(self.state_number, 0, product, accepting)
+            starting.add_state(self.state_number, 0, product, accepting,NT)
             self.state_number = accepting.number
         self.state_number = accepting.number + 1
         accepting.number = self.state_number
