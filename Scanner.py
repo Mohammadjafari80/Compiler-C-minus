@@ -24,18 +24,19 @@ class EOFERROR(Exception):
 
 class Scanner:
 
-    def __init__(self, path):
+    def __init__(self, path,save_path):
         """
         this function is called at the instantiation of module Scanner
         :arg
         path : the path of the file to be written and compiled by program
         path : the path of the file to be written and compiled by program
         """
-        self.input_address = path
-        self.input_file = open(path, "r")
-        self.symbol_address = "symbol_table.txt"
-        self.token_address = "tokens.txt"
-        self.error_address = "lexical_errors.txt"
+        self.save_path = save_path
+        self.input_address = path+'/input.txt'
+        self.input_file = open(self.input_address, "r")
+        self.symbol_address = save_path+"/symbol_table.txt"
+        self.token_address = save_path+"/tokens.txt"
+        self.error_address = save_path+"/lexical_errors.txt"
         self.line_number = 0
         self.char_index = 0
         self.current_state = 0

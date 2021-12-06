@@ -26,7 +26,8 @@ class ParseToken:
 
 class Parser:
 
-    def __init__(self, path):
+    def __init__(self, path,save_path):
+        self.save_path = save_path
         self.transition_diagram = TD.Diagram()
         self.diagrams = self.transition_diagram.diagrams
         self.first = self.transition_diagram.first
@@ -35,7 +36,7 @@ class Parser:
         self.NT = self.transition_diagram.non_terminals
         self.T = self.transition_diagram.terminals
         self.stateN = self.transition_diagram.state_number
-        self.scanner = Scanner.Scanner(path)
+        self.scanner = Scanner.Scanner(path,save_path)
         self.stack = []
         self.push(self.diagrams[self.NT[0]])
         self.current_token = self.scanner.get_next_token()
@@ -124,14 +125,16 @@ class Parser:
             print("accepted")
         self.write_to_file()
 
-    def write_to_file(self, address='./parse_tree.txt'):
+    def write_to_file(self, address=  '/parse_tree.txt'):
         tree = ''
         for pre, fill, node in RenderTree(self.root):
             tree += "%s%s\n" % (pre, node.name)
 
-        with open(address, "w", encoding="utf-8") as opened_file:
+        with open(self.save_path +address, "w", encoding="utf-8") as opened_file:
             opened_file.write(tree)
-
-scanner_path = ".//PA2_testcases/T05/input.txt"
-p = Parser(scanner_path)
-p.parse()
+        opened_file.close()
+for i in range(1,6):
+    save_path = ".//PA2_testcases/T0"+str(i)
+    scanner_path = ".//PA2_testcases/T0"+str(i)
+    p = Parser(scanner_path,save_path)
+    p.parse()
