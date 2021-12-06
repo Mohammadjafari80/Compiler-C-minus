@@ -14,7 +14,7 @@ class ParseToken:
         self.code_value = ""
 
     def set_info(self, token):
-        print(token)
+        #print(token)
         token = token.split(",")
         self.type = token[0][1:]
         self.value = token[1][1:len(token[1]) - 1]
@@ -69,7 +69,7 @@ class Parser:
         print("")
 
     def handle_epsilons(self, state, node):
-        print(state.states.keys())
+        #print(state.states.keys())
         if 'null' in state.states.keys():
             Node('epsilon', node)
             return
@@ -85,7 +85,7 @@ class Parser:
     def parse(self):  # TODO add panic mode recovery and also add tree
         while True:
             while self.cur_state.stateType != TD.StateType.ACC:
-                self.print_stack()
+                #self.print_stack()
                 for production in self.cur_state.states.keys():
                     if production in self.T:
                         if production == self.p_token.code_value:
@@ -135,4 +135,3 @@ class Parser:
 scanner_path = ".//PA2_testcases/T05/input.txt"
 p = Parser(scanner_path)
 p.parse()
-print(p.stack)
