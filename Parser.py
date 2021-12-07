@@ -28,6 +28,8 @@ class ParseToken:
             self.code_value = token[1][1:len(token[1]) - 1]
         elif self.type == "NUM" or self.type == "ID":
             self.code_value = self.type
+        if token[1][1:len(token[1]) - 1] == "output":
+            print("here")
 
 
 class Parser:
@@ -67,6 +69,7 @@ class Parser:
 
     def get_next_token(self):
         self.current_token = self.scanner.get_next_token()
+        print(self.current_token)
         if self.current_token != "$":
             self.p_token.set_info(self.current_token)
         else:
@@ -101,7 +104,7 @@ class Parser:
     def parse(self):  # TODO add panic mode recovery and also add tree
         while True:
             while self.cur_state.stateType != TD.StateType.ACC:
-                self.print_tree()
+                #self.print_tree()
                 next_states_list = list(self.cur_state.states.keys())
                 #print(self.errors)
                 #self.print_stack()
@@ -128,7 +131,8 @@ class Parser:
                             self.cur_state = temp
                             self.get_next_token()
                             break
-                        if self.p_token.code_value in next_states_list and self.cur_state.stateType == TD.StateType.START:
+                        if self.cur_state.stateType == TD.StateType.START:
+                            print("here")
                             continue
                         temp = self.cur_state.states.get(production)
                         #Node(f'({self.p_token.type}, {self.p_token.value})' if production != '$' else '$',
