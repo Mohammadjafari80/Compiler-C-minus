@@ -110,13 +110,6 @@ class Parser:
                 #self.print_stack()
 
                 for production in self.cur_state.states.keys():
-                    if self.p_token.code_value in next_states_list and production in self.T:
-                        temp = self.cur_state.states.get(self.p_token.code_value)
-                        Node(f'({self.p_token.type}, {self.p_token.value})' if production != '$' else '$',
-                             parent=self.current_node)
-                        self.cur_state = temp
-                        self.get_next_token()
-                        break
                     if production in self.T:
                         if production == self.p_token.code_value:
                             temp = self.cur_state.states.get(self.p_token.code_value)
@@ -238,6 +231,6 @@ class Parser:
 
 
 save_path = "."
-scanner_path = ".//PA2_testcases/T08"
+scanner_path = ".//PA2_testcases/T07"
 p = Parser(scanner_path,save_path)
 p.parse()
