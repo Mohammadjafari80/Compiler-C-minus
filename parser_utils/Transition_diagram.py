@@ -33,10 +33,10 @@ class State:
 class Diagram:
     def __init__(self):
         self.state_number = 0
-        self.grammar = json.load(open("./parser_utils/grammer.txt"))
-        self.first = json.load(open("./parser_utils/files/first.txt"))
-        self.follow = json.load(open("./parser_utils/files/follow.txt"))
-        self.predict = json.load(open("./parser_utils/files/predict.txt"))
+        self.grammar = json.load(open("./parser_utils/grammar.json"))
+        self.first = json.load(open("./parser_utils/files/first.json"))
+        self.follow = json.load(open("./parser_utils/files/follow.json"))
+        self.predict = json.load(open("./parser_utils/files/predict.json"))
         self.non_terminals = list(self.grammar.keys())
         self.terminals = set(self.flatten(list(self.grammar.values()))) - set(self.non_terminals)
         self.diagrams = {}

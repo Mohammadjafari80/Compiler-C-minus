@@ -3,8 +3,15 @@ import anytree
 # from  Any_tree import anytree as anytree
 import parser_utils.Transition_diagram as TD
 from anytree import Node, RenderTree
+from enum import  Enum
 
 EPSILON = None
+
+
+class ErrorTypes(Enum):
+    ILLEGAL = 1
+    MISSING = 2
+    UNEXPECTED_EOF = 3
 
 
 class ParseToken:
@@ -26,7 +33,7 @@ class ParseToken:
 
 class Parser:
 
-    def __init__(self, path,save_path):
+    def __init__(self, path, save_path):
         self.save_path = save_path
         self.transition_diagram = TD.Diagram()
         self.diagrams = self.transition_diagram.diagrams
@@ -36,7 +43,7 @@ class Parser:
         self.NT = self.transition_diagram.non_terminals
         self.T = self.transition_diagram.terminals
         self.stateN = self.transition_diagram.state_number
-        self.scanner = Scanner.Scanner(path,save_path)
+        self.scanner = Scanner.Scanner(path, save_path)
         self.stack = []
         self.push(self.diagrams[self.NT[0]])
         self.current_token = self.scanner.get_next_token()
@@ -45,6 +52,10 @@ class Parser:
         self.p_token.set_info(self.current_token)
         self.root = Node(self.cur_state.main_grammar)
         self.current_node = self.root
+        self.synchronous_set = self.follow
+        self.line_number = 1
+        self.errors = []
+        self.is_stable = True
 
     def front(self) -> TD.State:
         return self.stack[len(self.stack) - 1]
@@ -62,6 +73,12 @@ class Parser:
         else:
             self.p_token.code_value = "$"
 
+    def is_all_terminal(self, states):
+        for state in states:
+            if state not in self.T:
+                return False
+        return True
+
     def print_stack(self):
         for i in self.stack:
             if str(i) == "62":
@@ -70,7 +87,6 @@ class Parser:
         print("")
 
     def handle_epsilons(self, state, node):
-        #print(state.states.keys())
         if 'null' in state.states.keys():
             Node('epsilon', node)
             return
@@ -86,18 +102,29 @@ class Parser:
     def parse(self):  # TODO add panic mode recovery and also add tree
         while True:
             while self.cur_state.stateType != TD.StateType.ACC:
-                #self.print_stack()
+                next_states_list = list(self.cur_state.states.keys())
+                print(self.errors)
+                self.print_stack()
+                # if A is terminal and A!=a then pop A
+                if self.is_all_terminal(next_states_list) and self.p_token.code_value not in next_states_list and\
+                        len(next_states_list) > 0:
+                    self.is_stable = False
+                    line_number = self.scanner.get_line_number()
+                    self.errors.append([ErrorTypes.MISSING, line_number, next_states_list[0]])
+                    self.pop()
+                    self.cur_state = self.cur_state.states[next_states_list[0]]
+                    continue
+
                 for production in self.cur_state.states.keys():
                     if production in self.T:
+                        temp = self.cur_state.states.get(production, None)
                         if production == self.p_token.code_value:
-                            temp = self.cur_state.states.get(production, None)
                             if temp is not None:
                                 Node(f'({self.p_token.type}, {self.p_token.value})' if production != '$' else '$',
                                      parent=self.current_node)
                                 self.cur_state = temp
                                 self.get_next_token()
                                 break
-
                     else:
                         if self.p_token.code_value in self.first[production]:
                             self.current_node = Node(self.diagrams[production].main_grammar, parent=self.current_node)
@@ -109,32 +136,87 @@ class Parser:
                             a = Node(self.diagrams[production].main_grammar, parent=self.current_node)
                             self.cur_state = self.cur_state.states[production]
                             self.handle_epsilons(self.diagrams[production], a)
+                            break
                 else:
                     if (EPSILON in self.first[self.cur_state.main_grammar] and
                             self.p_token.code_value in self.follow[self.cur_state.main_grammar]):
-                        self.pop()
                         self.cur_state = self.pop()
                         self.current_node = self.current_node.parent
+                    else:
+                        self.is_stable = False
+                        # if A is NT and a is not in Synchronous set of A
+                        if self.p_token.code_value not in self.synchronous_set[next_states_list[0]]:
+                            while self.p_token.code_value not in self.synchronous_set[next_states_list[0]] and\
+                                 self.p_token.code_value != '$':
+                                line_number = self.scanner.get_line_number()
+                                self.errors.append([ErrorTypes.ILLEGAL, line_number, self.p_token.code_value])
+                                self.get_next_token()
+                                print(self.errors)
+
+                            if self.p_token.code_value in self.first[next_states_list[0]]:
+                                continue
+                            else:
+                                break
+                        # if A is NT and a is in Synchronous set of A then pop  diagram A
+                        else:
+                            line_number = self.scanner.get_line_number()
+                            self.errors.append([ErrorTypes.MISSING, line_number, self.cur_state.main_grammar])
+                            # Pop while we get out of this diagram
+                            while self.cur_state.stateType != TD.StateType.START:
+                                self.cur_state = self.pop()
 
             if len(self.stack) < 2:
                 break
+
+            self.is_stable = True
             self.pop()
             self.cur_state = self.pop()
             self.current_node = self.current_node.parent
+
         if self.stack[0].number == 0 and self.current_token == "$":
             print("accepted")
+
+        if not self.is_stable:
+            self.errors.append([ErrorTypes.UNEXPECTED_EOF, self.scanner.get_line_number() + 1, None])
+
         self.write_to_file()
 
-    def write_to_file(self, address=  '/parse_tree.txt'):
+    def write_to_file(self, address='/parse_tree.txt', syntax_errors_address='/syntax_errors.txt'):
         tree = ''
         for pre, fill, node in RenderTree(self.root):
             tree += "%s%s\n" % (pre, node.name)
 
-        with open(self.save_path +address, "w", encoding="utf-8") as opened_file:
+        syntax_errors = ''
+
+        if len(self.errors) == 0:
+            syntax_errors = 'There is no syntax error.'
+        else:
+            for error_type, line, error in self.errors:
+                if error_type == ErrorTypes.ILLEGAL:
+                    syntax_errors += f'#{line} : syntax error, illegal {error}\n'
+                elif error_type == ErrorTypes.MISSING:
+                    syntax_errors += f'#{line} : syntax error, missing {error}\n'
+                elif error_type == ErrorTypes.UNEXPECTED_EOF:
+                    syntax_errors += f'#{line} : syntax error, Unexpected EOF\n'
+
+        with open(self.save_path + address, "w", encoding="utf-8") as opened_file:
             opened_file.write(tree)
         opened_file.close()
-for i in range(1,6):
-    save_path = ".//PA2_testcases/T0"+str(i)
-    scanner_path = ".//PA2_testcases/T0"+str(i)
-    p = Parser(scanner_path,save_path)
-    p.parse()
+
+        with open(self.save_path + syntax_errors_address, "w", encoding="utf-8") as opened_file:
+            opened_file.write(syntax_errors)
+        opened_file.close()
+
+
+
+# for i in range(1,6):
+#     save_path = ".//PA2_testcases/T0"+str(i)
+#     scanner_path = ".//PA2_testcases/T0"+str(i)
+#     p = Parser(scanner_path,save_path)
+#     p.parse()
+
+
+save_path = "."
+scanner_path = ".//PA2_testcases/T06"
+p = Parser(scanner_path,save_path)
+p.parse()
