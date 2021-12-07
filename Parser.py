@@ -21,7 +21,6 @@ class ParseToken:
         self.code_value = ""
 
     def set_info(self, token):
-        #print(token)
         token = token.split(",")
         self.type = token[0][1:]
         self.value = token[1][1:len(token[1]) - 1]
@@ -81,7 +80,7 @@ class Parser:
 
     def print_stack(self):
         for i in self.stack:
-            if str(i) == "62":
+            if str(i) == "24":
                 print(end="")
             print(i, end=" ")
         print("")
@@ -105,26 +104,25 @@ class Parser:
                 next_states_list = list(self.cur_state.states.keys())
                 print(self.errors)
                 self.print_stack()
-                # if A is terminal and A!=a then pop A
-                if self.is_all_terminal(next_states_list) and self.p_token.code_value not in next_states_list and\
-                        len(next_states_list) > 0:
-                    self.is_stable = False
-                    line_number = self.scanner.get_line_number()
-                    self.errors.append([ErrorTypes.MISSING, line_number, next_states_list[0]])
-                    self.pop()
-                    self.cur_state = self.cur_state.states[next_states_list[0]]
+                if self.p_token.code_value in next_states_list :
+                    temp = self.cur_state.states.get(self.p_token.code_value)
+                    Node(f'({self.p_token.type}, {self.p_token.value})' if production != '$' else '$',
+                        parent=self.current_node)
+                    self.cur_state = temp
+                    self.get_next_token()
                     continue
-
                 for production in self.cur_state.states.keys():
                     if production in self.T:
-                        temp = self.cur_state.states.get(production, None)
-                        if production == self.p_token.code_value:
-                            if temp is not None:
-                                Node(f'({self.p_token.type}, {self.p_token.value})' if production != '$' else '$',
-                                     parent=self.current_node)
-                                self.cur_state = temp
-                                self.get_next_token()
-                                break
+                        temp = self.cur_state.states.get(production)
+                        Node(f'({self.p_token.type}, {self.p_token.value})' if production != '$' else '$',
+                                        parent=self.current_node)
+                        self.cur_state = temp
+                        self.get_next_token()
+                        if production != self.p_token.code_value:
+                            self.is_stable = False
+                            line_number = self.scanner.get_line_number()
+                            self.errors.append([ErrorTypes.MISSING, line_number, production])
+                        break
                     else:
                         if self.p_token.code_value in self.first[production]:
                             self.current_node = Node(self.diagrams[production].main_grammar, parent=self.current_node)
