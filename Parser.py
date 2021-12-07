@@ -181,7 +181,7 @@ class Parser:
             self.current_node = self.current_node.parent
 
         if self.stack[0].number == 0 and self.current_token == "$":
-            print("accepted")
+            print("parsed well")
 
         if not self.is_stable:
             self.errors.append([ErrorTypes.UNEXPECTED_EOF, self.scanner.get_line_number() + 1, None])
