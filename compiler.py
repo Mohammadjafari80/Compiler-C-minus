@@ -7,9 +7,8 @@ import Parser
 
 
 for i in range(220):
-    read_path = "./tests/PA1_extra_samples/T%03d" % (i+1)
-    save_path = "./tests/PA1_extra_samples/T%03d" % (i+1)
+    read_path = "./PA2_testcases/ohterTest/P2_extra/tests/PA2_extra_samples/T%03d" % (i+1)
+    save_path = "./PA2_testcases/ohterTest/P2_extra/tests/PA2_extra_samples/T%03d" % (i+1)
     scanner = Scanner.Scanner(path=save_path, save_path=save_path)
     parser = Parser.Parser(read_path, save_path)
     parser.parse()
-
