@@ -7,9 +7,10 @@
 7.	until
 8.	return
 9.	endif
-10.	fact
-11.	n
-12.	f
-13.	factorial
-14.	main
-15.	output
+10.	f
+11.	a
+12.	g
+13.	b
+14.	output
+15.	t
+16.	main

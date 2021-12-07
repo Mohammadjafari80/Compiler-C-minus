@@ -104,6 +104,7 @@ class Parser:
     def parse(self):  # TODO add panic mode recovery and also add tree
         while True:
             while self.cur_state.stateType != TD.StateType.ACC:
+                flag = True
                 #self.print_tree()
                 next_states_list = list(self.cur_state.states.keys())
                 #print(self.errors)
@@ -155,11 +156,7 @@ class Parser:
                             break
                 else:
                     line_number = self.scanner.get_line_number()
-                    if (EPSILON in self.first[self.cur_state.main_grammar] and
-                            self.p_token.code_value in self.follow[self.cur_state.main_grammar]):
-                        self.cur_state = self.pop()
-                        self.current_node = self.current_node.parent
-                    elif (self.cur_state.stateType == TD.StateType.MID and self.p_token.code_value in self.follow[production]):
+                    if self.cur_state.stateType != TD.StateType.START and self.p_token.code_value in self.follow[production]:
                         if self.current_token == "$":
                             self.errors.append([ErrorTypes.UNEXPECTED_EOF, self.scanner.get_line_number() + 1, None])
                             print(ErrorTypes.UNEXPECTED_EOF, self.scanner.get_line_number() + 1, None)
@@ -167,8 +164,12 @@ class Parser:
                             return
                         self.errors.append([ErrorTypes.MISSING, line_number, production])
                         print(ErrorTypes.MISSING, line_number, production)
-                        self.get_next_token()
+                        self.cur_state = self.cur_state.states[production]
                         self.is_stable = False
+                    elif (EPSILON in self.first[self.cur_state.main_grammar] and
+                            self.p_token.code_value in self.follow[self.cur_state.main_grammar]):
+                        self.cur_state = self.pop()
+                        self.current_node = self.current_node.parent
                     elif not(self.p_token.code_value in self.follow[self.cur_state.main_grammar]):
                         if self.current_token == "$":
                             self.errors.append([ErrorTypes.UNEXPECTED_EOF, self.scanner.get_line_number() + 1, None])
@@ -243,6 +244,6 @@ class Parser:
 
 
 save_path = "."
-scanner_path = ".//PA2_testcases/T08"
+scanner_path = ".//PA2_testcases/T09K"
 p = Parser(scanner_path,save_path)
 p.parse()
