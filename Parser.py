@@ -101,11 +101,11 @@ class Parser:
     def parse(self):  # TODO add panic mode recovery and also add tree
         while True:
             while self.cur_state.stateType != TD.StateType.ACC:
-                #self.print_tree()
+                self.print_tree()
                 next_states_list = list(self.cur_state.states.keys())
                 #print(self.errors)
                 #self.print_stack()
-                if self.p_token.code_value in next_states_list :
+                if self.p_token.code_value in next_states_list and production in self.T:
                     temp = self.cur_state.states.get(self.p_token.code_value)
                     Node(f'({self.p_token.type}, {self.p_token.value})' if production != '$' else '$',
                         parent=self.current_node)
@@ -114,6 +114,22 @@ class Parser:
                     continue
                 for production in self.cur_state.states.keys():
                     if production in self.T:
+                        if production == self.p_token.code_value:
+                            temp = self.cur_state.states.get(self.p_token.code_value)
+                            Node(f'({self.p_token.type}, {self.p_token.value})' if production != '$' else '$',
+                                 parent=self.current_node)
+                            self.cur_state = temp
+                            self.get_next_token()
+                            break
+                        if self.p_token.code_value in next_states_list and self.cur_state.stateType == TD.StateType.MID:
+                            temp = self.cur_state.states.get(self.p_token.code_value)
+                            Node(f'({self.p_token.type}, {self.p_token.value})' if production != '$' else '$',
+                                     parent=self.current_node)
+                            self.cur_state = temp
+                            self.get_next_token()
+                            break
+                        if self.p_token.code_value in next_states_list and self.cur_state.stateType == TD.StateType.START:
+                            continue
                         temp = self.cur_state.states.get(production)
                         #Node(f'({self.p_token.type}, {self.p_token.value})' if production != '$' else '$',
                                         #parent=self.current_node)
