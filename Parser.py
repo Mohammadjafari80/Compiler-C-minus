@@ -3,7 +3,7 @@ import anytree
 # from  Any_tree import anytree as anytree
 import parser_utils.Transition_diagram as TD
 from anytree import Node, RenderTree
-from enum import  Enum
+from enum import Enum
 
 EPSILON = None
 
@@ -28,8 +28,9 @@ class ParseToken:
             self.code_value = token[1][1:len(token[1]) - 1]
         elif self.type == "NUM" or self.type == "ID":
             self.code_value = self.type
-        if token[1][1:len(token[1]) - 1] == "output":
-            print("here")
+        if len(token) == 3:
+            self.code_value = ','
+            self.value = ','
 
 
 class Parser:
@@ -69,7 +70,6 @@ class Parser:
 
     def get_next_token(self):
         self.current_token = self.scanner.get_next_token()
-        print(self.current_token)
         if self.current_token != "$":
             self.p_token.set_info(self.current_token)
         else:
@@ -93,27 +93,23 @@ class Parser:
             Node('epsilon', node)
             return
 
-        for production in self.diagrams[state.main_grammar].states.keys():
+        for production in state.states.keys():
             if production in self.NT:
                 a = Node(self.diagrams[production].main_grammar, node)
                 self.handle_epsilons(self.diagrams[production], a)
-                for next_state in state.states[production].states.keys():
-                    b = Node(next_state, node)
-                    self.handle_epsilons(self.diagrams[next_state], b)
+                next_state = state.states[production]
+                while next_state.stateType != TD.StateType.ACC:
+                    for next_node in next_state.states.keys():
+                        b = Node(next_node, node)
+                        self.handle_epsilons(self.diagrams[next_node], b)
+                        next_state = next_state.states[next_node]
 
     def parse(self):  # TODO add panic mode recovery and also add tree
         while True:
             while self.cur_state.stateType != TD.StateType.ACC:
-                flag = True
-                #self.print_tree()
                 next_states_list = list(self.cur_state.states.keys())
-                #print(self.errors)
-                #self.print_stack()
-
                 for production in self.cur_state.states.keys():
                     if production in self.T:
-                        if self.scanner.get_line_number() == 7 and self.p_token.value == "*":
-                            print("here")
                         if production == self.p_token.code_value:
                             temp = self.cur_state.states.get(self.p_token.code_value)
                             Node(f'({self.p_token.type}, {self.p_token.value})' if production != '$' else '$',
@@ -129,18 +125,13 @@ class Parser:
                             self.get_next_token()
                             break
                         if self.cur_state.stateType == TD.StateType.START:
-                            print("here")
                             continue
                         temp = self.cur_state.states.get(production)
-                        #Node(f'({self.p_token.type}, {self.p_token.value})' if production != '$' else '$',
-                                        #parent=self.current_node)
                         self.cur_state = temp
-                        #self.get_next_token()
                         if production != self.p_token.code_value:
                             self.is_stable = False
                             line_number = self.scanner.get_line_number()
                             self.errors.append([ErrorTypes.MISSING, line_number, production])
-                            print(ErrorTypes.MISSING, line_number, production)
                         break
                     else:
                         if self.p_token.code_value in self.first[production]:
@@ -156,33 +147,27 @@ class Parser:
                             break
                 else:
                     line_number = self.scanner.get_line_number()
-                    if self.cur_state.stateType != TD.StateType.START and self.p_token.code_value in self.follow[production]:
+                    if EPSILON in self.first[production] and self.p_token.code_value in self.follow[production]:
+                        self.cur_state = self.cur_state.states[production]
+                        self.current_node = self.current_node.parent
+                    elif self.cur_state.stateType != TD.StateType.START and self.p_token.code_value in self.follow[production]:
                         if self.current_token == "$":
                             self.errors.append([ErrorTypes.UNEXPECTED_EOF, self.scanner.get_line_number() + 1, None])
-                            print(ErrorTypes.UNEXPECTED_EOF, self.scanner.get_line_number() + 1, None)
                             self.write_to_file()
                             return
                         self.errors.append([ErrorTypes.MISSING, line_number, production])
-                        print(ErrorTypes.MISSING, line_number, production)
                         self.cur_state = self.cur_state.states[production]
                         self.is_stable = False
-                    elif (EPSILON in self.first[self.cur_state.main_grammar] and
-                            self.p_token.code_value in self.follow[self.cur_state.main_grammar]):
-                        self.cur_state = self.pop()
-                        self.current_node = self.current_node.parent
-                    elif not(self.p_token.code_value in self.follow[self.cur_state.main_grammar]):
+                    elif not(self.p_token.code_value in self.synchronous_set[self.cur_state.main_grammar]):
                         if self.current_token == "$":
                             self.errors.append([ErrorTypes.UNEXPECTED_EOF, self.scanner.get_line_number() + 1, None])
-                            print(ErrorTypes.UNEXPECTED_EOF, self.scanner.get_line_number() + 1, None)
                             self.write_to_file()
                             return
                         self.errors.append([ErrorTypes.ILLEGAL, line_number, self.p_token.code_value])
-                        print(ErrorTypes.ILLEGAL, line_number, self.p_token.code_value)
                         self.get_next_token()
                         self.is_stable = False
                     else:
                         self.errors.append([ErrorTypes.MISSING, line_number, self.cur_state.main_grammar])
-                        print(ErrorTypes.ILLEGAL, line_number, self.cur_state.main_grammar)
                         self.pop()
                         self.cur_state = self.pop()
                         self.is_stable = False
@@ -202,6 +187,7 @@ class Parser:
             self.errors.append([ErrorTypes.UNEXPECTED_EOF, self.scanner.get_line_number() + 1, None])
 
         self.write_to_file()
+
     def print_tree(self):
         tree = ''
         for pre, fill, node in RenderTree(self.root):
@@ -214,7 +200,6 @@ class Parser:
             tree += "%s%s\n" % (pre, node.name)
 
         syntax_errors = ''
-
         if len(self.errors) == 0:
             syntax_errors = 'There is no syntax error.'
         else:
@@ -235,15 +220,3 @@ class Parser:
         opened_file.close()
 
 
-
-# for i in range(1,6):
-#     save_path = ".//PA2_testcases/T0"+str(i)
-#     scanner_path = ".//PA2_testcases/T0"+str(i)
-#     p = Parser(scanner_path,save_path)
-#     p.parse()
-
-
-save_path = "."
-scanner_path = ".//PA2_testcases/T09K"
-p = Parser(scanner_path,save_path)
-p.parse()
