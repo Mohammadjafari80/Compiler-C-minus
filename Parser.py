@@ -111,6 +111,8 @@ class Parser:
 
                 for production in self.cur_state.states.keys():
                     if production in self.T:
+                        if self.scanner.get_line_number() == 7 and self.p_token.value == "*":
+                            print("here")
                         if production == self.p_token.code_value:
                             temp = self.cur_state.states.get(self.p_token.code_value)
                             Node(f'({self.p_token.type}, {self.p_token.value})' if production != '$' else '$',
@@ -157,6 +159,16 @@ class Parser:
                             self.p_token.code_value in self.follow[self.cur_state.main_grammar]):
                         self.cur_state = self.pop()
                         self.current_node = self.current_node.parent
+                    elif (self.cur_state.stateType == TD.StateType.MID and self.p_token.code_value in self.follow[production]):
+                        if self.current_token == "$":
+                            self.errors.append([ErrorTypes.UNEXPECTED_EOF, self.scanner.get_line_number() + 1, None])
+                            print(ErrorTypes.UNEXPECTED_EOF, self.scanner.get_line_number() + 1, None)
+                            self.write_to_file()
+                            return
+                        self.errors.append([ErrorTypes.MISSING, line_number, production])
+                        print(ErrorTypes.MISSING, line_number, production)
+                        self.get_next_token()
+                        self.is_stable = False
                     elif not(self.p_token.code_value in self.follow[self.cur_state.main_grammar]):
                         if self.current_token == "$":
                             self.errors.append([ErrorTypes.UNEXPECTED_EOF, self.scanner.get_line_number() + 1, None])
@@ -231,6 +243,6 @@ class Parser:
 
 
 save_path = "."
-scanner_path = ".//PA2_testcases/T07"
+scanner_path = ".//PA2_testcases/T08"
 p = Parser(scanner_path,save_path)
 p.parse()
