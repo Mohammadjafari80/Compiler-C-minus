@@ -70,6 +70,7 @@ class Parser:
 
     def get_next_token(self):
         self.current_token = self.scanner.get_next_token()
+        print(self.current_token)
         if self.current_token != "$":
             self.p_token.set_info(self.current_token)
         else:
@@ -129,6 +130,11 @@ class Parser:
                         temp = self.cur_state.states.get(production)
                         self.cur_state = temp
                         if production != self.p_token.code_value:
+                            if self.current_token == "$":
+                                self.errors.append(
+                                    [ErrorTypes.UNEXPECTED_EOF, self.scanner.get_line_number() + 1, None])
+                                self.write_to_file()
+                                return
                             self.is_stable = False
                             line_number = self.scanner.get_line_number()
                             self.errors.append([ErrorTypes.MISSING, line_number, production])
@@ -167,6 +173,10 @@ class Parser:
                         self.get_next_token()
                         self.is_stable = False
                     else:
+                        if self.current_token == "$":
+                            self.errors.append([ErrorTypes.UNEXPECTED_EOF, self.scanner.get_line_number() + 1, None])
+                            self.write_to_file()
+                            return
                         self.errors.append([ErrorTypes.MISSING, line_number, self.cur_state.main_grammar])
                         self.pop()
                         self.cur_state = self.pop()
