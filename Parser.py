@@ -138,6 +138,9 @@ class Parser:
                             self.is_stable = False
                             line_number = self.scanner.get_line_number()
                             self.errors.append([ErrorTypes.MISSING, line_number, production])
+                            if production=="$":
+                                self.write_to_file()
+                                return
                         break
                     else:
                         if self.p_token.code_value in self.first[production]:
