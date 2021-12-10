@@ -105,7 +105,7 @@ class Parser:
                         self.handle_epsilons(self.diagrams[next_node], b)
                         next_state = next_state.states[next_node]
 
-    def parse(self):  # TODO add panic mode recovery and also add tree
+    def parse(self):
         while True:
             while self.cur_state.stateType != TD.StateType.ACC:
                 next_states_list = list(self.cur_state.states.keys())
@@ -149,7 +149,7 @@ class Parser:
                             self.push(self.diagrams[production])
                             self.cur_state = self.front()
                             break
-                        elif EPSILON in self.first[production] and self.p_token.code_value in self.follow[production]: # TODO NEMIDONAM INJA BAYAD CHE GHALATI KARD
+                        elif EPSILON in self.first[production] and self.p_token.code_value in self.follow[production]:
                             a = Node(self.diagrams[production].main_grammar, parent=self.current_node)
                             self.cur_state = self.cur_state.states[production]
                             self.handle_epsilons(self.diagrams[production], a)
