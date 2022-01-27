@@ -112,7 +112,7 @@ class DFA:
                 self.__unique_symbol_dfa_handler(table, i)
             elif i == 61:  # is input is =
                 self.__equal_sign_dfa_handler(table)
-            elif is_it_valid(i):
+            if is_it_valid(i) and i!= 61:
                 table[7][i] = 8  # remark the others of symbol table
 
             if i == 47:  # if input is /
