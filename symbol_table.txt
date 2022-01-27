@@ -9,3 +9,7 @@
 9.	endif
 10.	main
 11.	a
+12.	b
+13.	x
+14.	o
+15.	osalam

@@ -21,6 +21,7 @@ class ParseToken:
         self.code_value = ""
 
     def set_info(self, token):
+        print(token)
         token = token.split(",")
         self.type = token[0][1:]
         self.value = token[1][1:len(token[1]) - 1]
@@ -69,8 +70,9 @@ class Parser:
         self.stack.append(node)
 
     def get_next_token(self):
+        if self.scanner.get_line_number() == 3:
+            print("here")
         self.current_token = self.scanner.get_next_token()
-        print(self.current_token)
         if self.current_token != "$":
             self.p_token.set_info(self.current_token)
         else:
