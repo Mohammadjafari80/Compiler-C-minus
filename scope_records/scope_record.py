@@ -1,13 +1,13 @@
-import enum
+from enum import Enum
 
 
-class VarTYPE(enum):
+class VarTYPE(Enum):
     var = "var"
     func = "function"
     array = "array"
 
 
-class Type(enum):
+class Type(Enum):
     INT = "int"
     VOID = "void"
 
@@ -19,6 +19,7 @@ class Record:
         self.args = 0
         self.var_type = VarTYPE.var
         self.scope_num = scope_number
+        self.address = 0
 
 
 class Scope:
