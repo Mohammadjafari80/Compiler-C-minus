@@ -13,7 +13,9 @@ class SemanticAnalyzer:
         self.semantic_stack = []
 
     def pop(self):
+        self.address -= 1
         self.semantic_stack.pop()
 
-    def push(self, type=sr.Type.VOID, address=0, lexeme=""):
-        self.semantic_stack.append(SemanticNode(type, address, lexeme))
+    def push(self, type=sr.Type.VOID, lexeme=""):
+        self.semantic_stack.append(SemanticNode(type, self.address, lexeme))
+        self.address += 1

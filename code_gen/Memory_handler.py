@@ -14,3 +14,7 @@ class Memory():
     def get_static_address(self, ):
         self.static_data += 4
         return self.static_data - 4
+
+    def get_program_block(self):
+        self.static_data += 1
+        return self.static_data - 1

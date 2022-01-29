@@ -1,6 +1,7 @@
 from semantic_analyzer import semantic_analyzer as sa
-from Memory_handler import Memory as mm
+from code_gen.Memory_handler import Memory
 from scope_records import scope_record as sr
+
 """"
 #push_type : pushing type of id into stack for future use
 #declare_id :  declare id and push it
@@ -18,19 +19,22 @@ from scope_records import scope_record as sr
 
 
 class CodeGenerator:
-    def push_type(self,token):
-        print(token)
-        pass
+
 
     def __init__(self):
         self.semantic_analyzer = sa.SemanticAnalyzer()
-        self.mem = mm
+        self.mem = Memory()
         self.scope_record = sr.Scope()
         self.routine_dict = dict()
         self.routine_dict["#push_type"] = self.push_type
 
-    def generate_code(self, action,token):
-
+    def generate_code(self, action, token):
         self.routine_dict.get(action)(token)
+
+    def push_type(self, token):
+        self.semantic_analyzer.push(type=token)
+
+
+
 c = CodeGenerator()
-c.generate_code("#push_type","hi")
+c.generate_code("#push_type", "int")
