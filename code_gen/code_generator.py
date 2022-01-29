@@ -37,7 +37,10 @@ class CodeGenerator:
     def declare_id(self, token):
         self.semantic_analyzer.push(lexeme=token)
 
-
+    def finish_var_declare(self, token):
+        lexeme, var_type = self.semantic_analyzer.pop(), self.semantic_analyzer.pop()
+        address = self.mem.get_static_address()
+        self.scope_record.insert_record(lexeme=lexeme, args=None, type=var_type, address=address)
 
 
 
