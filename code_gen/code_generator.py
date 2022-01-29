@@ -56,6 +56,10 @@ class CodeGenerator:
 
         self.scope_record.insert_record(lexeme=lexeme, args=size, type=var_type, address=address)
 
+    def into_scope(self, token):
+        self.scope_record.new_scope()
+
+
 
 
 
