@@ -24,18 +24,23 @@ class Record:
 
 class Scope:
     def __init__(self):
-        self.scope_stack = []
+        self.scope_stack = [0]
         self.scope_record = []
         self.current_scope = 0
+        self.head_pointer = 0
 
     def front(self):
         return self.scope_stack[self.current_scope]
 
     def insert_record(self, lexeme):
+        self.head_pointer += 1
         self.scope_record.append(Record(lexeme, self.current_scope))
 
     def delete_current_scope(self):
-        self.scope_stack.pop()
+        begin = self.scope_stack.pop()
+        for _ in range(self.head_pointer - begin - 1):
+            self.scope_record.pop()
+        self.head_pointer = begin + 1
         self.current_scope -= 1
 
     def find_record(self, lexeme):
