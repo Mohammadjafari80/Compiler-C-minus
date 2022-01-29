@@ -59,6 +59,17 @@ class CodeGenerator:
     def into_scope(self, token):
         self.scope_record.new_scope()
 
+    def out_of_scope(self, token):
+        self.scope_record.delete_current_scope()
+
+    def push_id(self, token): # Not sure if that's what we were supposed to do
+        lexeme = self.semantic_analyzer.pop.lexeme
+        address = self.scope_record.find_record(lexeme)
+        self.semantic_analyzer.push(lexeme=address)  # it's actually an address
+
+
+
+
 
 
 
