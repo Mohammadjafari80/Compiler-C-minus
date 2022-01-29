@@ -46,18 +46,16 @@ class Scope:
     def find_record(self, lexeme):
         last_scope_index = self.current_scope
         last_scope = self.front()
-        last_record_index = len(self.scope_record)
         flag = True
         while flag:
-            for index in range(last_scope, last_record_index):
+            for index in range(last_scope, self.head_pointer):
                 if lexeme == self.scope_record[index].lexeme:
                     return self.scope_record[index]
             last_scope_index -= 1
             last_scope = self.scope_stack[last_scope_index]
-            last_record_index = last_scope
             if last_scope_index < 0:
-                pass  # TODO NOT found
+                break
 
     def new_scope(self):
         self.current_scope += 1
-        self.scope_stack.append(len(self.scope_record)-1)
+        self.scope_stack.append(self.current_scope)
