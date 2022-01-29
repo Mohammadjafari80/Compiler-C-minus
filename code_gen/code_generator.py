@@ -84,6 +84,16 @@ class CodeGenerator:
         new_address = address + index
         self.semantic_analyzer.push(lexeme=new_address) # it's actually an address not a Lexeme
 
+    def push_op(self, token):
+        self.semantic_analyzer.push(lexeme=token) # it's an operand
+
+    def operate(self, token):
+        rhs, op, lhs = self.semantic_analyzer.pop().lexeme,\
+                       self.semantic_analyzer.pop().lexeme,\
+                       self.semantic_analyzer.pop().lexeme
+        temp = self.mem.get_temp()
+        address = Memory.get_program_block()
+        self.program_block.append(Three_Address_Code(op, rhs, lhs, temp))
 
 
 c = CodeGenerator()
