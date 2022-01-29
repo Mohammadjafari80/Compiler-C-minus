@@ -72,12 +72,17 @@ class CodeGenerator:
         self.semantic_analyzer.push(lexeme=address)  # it's actually an address
 
     def assign(self, token):
+        self.mem.get_temp(), self.get_temp() # just because we have to?
         address_rhs, address_lhs = self.semantic_analyzer.pop().lexeme, self.semantic_analyzer.pop().lexeme
         address = Memory.get_program_block()
         self.program_block.append(Three_Address_Code(':=', address_rhs, address_lhs, None))
 
-
-
+    def indirect_adr(self, token):
+        index = int(self.semantic_analyzer.pop.lexeme)
+        lexeme = self.semantic_analyzer.pop().lexeme
+        address = self.scope_record.find_record(lexeme)
+        new_address = address + index
+        self.semantic_analyzer.push(lexeme=new_address) # it's actually an address not a Lexeme
 
 
 
