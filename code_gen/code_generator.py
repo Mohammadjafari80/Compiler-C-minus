@@ -40,6 +40,12 @@ class CodeGenerator:
         self.routine_dict['#indirect_adr'] = self.indirect_adr
         self.routine_dict['#push_op'] = self.push_op
         self.routine_dict['#operate'] = self.operate
+        self.routine_dict['#jump_repeat'] = self.jump_repeat
+        self.routine_dict['#label'] = self.label
+        self.routine_dict['#end_if_else'] = self.end_if_else
+        self.routine_dict['#save_if_else'] = self.save_if_else
+        self.routine_dict['#end_simple_if'] = self.end_simple_if
+        self.routine_dict['#save_if'] = self.save_if
 
     def parse_token(self, token):
         lexeme = token.split(",")[1] if token != '$' else token
