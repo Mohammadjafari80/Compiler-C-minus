@@ -135,6 +135,14 @@ class CodeGenerator:
     def label(self, token):
         self.semantic_analyzer.push(self.mem.get_front_code())
 
+    def jump_repeat(self, token):
+        self.mem.get_program_block()
+        i = self.mem.get_program_block()
+        A = self.semantic_analyzer.pop().val
+        jp_add = self.semantic_analyzer.pop().val
+        self.program_block.append(Three_Address_Code('JPF', A, self.mem.get_front_code(), None))
+        self.program_block.append(Three_Address_Code('JP', jp_add, None, None))
+
 
 """
 Selection-stmt -> if ( Expression ) #save_if Statement Else-stmt
