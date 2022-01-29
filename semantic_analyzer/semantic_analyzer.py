@@ -11,7 +11,7 @@ class SemanticAnalyzer:
         self.semantic_stack = []
 
     def pop(self):
-        self.semantic_stack.pop()
+        return self.semantic_stack.pop()
 
     def push(self, val):
         self.semantic_stack.append(SemanticNode(val))
