@@ -14,9 +14,9 @@ Compound-stmt -> { #into_scope Declaration-list Statement-list } #outo_scope
 Statement-list -> Statement Statement-list | EPSILON
 Statement -> Expression-stmt | Compound-stmt | Selection-stmt | Iteration-stmt | Return-stmt
 Expression-stmt -> Expression ; | break ; | ;
-Selection-stmt -> if ( Expression ) Statement Else-stmt
-Else-stmt -> endif | else Statement endif
-Iteration-stmt -> repeat Statement until ( Expression )
+Selection-stmt -> if ( Expression ) #save_if Statement Else-stmt
+Else-stmt -> endif #end_simple_if | else #save_if_else Statement endif #end_if_else
+Iteration-stmt -> repeat #label Statement until ( Expression ) #jump_repeat
 Return-stmt -> return Return-stmt-prime
 Return-stmt-prime -> ; | Expression ;
 Expression -> Simple-expression-zegond | #push_id ID B

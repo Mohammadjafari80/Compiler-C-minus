@@ -126,8 +126,7 @@ class Parser:
                 next_states_list = list(self.cur_state.states.keys())
                 for production in self.cur_state.states.keys():
                     if production[0] == "#":
-                        if production == "#finish_var_declare":
-                            print(production)
+                        print(self.cur_state.stateType)
                         action_flag = True
                         self.code_gen(production)
                         self.cur_state = self.cur_state.states.get(production)

@@ -11,10 +11,13 @@ class Memory():
         self.dynamic_data += 4
         return self.dynamic_data - 4
 
-    def get_static_address(self, skip = 4 ):
+    def get_static_address(self, skip=4):
         self.static_data += skip
         return self.static_data - skip
 
     def get_program_block(self):
-        self.static_data += 1
-        return self.static_data - 1
+        self.code_add += 1
+        return self.code_add - 1
+
+    def get_front_code(self):
+        return self.code_add

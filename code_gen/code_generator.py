@@ -41,11 +41,10 @@ class CodeGenerator:
 
     def parse_token(self, token):
         lexeme = token.split(",")[1]
-        lexeme = lexeme.replace(")","")
+        lexeme = lexeme.replace(")", "")
         return (lexeme)
 
     def generate_code(self, action, token):
-        print("---------------------------")
         print(action)
         print(self.program_block)
         print(self.scope_record.scope_stack)
@@ -71,7 +70,7 @@ class CodeGenerator:
         size = int(self.semantic_analyzer.pop().val)
         lexeme = self.semantic_analyzer.pop().val
         var_type = self.semantic_analyzer.pop().type
-        address = self.memory.get_static_address(size * 4)
+        address = self.mem.get_static_address(size * 4)
         self.scope_record.insert_record(lexeme=lexeme, args=size, type=var_type, address=address)
 
     def into_scope(self, token):
@@ -87,13 +86,13 @@ class CodeGenerator:
 
     def assign(self, token):
         self.mem.get_temp(), self.get_temp()  # just because we have to?
-        address_rhs, address_lhs = self.semantic_analyzer.pop().lexeme, self.semantic_analyzer.pop().lexeme
-        address = Memory.get_program_block()
-        self.program_block.append(Three_Address_Code(':=', address_rhs, address_lhs, None))
+        address_rhs, address_lhs = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
+        address = self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code('ASSIGN', address_rhs, address_lhs, None))
 
     def indirect_adr(self, token):
-        index = int(self.semantic_analyzer.pop.lexeme)
-        lexeme = self.semantic_analyzer.pop().lexeme
+        index = int(self.semantic_analyzer.pop().val)
+        lexeme = self.semantic_analyzer.pop().val
         address = self.scope_record.find_record(lexeme)
         new_address = address + index
         self.semantic_analyzer.push(lexeme=new_address)  # it's actually an address not a Lexeme
@@ -102,9 +101,39 @@ class CodeGenerator:
         self.semantic_analyzer.push(lexeme=token)  # it's an operand
 
     def operate(self, token):
-        rhs, op, lhs = self.semantic_analyzer.pop().lexeme, \
-                       self.semantic_analyzer.pop().lexeme, \
-                       self.semantic_analyzer.pop().lexeme
+        rhs, op, lhs = self.semantic_analyzer.pop().val, \
+                       self.semantic_analyzer.pop().val, \
+                       self.semantic_analyzer.pop().val
         temp = self.mem.get_temp()
-        address = Memory.get_program_block()
+        address = self.mem.get_program_block()
         self.program_block.append(Three_Address_Code(op, rhs, lhs, temp))
+
+    def save_if(self, token):
+        i = self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code('JPF', self.semantic_analyzer.front().val, "?", None))
+        self.semantic_analyzer.push(i)
+
+    def end_simple_if(self, token):
+        self.program_block[self.semantic_analyzer.pop().val] = Three_Address_Code('JPF',
+                                                                                  self.semantic_analyzer.pop().val,
+                                                                                  self.mem.get_front_code(), None)
+
+    def save_if_else(self, token):
+        i = self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code('JP', "?", None, None))
+        self.program_block[self.semantic_analyzer.pop().val] = Three_Address_Code('JPF',
+                                                                                  self.semantic_analyzer.pop().val,
+                                                                                  self.mem.get_front_code(), None)
+        self.semantic_analyzer.push(i)
+
+    def end_if_else(self, token):
+        self.program_block[self.semantic_analyzer.pop().val] = Three_Address_Code('JP', self.mem.get_front_code(), None,
+                                                                                  None)
+    def label
+
+
+"""
+Selection-stmt -> if ( Expression ) #save_if Statement Else-stmt
+Else-stmt -> endif #end_simple_if | else #save_if_else Statement endif #end_if_else
+Iteration-stmt -> repeat #label Statement until ( Expression ) #jump_repeat
+"""

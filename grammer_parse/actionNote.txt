@@ -10,3 +10,9 @@
 #indirect_adr : sum with array address and calculate new address
 #push_op : push operand
 #operate : pop two and get tempory address and calculate and push address
+#label
+#jump_repeat
+#save_if
+#end_simple_if
+#save_if_else
+#end_if_else
