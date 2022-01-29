@@ -13,13 +13,13 @@ class Type(Enum):
 
 
 class Record:
-    def __init__(self, lexeme, scope_number):
+    def __init__(self, lexeme, scope_number, address=0):
         self.lexeme = lexeme
         self.type = Type.VOID
         self.args = 0
         self.var_type = VarTYPE.var
         self.scope_num = scope_number
-        self.address = 0
+        self.address = address
 
 
 class Scope:
@@ -32,9 +32,9 @@ class Scope:
     def front(self):
         return self.scope_stack[self.current_scope]
 
-    def insert_record(self, lexeme):
+    def insert_record(self, lexeme, address=0):
         self.head_pointer += 1
-        self.scope_record.append(Record(lexeme, self.current_scope))
+        self.scope_record.append(Record(lexeme, self.current_scope, address))
 
     def delete_current_scope(self):
         begin = self.scope_stack.pop()
