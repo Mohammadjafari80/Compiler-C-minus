@@ -32,7 +32,7 @@ class Scope:
     def front(self):
         return self.scope_stack[self.current_scope]
 
-    def insert_record(self, lexeme, args=0, type=Type.void, address=0):
+    def insert_record(self, lexeme, args=0, type=Type.VOID, address=0):
         self.head_pointer += 1
         self.scope_record.append(Record(lexeme, self.current_scope, args, type, address))
 

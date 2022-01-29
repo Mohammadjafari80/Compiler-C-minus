@@ -1,6 +1,8 @@
 from semantic_analyzer import semantic_analyzer as sa
 from code_gen.Memory_handler import Memory
 from scope_records import scope_record as sr
+from collections import namedtuple
+
 
 """"
 #push_type : pushing type of id into stack for future use
@@ -16,6 +18,7 @@ from scope_records import scope_record as sr
 #push_op : push operand
 #operate : pop two and get tempory address and calculate and push address
 """
+Three_Address_Code = namedtuple('ThreeAddressCode', 'op y z x')
 
 
 class CodeGenerator:
@@ -24,6 +27,7 @@ class CodeGenerator:
     def __init__(self):
         self.semantic_analyzer = sa.SemanticAnalyzer()
         self.mem = Memory()
+        self.program_block = []
         self.scope_record = sr.Scope()
         self.routine_dict = dict()
         self.routine_dict["#push_type"] = self.push_type
@@ -67,7 +71,10 @@ class CodeGenerator:
         address = self.scope_record.find_record(lexeme)
         self.semantic_analyzer.push(lexeme=address)  # it's actually an address
 
-
+    def assign(self, token):
+        address_rhs, address_lhs = self.semantic_analyzer.pop().lexeme, self.semantic_analyzer.pop().lexeme
+        address = Memory.get_program_block()
+        self.program_block.append(Three_Address_Code(':=', address_rhs, address_lhs, None))
 
 
 
@@ -75,4 +82,5 @@ class CodeGenerator:
 
 
 c = CodeGenerator()
-c.generate_code("#push_type", "int")
+a = Three_Address_Code(':=', 3, 6, None)
+print(a)
