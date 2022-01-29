@@ -34,6 +34,11 @@ class CodeGenerator:
     def push_type(self, token):
         self.semantic_analyzer.push(type=token)
 
+    def declare_id(self, token):
+        self.semantic_analyzer.push(lexeme=token)
+
+
+
 
 
 c = CodeGenerator()
