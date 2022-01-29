@@ -4,6 +4,7 @@ import anytree
 import parser_utils.Transition_diagram as TD
 from anytree import Node, RenderTree
 from enum import Enum
+from code_gen import code_generator
 
 EPSILON = None
 
@@ -66,6 +67,7 @@ class Parser:
         self.line_number = 1
         self.errors = []
         self.is_stable = True
+        self.code_generator = code_generator.CodeGenerator()
 
     def front(self) -> TD.State:
         return self.stack[len(self.stack) - 1]
@@ -115,8 +117,7 @@ class Parser:
                         next_state = next_state.states[next_node]
 
     def code_gen(self, action):
-        print(action)
-        pass
+        self.code_generator.generate_code(action,self.current_token)
 
     def parse(self):
         action_flag = False

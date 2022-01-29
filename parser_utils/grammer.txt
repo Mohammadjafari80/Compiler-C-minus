@@ -1,1 +1,45 @@
-{"Program": [["Declaration-list", "$"]], "Declaration-list": [["Declaration", "Declaration-list"], ["null"]], "Declaration": [["Declaration-initial", "Declaration-prime"]], "Declaration-initial": [["Type-specifier", "ID"]], "Declaration-prime": [["Fun-declaration-prime"], ["Var-declaration-prime"]], "Var-declaration-prime": [[";"], ["[", "NUM", "]", ";"]], "Fun-declaration-prime": [["(", "Params", ")", "Compound-stmt"]], "Type-specifier": [["int"], ["void"]], "Params": [["int", "ID", "Param-prime", "Param-list"], ["void"]], "Param-list": [[",", "Param", "Param-list"], ["null"]], "Param": [["Declaration-initial", "Param-prime"]], "Param-prime": [["[", "]"], ["null"]], "Compound-stmt": [["{", "Declaration-list", "Statement-list", "}"]], "Statement-list": [["Statement", "Statement-list"], ["null"]], "Statement": [["Expression-stmt"], ["Compound-stmt"], ["Selection-stmt"], ["Iteration-stmt"], ["Return-stmt"]], "Expression-stmt": [["Expression", ";"], ["break", ";"], [";"]], "Selection-stmt": [["if", "(", "Expression", ")", "Statement", "Else-stmt"]], "Else-stmt": [["endif"], ["else", "Statement", "endif"]], "Iteration-stmt": [["repeat", "Statement", "until", "(", "Expression", ")"]], "Return-stmt": [["return", "Return-stmt-prime"]], "Return-stmt-prime": [[";"], ["Expression", ";"]], "Expression": [["Simple-expression-zegond"], ["ID", "B"]], "B": [["=", "Expression"], ["[", "Expression", "]", "H"], ["Simple-expression-prime"]], "H": [["=", "Expression"], ["G", "D", "C"]], "Simple-expression-zegond": [["Additive-expression-zegond", "C"]], "Simple-expression-prime": [["Additive-expression-prime", "C"]], "C": [["Relop", "Additive-expression"], ["null"]], "Relop": [["<"], ["=="]], "Additive-expression": [["Term", "D"]], "Additive-expression-prime": [["Term-prime", "D"]], "Additive-expression-zegond": [["Term-zegond", "D"]], "D": [["Addop", "Term", "D"], ["null"]], "Addop": [["+"], ["-"]], "Term": [["Factor", "G"]], "Term-prime": [["Factor-prime", "G"]], "Term-zegond": [["Factor-zegond", "G"]], "G": [["*", "Factor", "G"], ["null"]], "Factor": [["(", "Expression", ")"], ["ID", "Var-call-prime"], ["NUM"]], "Var-call-prime": [["(", "Args", ")"], ["Var-prime"]], "Var-prime": [["[", "Expression", "]"], ["null"]], "Factor-prime": [["(", "Args", ")"], ["null"]], "Factor-zegond": [["(", "Expression", ")"], ["NUM"]], "Args": [["Arg-list"], ["null"]], "Arg-list": [["Expression", "Arg-list-prime"]], "Arg-list-prime": [[",", "Expression", "Arg-list-prime"], ["null"]]}
+Program -> Declaration-list $
+Declaration-list -> Declaration Declaration-list | EPSILON
+Declaration -> Declaration-initial Declaration-prime
+Declaration-initial -> #push_type Type-specifier #declare_id ID
+Declaration-prime -> Fun-declaration-prime | Var-declaration-prime
+Var-declaration-prime -> #finish_var_declare ; | [ #push_num NUM ] #end_array_declare  ;
+Fun-declaration-prime -> ( Params ) Compound-stmt
+Type-specifier -> int | void
+Params -> int ID Param-prime Param-list | void
+Param-list -> , Param Param-list | EPSILON
+Param -> Declaration-initial Param-prime
+Param-prime -> [ ] | EPSILON
+Compound-stmt -> { #into_scope Declaration-list Statement-list } #outo_scope
+Statement-list -> Statement Statement-list | EPSILON
+Statement -> Expression-stmt | Compound-stmt | Selection-stmt | Iteration-stmt | Return-stmt
+Expression-stmt -> Expression ; | break ; | ;
+Selection-stmt -> if ( Expression ) Statement Else-stmt
+Else-stmt -> endif | else Statement endif
+Iteration-stmt -> repeat Statement until ( Expression )
+Return-stmt -> return Return-stmt-prime
+Return-stmt-prime -> ; | Expression ;
+Expression -> Simple-expression-zegond | #push_id ID B
+B -> = Expression #assign | [ Expression ] #indirect_adr H | Simple-expression-prime
+H -> = Expression | G D C
+Simple-expression-zegond -> Additive-expression-zegond C
+Simple-expression-prime -> Additive-expression-prime C
+C -> Relop Additive-expression | EPSILON
+Relop -> < | ==
+Additive-expression -> Term D
+Additive-expression-prime -> Term-prime D
+Additive-expression-zegond -> Term-zegond D
+D -> #push_op Addop Term #operate D | EPSILON
+Addop -> + | -
+Term -> Factor G
+Term-prime -> Factor-prime G
+Term-zegond -> Factor-zegond G
+G -> #push_op * Factor #operate G | EPSILON
+Factor -> ( Expression ) | #push_id ID Var-call-prime | #push_num NUM
+Var-call-prime -> ( Args ) | Var-prime
+Var-prime -> [ Expression ] #indirect_adr | EPSILON
+Factor-prime -> ( Args ) | EPSILON
+Factor-zegond -> ( Expression ) | #push_num NUM
+Args -> Arg-list | EPSILON
+Arg-list -> Expression Arg-list-prime
+Arg-list-prime -> , Expression Arg-list-prime | EPSILON

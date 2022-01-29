@@ -46,28 +46,24 @@ class CodeGenerator:
         self.routine_dict.get(action)(token)
 
     def push_type(self, token):
-        self.semantic_analyzer.push(type=token)
+        self.semantic_analyzer.push(val=token)
 
     def declare_id(self, token):
-        self.semantic_analyzer.push(lexeme=token)
+        self.semantic_analyzer.push(val=token)
 
     def finish_var_declare(self, token):
-        lexeme, var_type = self.semantic_analyzer.pop().lexeme, self.semantic_analyzer.pop().type
+        lexeme, var_type = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
         address = self.mem.get_static_address()
         self.scope_record.insert_record(lexeme=lexeme, args=None, type=var_type, address=address)
 
     def push_num(self, token):
-        self.semantic_analyzer.push(lexeme=token)  # it's actually a number
+        self.semantic_analyzer.push(val=token)  # it's actually a number
 
     def end_array_declare(self, token):
-        size = int(self.semantic_analyzer.pop.lexeme)
-        lexeme = self.semantic_analyzer.pop().lexeme
+        size = int(self.semantic_analyzer.pop().val)
+        lexeme = self.semantic_analyzer.pop().val
         var_type = self.semantic_analyzer.pop().type
-        address = self.memory.get_static_address()
-
-        for _ in range(size-1):
-            self.memory.get_static_address()
-
+        address = self.memory.get_static_address(size*4)
         self.scope_record.insert_record(lexeme=lexeme, args=size, type=var_type, address=address)
 
     def into_scope(self, token):
@@ -77,8 +73,8 @@ class CodeGenerator:
         self.scope_record.delete_current_scope()
 
     def push_id(self, token): # Not sure if that's what we were supposed to do
-        lexeme = self.semantic_analyzer.pop.lexeme
-        address = self.scope_record.find_record(lexeme)
+        lexeme = token
+        address = self.scope_record.find_record(lexeme).address
         self.semantic_analyzer.push(lexeme=address)  # it's actually an address
 
     def assign(self, token):
@@ -105,5 +101,3 @@ class CodeGenerator:
         address = Memory.get_program_block()
         self.program_block.append(Three_Address_Code(op, rhs, lhs, temp))
 
-
-c = CodeGenerator()
