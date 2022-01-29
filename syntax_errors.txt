@@ -1,1 +1,1 @@
-#3 : syntax error, missing $
+There is no syntax error.
