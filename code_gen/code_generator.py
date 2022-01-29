@@ -34,14 +34,21 @@ class CodeGenerator:
         self.routine_dict['#push_num'] = self.push_num
         self.routine_dict['#end_array_declare'] = self.end_array_declare
         self.routine_dict['#into_scope'] = self.into_scope
-        self.routine_dict['#out_of_scope'] = self.out_of_scope
+        self.routine_dict['#outo_scope'] = self.out_of_scope
+        self.routine_dict['#push_id'] = self.push_id
+        self.routine_dict['#assign'] = self.assign
         self.routine_dict['#indirect_adr'] = self.indirect_adr
         self.routine_dict['#push_op'] = self.push_op
         self.routine_dict['#operate'] = self.operate
 
     def parse_token(self, token):
+<<<<<<< HEAD
         lexeme = token.split(",")[1]
         lexeme = lexeme.replace(")", "")
+=======
+        lexeme = token.split(",")[1] if token != '$' else token
+        lexeme = lexeme.replace(")","")
+>>>>>>> 3ba3772f7738f4d6f73fac3574d37b31aeb00411
         return (lexeme)
 
     def generate_code(self, action, token):
@@ -61,7 +68,7 @@ class CodeGenerator:
     def finish_var_declare(self, token):
         lexeme, var_type = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
         address = self.mem.get_static_address()
-        self.scope_record.insert_record(lexeme=lexeme, args=None, type=var_type, address=address)
+        self.scope_record.insert_record(lexeme=lexeme, args=None, type='VAR', var_type=var_type, address=address)
 
     def push_num(self, token):
         self.semantic_analyzer.push(val=token)  # it's actually a number
@@ -70,8 +77,13 @@ class CodeGenerator:
         size = int(self.semantic_analyzer.pop().val)
         lexeme = self.semantic_analyzer.pop().val
         var_type = self.semantic_analyzer.pop().type
+<<<<<<< HEAD
         address = self.mem.get_static_address(size * 4)
         self.scope_record.insert_record(lexeme=lexeme, args=size, type=var_type, address=address)
+=======
+        address = self.memory.get_static_address(size * 4)
+        self.scope_record.insert_record(lexeme=lexeme, args=size, type='ARRAY', var_type=var_type, address=address)
+>>>>>>> 3ba3772f7738f4d6f73fac3574d37b31aeb00411
 
     def into_scope(self, token):
         self.scope_record.new_scope()
@@ -82,23 +94,29 @@ class CodeGenerator:
     def push_id(self, token):  # Not sure if that's what we were supposed to do
         lexeme = token
         address = self.scope_record.find_record(lexeme).address
-        self.semantic_analyzer.push(lexeme=address)  # it's actually an address
+        self.semantic_analyzer.push(val=address)  # it's actually an address
 
     def assign(self, token):
+<<<<<<< HEAD
         self.mem.get_temp(), self.get_temp()  # just because we have to?
         address_rhs, address_lhs = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
         address = self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('ASSIGN', address_rhs, address_lhs, None))
+=======
+        address_rhs, address_lhs = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
+        address = self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code(':=', address_rhs, address_lhs, None))
+>>>>>>> 3ba3772f7738f4d6f73fac3574d37b31aeb00411
 
     def indirect_adr(self, token):
         index = int(self.semantic_analyzer.pop().val)
         lexeme = self.semantic_analyzer.pop().val
         address = self.scope_record.find_record(lexeme)
         new_address = address + index
-        self.semantic_analyzer.push(lexeme=new_address)  # it's actually an address not a Lexeme
+        self.semantic_analyzer.push(val=new_address)  # it's actually an address not a Lexeme
 
     def push_op(self, token):
-        self.semantic_analyzer.push(lexeme=token)  # it's an operand
+        self.semantic_analyzer.push(val=token)  # it's an operand
 
     def operate(self, token):
         rhs, op, lhs = self.semantic_analyzer.pop().val, \
