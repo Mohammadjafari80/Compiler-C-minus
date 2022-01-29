@@ -30,7 +30,17 @@ class CodeGenerator:
         self.program_block = []
         self.scope_record = sr.Scope()
         self.routine_dict = dict()
-        self.routine_dict["#push_type"] = self.push_type
+        self.routine_dict['#push_type'] = self.push_type
+        self.routine_dict['#declare_id'] = self.declare_id
+        self.routine_dict['#finish_var_declare'] = self.finish_var_declare
+        self.routine_dict['#push_num'] = self.push_num
+        self.routine_dict['#end_array_declare'] = self.end_array_declare
+        self.routine_dict['#into_scope'] = self.into_scope
+        self.routine_dict['#out_of_scope'] = self.out_of_scope
+        self.routine_dict['#indirect_adr'] = self.indirect_adr
+        self.routine_dict['#push_op'] = self.push_op
+        self.routine_dict['#operate'] = self.operate
+
 
     def generate_code(self, action, token):
         self.routine_dict.get(action)(token)
@@ -97,5 +107,3 @@ class CodeGenerator:
 
 
 c = CodeGenerator()
-a = Three_Address_Code(':=', 3, 6, None)
-print(a)
