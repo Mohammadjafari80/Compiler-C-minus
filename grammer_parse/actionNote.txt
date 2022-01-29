@@ -2,7 +2,7 @@
 #declare_id :  declare id and push it
 #finish_var_declare : pop two object 
 #push_num : push constant number 
-#end_array_declare : pop objext and number of requierd member and fill symbol table.
+#end_array_declare : pop objext and number of required member and fill symbol table.
 #into_scope : declare new scope
 #outo_scope : delete last scope
 #push_id : push address of id

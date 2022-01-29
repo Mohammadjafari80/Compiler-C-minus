@@ -4,6 +4,7 @@ created by Amirhossein Bagheri - 98105621 -> ahbagheri01@gmail.com
 """
 import Scanner
 import Parser
+
 """
 for i in range(10,20):
     read_path = "./parser_T11-T20/T%2d" % (i+1)

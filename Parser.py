@@ -39,11 +39,13 @@ class ParseToken:
         self.predict = json.load(open("./parser_utils/files/predict.json"))
         """
 
+
 class Parser:
 
     def __init__(self, path, save_path):
         self.save_path = save_path
-        self.transition_diagram = TD.Diagram("./parser_utils/grammer.json","./parser_utils/files/first.json","./parser_utils/files/follow.json","./parser_utils/files/predict.json")
+        self.transition_diagram = TD.Diagram("./parser_utils/grammer.json", "./parser_utils/files/first.json",
+                                             "./parser_utils/files/follow.json", "./parser_utils/files/predict.json")
         self.diagrams = self.transition_diagram.diagrams
         self.first = self.transition_diagram.first
         self.follow = self.transition_diagram.follow
@@ -112,9 +114,10 @@ class Parser:
                         self.handle_epsilons(self.diagrams[next_node], b)
                         next_state = next_state.states[next_node]
 
-    def code_gen(self,action):
+    def code_gen(self, action):
         print(action)
         pass
+
     def parse(self):
         action_flag = False
         while True:
@@ -137,7 +140,7 @@ class Parser:
                         if self.p_token.code_value in next_states_list and self.cur_state.stateType == TD.StateType.MID:
                             temp = self.cur_state.states.get(self.p_token.code_value)
                             Node(f'({self.p_token.type}, {self.p_token.value})' if production != '$' else '$',
-                                     parent=self.current_node)
+                                 parent=self.current_node)
                             self.cur_state = temp
                             self.get_next_token()
                             break
@@ -154,7 +157,7 @@ class Parser:
                             self.is_stable = False
                             line_number = self.scanner.get_line_number()
                             self.errors.append([ErrorTypes.MISSING, line_number, production])
-                            if production=="$":
+                            if production == "$":
                                 self.write_to_file()
                                 return
                         break
@@ -175,7 +178,8 @@ class Parser:
                     if EPSILON in self.first[production] and self.p_token.code_value in self.follow[production]:
                         self.cur_state = self.cur_state.states[production]
                         self.current_node = self.current_node.parent
-                    elif self.cur_state.stateType != TD.StateType.START and self.p_token.code_value in self.follow[production]:
+                    elif self.cur_state.stateType != TD.StateType.START and self.p_token.code_value in self.follow[
+                        production]:
                         if self.current_token == "$":
                             self.errors.append([ErrorTypes.UNEXPECTED_EOF, self.scanner.get_line_number() + 1, None])
                             self.write_to_file()
@@ -183,7 +187,7 @@ class Parser:
                         self.errors.append([ErrorTypes.MISSING, line_number, production])
                         self.cur_state = self.cur_state.states[production]
                         self.is_stable = False
-                    elif not(self.p_token.code_value in self.synchronous_set[self.cur_state.main_grammar]):
+                    elif not (self.p_token.code_value in self.synchronous_set[self.cur_state.main_grammar]):
                         if self.current_token == "$":
                             self.errors.append([ErrorTypes.UNEXPECTED_EOF, self.scanner.get_line_number() + 1, None])
                             self.write_to_file()
@@ -249,5 +253,3 @@ class Parser:
         with open(self.save_path + syntax_errors_address, "w", encoding="utf-8") as opened_file:
             opened_file.write(syntax_errors)
         opened_file.close()
-
-
