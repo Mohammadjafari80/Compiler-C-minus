@@ -11,10 +11,11 @@ def analysis(line):
         return
     line = line.strip()
     line = line.replace("EPSILON","null")
+    line = line.replace("\u03b5","null")
     g = line.split("->")
     left = g[0].replace(" ", "").strip()
     right = g[1].split("|")
-    right_g = []
+    right_g = grammer.get(left,[])
     for word in right:
         word = word.strip()
         w = word.split()
@@ -22,7 +23,7 @@ def analysis(line):
         right_g.append(w)
     grammer[left] = right_g
 
-with open('G.txt') as f:
+with open('grammer.txt') as f:
     line = f.readline()
     analysis(line)
     while line:
@@ -35,5 +36,5 @@ data = json.load( open( "grammer.json" ) )
 json.dump( grammer_for_jason_format, open( "jsongrammer.json", 'w' ) )
 
 # Read data from file:
-data = json.load( open( "jsongrammer.json" ) )
-print(data)
+data = json.load( open( "grammer.json" ) )
+print(len(data))

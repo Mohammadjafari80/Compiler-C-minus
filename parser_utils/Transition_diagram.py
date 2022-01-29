@@ -31,18 +31,19 @@ class State:
 
 
 class Diagram:
-    def __init__(self):
+    def __init__(self,gadd,fadd,foladd,preadd):
         self.state_number = 0
-        self.grammar = json.load(open("./parser_utils/grammar.json"))
-        self.first = json.load(open("./parser_utils/files/first.json"))
-        self.follow = json.load(open("./parser_utils/files/follow.json"))
-        self.predict = json.load(open("./parser_utils/files/predict.json"))
+
+        self.grammar = json.load(open(gadd))
+        self.first = json.load(open(fadd))
+        self.follow = json.load(open(foladd))
+        self.predict = json.load(open(preadd))
         self.non_terminals = list(self.grammar.keys())
         self.terminals = set(self.flatten(list(self.grammar.values()))) - set(self.non_terminals)
         self.diagrams = {}
         for NT in self.non_terminals:
             self.diagrams[NT] = self.create_diagram_each(self.grammar[NT], NT)
-
+        #print(self.diagrams)
     def create_diagram_each(self, productions, NT):
         starting = State(self.state_number, NT, StateType.START)
         accepting = State(self.state_number, NT, StateType.ACC)
@@ -59,3 +60,4 @@ class Diagram:
             return [a for i in x for a in self.flatten(i)]
         else:
             return [x]
+#d = Diagram("grammer.json","files/first.json","files/follow.json","files/predict.json")

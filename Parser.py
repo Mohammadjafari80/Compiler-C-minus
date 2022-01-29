@@ -32,13 +32,18 @@ class ParseToken:
         if len(token) == 3:
             self.code_value = ','
             self.value = ','
-
+        """
+        self.grammar = json.load(open("./parser_utils/grammer.json"))
+        self.first = json.load(open("./parser_utils/files/first.json"))
+        self.follow = json.load(open("./parser_utils/files/follow.json"))
+        self.predict = json.load(open("./parser_utils/files/predict.json"))
+        """
 
 class Parser:
 
     def __init__(self, path, save_path):
         self.save_path = save_path
-        self.transition_diagram = TD.Diagram()
+        self.transition_diagram = TD.Diagram("./parser_utils/grammer.json","./parser_utils/files/first.json","./parser_utils/files/follow.json","./parser_utils/files/predict.json")
         self.diagrams = self.transition_diagram.diagrams
         self.first = self.transition_diagram.first
         self.follow = self.transition_diagram.follow
@@ -107,11 +112,20 @@ class Parser:
                         self.handle_epsilons(self.diagrams[next_node], b)
                         next_state = next_state.states[next_node]
 
+    def code_gen(self,action):
+        print(action)
+        pass
     def parse(self):
+        action_flag = False
         while True:
             while self.cur_state.stateType != TD.StateType.ACC:
                 next_states_list = list(self.cur_state.states.keys())
                 for production in self.cur_state.states.keys():
+                    if production[0] == "#":
+                        action_flag = True
+                        self.code_gen(production)
+                        self.cur_state = self.cur_state.states.get(production)
+                        break
                     if production in self.T:
                         if production == self.p_token.code_value:
                             temp = self.cur_state.states.get(self.p_token.code_value)
@@ -186,7 +200,9 @@ class Parser:
                         self.pop()
                         self.cur_state = self.pop()
                         self.is_stable = False
-
+            if action_flag:
+                action_flag = False
+                continue
             if len(self.stack) < 2:
                 break
 
