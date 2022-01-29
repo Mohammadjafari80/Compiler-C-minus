@@ -21,6 +21,9 @@ class Record:
         self.scope_num = scope_number
         self.address = address
 
+    def __repr__(self):
+        return f'( lexeme={self.lexeme}, type={self.type}, args={self.args}, type={self.var_type}, scope={self.scope_num}, address={self.address})'
+
 
 class Scope:
     def __init__(self):
