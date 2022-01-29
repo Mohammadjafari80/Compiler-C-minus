@@ -64,7 +64,7 @@ class CodeGenerator:
     def finish_var_declare(self, token):
         lexeme, var_type = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
         address = self.mem.get_static_address()
-        self.scope_record.insert_record(lexeme=lexeme, args=None, type=var_type, address=address)
+        self.scope_record.insert_record(lexeme=lexeme, args=None, type='VAR', var_type=var_type, address=address)
 
     def push_num(self, token):
         self.semantic_analyzer.push(val=token)  # it's actually a number
@@ -74,7 +74,7 @@ class CodeGenerator:
         lexeme = self.semantic_analyzer.pop().val
         var_type = self.semantic_analyzer.pop().type
         address = self.memory.get_static_address(size * 4)
-        self.scope_record.insert_record(lexeme=lexeme, args=size, type=var_type, address=address)
+        self.scope_record.insert_record(lexeme=lexeme, args=size, type='ARRAY', var_type=var_type, address=address)
 
     def into_scope(self, token):
         self.scope_record.new_scope()

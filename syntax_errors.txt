@@ -1,1 +1,4 @@
-There is no syntax error.
+#3 : syntax error, missing ;
+#3 : syntax error, illegal [
+#3 : syntax error, missing ;
+#3 : syntax error, illegal ]
