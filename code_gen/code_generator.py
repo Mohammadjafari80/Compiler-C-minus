@@ -76,7 +76,7 @@ class CodeGenerator:
         self.semantic_analyzer.push(val=token)
 
     def finish_var_declare(self, token):
-        lexeme, var_type = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
+        lexeme,var_type = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
         address = self.mem.get_static_address()
         self.scope_record.insert_record(lexeme=lexeme, args=None, type='VAR', var_type=var_type, address=address)
 
@@ -114,8 +114,9 @@ class CodeGenerator:
 
     def indirect_adr(self, token):
         index = self.semantic_analyzer.pop().val
-        lexeme = self.semantic_analyzer.pop().val
-        address = self.scope_record.find_record(lexeme).address
+        #lexeme = self.semantic_analyzer.pop().val
+        #address = self.scope_record.find_record(lexeme).address
+        address = self.semantic_analyzer.pop().val
         if type(index) == str and "#" in index:
             index = index.replace("#", "")
             index = index.replace(" ", "")

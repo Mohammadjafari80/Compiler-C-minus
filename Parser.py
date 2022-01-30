@@ -22,7 +22,7 @@ class ParseToken:
         self.code_value = ""
 
     def set_info(self, token):
-        #print(token)
+        # print(token)
         token = token.split(",")
         self.type = token[0][1:]
         self.value = token[1][1:len(token[1]) - 1]
@@ -80,8 +80,8 @@ class Parser:
         self.stack.append(node)
 
     def get_next_token(self):
-        #if self.scanner.get_line_number() == 3:
-            #print("here")
+        # if self.scanner.get_line_number() == 3:
+        # print("here")
         self.last_token = self.current_token
         self.current_token = self.scanner.get_next_token()
         if self.current_token != "$":
@@ -119,10 +119,10 @@ class Parser:
                         next_state = next_state.states[next_node]
 
     def code_gen(self, action):
-        if (action == "#push" or action == "#push_num"):
+        if (action == "#push" or action == "#push_num" or  action == "#push_id"):
             self.code_generator.generate_code(action, self.last_token)
         else:
-            self.code_generator.generate_code(action,self.current_token)
+            self.code_generator.generate_code(action, self.current_token)
 
     def parse(self):
         action_flag = False

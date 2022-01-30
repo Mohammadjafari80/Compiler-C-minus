@@ -46,7 +46,7 @@ class Scope:
         begin = self.scope_stack.pop()
         for _ in range(self.head_pointer - begin - 1):
             self.scope_record.pop()
-        self.head_pointer = begin + 1
+        self.head_pointer = begin
         self.current_scope -= 1
 
     def find_record(self, lexeme):
@@ -64,7 +64,7 @@ class Scope:
 
     def new_scope(self):
         self.current_scope += 1
-        self.scope_stack.append(self.current_scope)
+        self.scope_stack.append(self.head_pointer)
 
     def print_records(self):
         for p in self.scope_record:
