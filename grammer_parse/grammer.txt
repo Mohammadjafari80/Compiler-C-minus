@@ -24,7 +24,7 @@ B -> = Expression #assign | [ Expression ] #indirect_adr H | Simple-expression-p
 H -> = Expression | G D C
 Simple-expression-zegond -> Additive-expression-zegond C
 Simple-expression-prime -> Additive-expression-prime C
-C -> Relop Additive-expression | EPSILON
+C -> #push_compare_operand Relop Additive-expression #compare_operate | EPSILON
 Relop -> < | ==
 Additive-expression -> Term D
 Additive-expression-prime -> Term-prime D
