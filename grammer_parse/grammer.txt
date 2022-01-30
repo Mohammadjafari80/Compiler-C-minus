@@ -21,7 +21,7 @@ Return-stmt -> return Return-stmt-prime
 Return-stmt-prime -> ; | Expression ;
 Expression -> Simple-expression-zegond |  ID #push B
 B -> = Expression #assign | [ Expression ] #indirect_adr H | Simple-expression-prime
-H -> = Expression | G D C
+H -> = Expression #assign | G D C
 Simple-expression-zegond -> Additive-expression-zegond C
 Simple-expression-prime -> Additive-expression-prime C
 C ->  Relop #push Additive-expression #compare_operate | EPSILON

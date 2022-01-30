@@ -5,6 +5,9 @@ class SemanticNode:
     def __init__(self, val):
         self.val = val
 
+    def __repr__(self):
+        return f'(val={self.val})'
+
 
 class SemanticAnalyzer:
     def __init__(self):

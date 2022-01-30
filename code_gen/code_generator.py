@@ -58,6 +58,7 @@ class CodeGenerator:
         print(self.program_block)
         print(self.scope_record.scope_stack)
         print(self.scope_record.scope_record)
+        print(self.semantic_analyzer.semantic_stack)
         print("---------------------------")
         self.routine_dict.get(action)(self.parse_token(token))
 
@@ -104,8 +105,8 @@ class CodeGenerator:
     def indirect_adr(self, token):
         index = int(self.semantic_analyzer.pop().val)
         lexeme = self.semantic_analyzer.pop().val
-        address = self.scope_record.find_record(lexeme)
-        new_address = address + index
+        address = self.scope_record.find_record(lexeme).address
+        new_address = address + index * 4
         self.semantic_analyzer.push(val=new_address)  # it's actually an address not a Lexeme
 
     def push_op(self, token):
@@ -116,8 +117,16 @@ class CodeGenerator:
                        self.semantic_analyzer.pop().val, \
                        self.semantic_analyzer.pop().val
         temp = self.mem.get_temp()
+        op = op.strip()
+        operation = ''
+        if op == '+':
+            operation = 'ADD'
+        elif op == '-':
+            operation = 'SUB'
+        elif op == '*':
+            operation = 'MULT'
         self.mem.get_program_block()
-        self.program_block.append(Three_Address_Code(op, rhs, lhs, temp))
+        self.program_block.append(Three_Address_Code(operation, rhs, lhs, temp))
 
     def save_if(self, token):
         i = self.mem.get_program_block()

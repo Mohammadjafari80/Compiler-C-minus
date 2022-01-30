@@ -48,6 +48,7 @@ class Diagram:
         starting = State(self.state_number, NT, StateType.START)
         accepting = State(self.state_number, NT, StateType.ACC)
         for product in productions:
+            print(product)
             starting.add_state(self.state_number, 0, product, accepting, NT)
             self.state_number = accepting.number
         self.state_number = accepting.number + 1
