@@ -93,7 +93,6 @@ class CodeGenerator:
         self.semantic_analyzer.push(val=address)  # it's actually an address
 
     def assign(self, token):
-        self.mem.get_temp(), self.get_temp()  # just because we have to?
         address_rhs, address_lhs = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
         address = self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('ASSIGN', address_rhs, address_lhs, None))
@@ -113,7 +112,7 @@ class CodeGenerator:
                        self.semantic_analyzer.pop().val, \
                        self.semantic_analyzer.pop().val
         temp = self.mem.get_temp()
-        address = self.mem.get_program_block()
+        self.mem.get_program_block()
         self.program_block.append(Three_Address_Code(op, rhs, lhs, temp))
 
     def save_if(self, token):
@@ -143,7 +142,7 @@ class CodeGenerator:
 
     def jump_repeat(self, token):
         self.mem.get_program_block()
-        i = self.mem.get_program_block()
+        self.mem.get_program_block()
         A = self.semantic_analyzer.pop().val
         jp_add = self.semantic_analyzer.pop().val
         self.program_block.append(Three_Address_Code('JPF', A, self.mem.get_front_code(), None))
