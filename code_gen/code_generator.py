@@ -81,8 +81,8 @@ class CodeGenerator:
     def end_array_declare(self, token):
         size = int(self.semantic_analyzer.pop().val)
         lexeme = self.semantic_analyzer.pop().val
-        var_type = self.semantic_analyzer.pop().type
-        address = self.memory.get_static_address(size * 4)
+        var_type = self.semantic_analyzer.pop().val
+        address = self.mem.get_static_address(size * 4)
         self.scope_record.insert_record(lexeme=lexeme, args=size, type='ARRAY', var_type=var_type, address=address)
 
     def into_scope(self, token):
