@@ -149,6 +149,12 @@ class CodeGenerator:
         self.program_block.append(Three_Address_Code('JPF', A, self.mem.get_front_code(), None))
         self.program_block.append(Three_Address_Code('JP', jp_add, None, None))
 
+    def push_compare(self, token):
+        self.semantic_analyzer.push(token)
+
+    def compare_operate(self, token):
+        pass
+
 
 """
 Selection-stmt -> if ( Expression ) #save_if Statement Else-stmt
