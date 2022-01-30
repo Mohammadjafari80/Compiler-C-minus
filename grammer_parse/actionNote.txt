@@ -16,6 +16,5 @@
 #end_simple_if
 #save_if_else
 #end_if_else
-#push_comare_operand
 #compare_operate
 #push_compare_operand
