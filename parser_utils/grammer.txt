@@ -3,7 +3,7 @@ Declaration-list -> Declaration Declaration-list | EPSILON
 Declaration -> Declaration-initial Declaration-prime
 Declaration-initial ->   Type-specifier #push  #declare_id ID
 Declaration-prime -> Fun-declaration-prime | Var-declaration-prime
-Var-declaration-prime ->  ; #finish_var_declare | [  NUM #push ]  ; #end_array_declare
+Var-declaration-prime ->  ; #finish_var_declare | [  NUM #push_num ]  ; #end_array_declare
 Fun-declaration-prime -> ( Params ) Compound-stmt
 Type-specifier -> int | void
 Params -> int ID Param-prime Param-list | void
@@ -21,7 +21,7 @@ Return-stmt -> return Return-stmt-prime
 Return-stmt-prime -> ; | Expression ;
 Expression -> Simple-expression-zegond |  ID #push B
 B -> = Expression #assign | [ Expression ] #indirect_adr H | Simple-expression-prime
-H -> = Expression | G D C
+H -> = Expression #assign | G D C
 Simple-expression-zegond -> Additive-expression-zegond C
 Simple-expression-prime -> Additive-expression-prime C
 C ->  Relop #push Additive-expression #compare_operate | EPSILON
@@ -39,7 +39,7 @@ Factor -> ( Expression ) |  ID #push Var-call-prime |  NUM #push
 Var-call-prime -> ( Args ) | Var-prime
 Var-prime -> [ Expression ] #indirect_adr | EPSILON
 Factor-prime -> ( Args ) | EPSILON
-Factor-zegond -> ( Expression ) | #push_num NUM
+Factor-zegond -> ( Expression ) | NUM #push_num
 Args -> Arg-list | EPSILON
 Arg-list -> Expression Arg-list-prime
 Arg-list-prime -> , Expression Arg-list-prime | EPSILON

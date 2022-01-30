@@ -119,7 +119,7 @@ class Parser:
                         next_state = next_state.states[next_node]
 
     def code_gen(self, action):
-        if (action == "#push"):
+        if (action == "#push" or action == "#push_num"):
             self.code_generator.generate_code(action, self.last_token)
         else:
             self.code_generator.generate_code(action,self.current_token)

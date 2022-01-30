@@ -107,9 +107,13 @@ Program
 │   │               │           │       │               │       ├── Additive-expression-zegond
 │   │               │           │       │               │       │   ├── Term-zegond
 │   │               │           │       │               │       │   │   ├── Factor-zegond
-│   │               │           │       │               │       │   │   │   └── (NUM, 3)
+│   │               │           │       │               │       │   │   │   └── (NUM, 1)
 │   │               │           │       │               │       │   │   └── G
-│   │               │           │       │               │       │   │       └── epsilon
+│   │               │           │       │               │       │   │       ├── (SYMBOL, *)
+│   │               │           │       │               │       │   │       ├── Factor
+│   │               │           │       │               │       │   │       │   └── (NUM, 3)
+│   │               │           │       │               │       │   │       └── G
+│   │               │           │       │               │       │   │           └── epsilon
 │   │               │           │       │               │       │   └── D
 │   │               │           │       │               │       │       └── epsilon
 │   │               │           │       │               │       └── C

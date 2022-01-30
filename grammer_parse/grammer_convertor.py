@@ -30,6 +30,7 @@ with open('grammer.txt') as f:
         line = f.readline()
         analysis(line)
 json.dump( grammer, open( "grammer.json", 'w' ) )
+json.dump( grammer, open( "../parser_utils/grammer.json", 'w' ) )
 
 # Read data from file:
 data = json.load( open( "grammer.json" ) )

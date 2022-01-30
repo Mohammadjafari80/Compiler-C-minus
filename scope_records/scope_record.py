@@ -65,3 +65,7 @@ class Scope:
     def new_scope(self):
         self.current_scope += 1
         self.scope_stack.append(self.current_scope)
+
+    def print_records(self):
+        for p in self.scope_record:
+            print(p)

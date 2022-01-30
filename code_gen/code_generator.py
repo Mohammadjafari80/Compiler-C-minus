@@ -47,20 +47,27 @@ class CodeGenerator:
         self.routine_dict['#end_simple_if'] = self.end_simple_if
         self.routine_dict['#save_if'] = self.save_if
         self.routine_dict['#push'] = self.push
+        self.routine_dict['#compare_operate'] = self.compare_operate
 
     def parse_token(self, token):
         lexeme = token.split(",")[1] if token != '$' else token
         lexeme = lexeme.replace(")", "")
-        return (lexeme)
+        return (lexeme.strip())
 
     def generate_code(self, action, token):
         print(action)
-        print(self.program_block)
+        print("befor ---------------------------")
+        print(self.print_program_block())
         print(self.scope_record.scope_stack)
-        print(self.scope_record.scope_record)
+        print(self.scope_record.print_records())
         print(self.semantic_analyzer.semantic_stack)
-        print("---------------------------")
+        print("after ---------------------------")
         self.routine_dict.get(action)(self.parse_token(token))
+        print(self.print_program_block())
+        print(self.scope_record.scope_stack)
+        print(self.scope_record.print_records())
+        print(self.semantic_analyzer.semantic_stack)
+
 
     def push_type(self, token):
         self.semantic_analyzer.push(val=token)
@@ -77,10 +84,13 @@ class CodeGenerator:
         self.semantic_analyzer.push(val=token)  # it's actually a number
 
     def push_num(self, token):
-        self.semantic_analyzer.push(val=token)  # it's actually a number
+        self.semantic_analyzer.push(val=f'#{token}')  # it's actually a number
 
     def end_array_declare(self, token):
-        size = int(self.semantic_analyzer.pop().val)
+        val = self.semantic_analyzer.pop().val
+        val = val.replace("#", "")
+        val = val.replace(" ", "")
+        size = int(val)
         lexeme = self.semantic_analyzer.pop().val
         var_type = self.semantic_analyzer.pop().val
         address = self.mem.get_static_address(size * 4)
@@ -103,11 +113,23 @@ class CodeGenerator:
         self.program_block.append(Three_Address_Code('ASSIGN', address_rhs, address_lhs, None))
 
     def indirect_adr(self, token):
-        index = int(self.semantic_analyzer.pop().val)
+        index = self.semantic_analyzer.pop().val
         lexeme = self.semantic_analyzer.pop().val
         address = self.scope_record.find_record(lexeme).address
-        new_address = address + index * 4
-        self.semantic_analyzer.push(val=new_address)  # it's actually an address not a Lexeme
+        if type(index) == str and "#" in index:
+            index = index.replace("#", "")
+            index = index.replace(" ", "")
+            size = int(index)
+            new_address = address + size * 4
+            self.semantic_analyzer.push(val=new_address)
+            return
+        size = int(index)
+        temp = self.mem.get_temp()
+        self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code("MULT", f'#4', size, temp))
+        self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code("ADD", f'#{address}', temp, temp))
+        self.semantic_analyzer.push(val=temp)  # it's actually an address not a Lexeme
 
     def push_op(self, token):
         self.semantic_analyzer.push(val=token)  # it's an operand
@@ -127,6 +149,7 @@ class CodeGenerator:
             operation = 'MULT'
         self.mem.get_program_block()
         self.program_block.append(Three_Address_Code(operation, rhs, lhs, temp))
+        self.semantic_analyzer.push(temp)
 
     def save_if(self, token):
         i = self.mem.get_program_block()
@@ -141,13 +164,14 @@ class CodeGenerator:
     def save_if_else(self, token):
         i = self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('JP', "?", None, None))
-        self.program_block[self.semantic_analyzer.pop().val] = Three_Address_Code('JPF',
+        index  = int(self.semantic_analyzer.pop().val)
+        self.program_block[index] = Three_Address_Code('JPF',
                                                                                   self.semantic_analyzer.pop().val,
                                                                                   self.mem.get_front_code(), None)
         self.semantic_analyzer.push(i)
 
     def end_if_else(self, token):
-        self.program_block[self.semantic_analyzer.pop().val] = Three_Address_Code('JP', self.mem.get_front_code(), None,
+        self.program_block[int(self.semantic_analyzer.pop().val)] = Three_Address_Code('JP', self.mem.get_front_code(), None,
                                                                                   None)
 
     def label(self, token):
@@ -178,6 +202,10 @@ class CodeGenerator:
             self.program_block.append(Three_Address_Code('LT', rhs, lhs, temp))
 
         self.semantic_analyzer.push(temp)
+
+    def print_program_block(self):
+        for p in self.program_block:
+            print(p)
 
 
 """
