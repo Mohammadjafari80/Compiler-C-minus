@@ -2,6 +2,7 @@ from semantic_analyzer import semantic_analyzer as sa
 from code_gen.Memory_handler import Memory
 from scope_records import scope_record as sr
 from collections import namedtuple
+from code_gen.Break_handler import Break
 
 """"
 #push_type : pushing type of id into stack for future use
@@ -25,6 +26,7 @@ class CodeGenerator:
     def __init__(self):
         self.semantic_analyzer = sa.SemanticAnalyzer()
         self.mem = Memory()
+        self.breakH = Break()
         self.program_block = []
         self.scope_record = sr.Scope()
         self.routine_dict = dict()
@@ -47,6 +49,8 @@ class CodeGenerator:
         self.routine_dict['#end_simple_if'] = self.end_simple_if
         self.routine_dict['#save_if'] = self.save_if
         self.routine_dict['#push'] = self.push
+        self.routine_dict['#save_break'] = self.save_break
+        self.routine_dict['#label_break_repeat'] = self.label_break_repeat
         self.routine_dict['#compare_operate'] = self.compare_operate
 
     def parse_token(self, token):
@@ -68,6 +72,14 @@ class CodeGenerator:
         print(self.scope_record.print_records())
         print(self.semantic_analyzer.semantic_stack)
 
+    def save_break(self, token):
+        i = self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code('JP', "?", None, None))
+        self.breakH.add_break(i)
+
+    def label_break_repeat(self, token):
+        self.semantic_analyzer.push(self.mem.get_front_code())
+        self.breakH.add_repeat()
 
     def push_type(self, token):
         self.semantic_analyzer.push(val=token)
@@ -76,7 +88,7 @@ class CodeGenerator:
         self.semantic_analyzer.push(val=token)
 
     def finish_var_declare(self, token):
-        lexeme,var_type = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
+        lexeme, var_type = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
         address = self.mem.get_static_address()
         self.scope_record.insert_record(lexeme=lexeme, args=None, type='VAR', var_type=var_type, address=address)
 
@@ -114,8 +126,8 @@ class CodeGenerator:
 
     def indirect_adr(self, token):
         index = self.semantic_analyzer.pop().val
-        #lexeme = self.semantic_analyzer.pop().val
-        #address = self.scope_record.find_record(lexeme).address
+        # lexeme = self.semantic_analyzer.pop().val
+        # address = self.scope_record.find_record(lexeme).address
         address = self.semantic_analyzer.pop().val
         if type(index) == str and "#" in index:
             index = index.replace("#", "")
@@ -165,15 +177,16 @@ class CodeGenerator:
     def save_if_else(self, token):
         i = self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('JP', "?", None, None))
-        index  = int(self.semantic_analyzer.pop().val)
+        index = int(self.semantic_analyzer.pop().val)
         self.program_block[index] = Three_Address_Code('JPF',
-                                                                                  self.semantic_analyzer.pop().val,
-                                                                                  self.mem.get_front_code(), None)
+                                                       self.semantic_analyzer.pop().val,
+                                                       self.mem.get_front_code(), None)
         self.semantic_analyzer.push(i)
 
     def end_if_else(self, token):
-        self.program_block[int(self.semantic_analyzer.pop().val)] = Three_Address_Code('JP', self.mem.get_front_code(), None,
-                                                                                  None)
+        self.program_block[int(self.semantic_analyzer.pop().val)] = Three_Address_Code('JP', self.mem.get_front_code(),
+                                                                                       None,
+                                                                                       None)
 
     def label(self, token):
         self.semantic_analyzer.push(self.mem.get_front_code())
@@ -185,6 +198,8 @@ class CodeGenerator:
         jp_add = self.semantic_analyzer.pop().val
         self.program_block.append(Three_Address_Code('JPF', A, self.mem.get_front_code(), None))
         self.program_block.append(Three_Address_Code('JP', jp_add, None, None))
+        for index in self.breakH.get_breaks_address():
+            self.program_block[index] = Three_Address_Code('JP', self.mem.get_front_code(), None, None)
 
     def push_compare(self, token):
         self.semantic_analyzer.push(token)
