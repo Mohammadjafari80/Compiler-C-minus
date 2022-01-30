@@ -9,5 +9,9 @@ void main(void){
 	a = a+ 5;
 	}
 	a = b[1*3] + 5;
+
+	repeat {
+	 b[3] = b[3] + 1
+	} until (b[3] == 6)
 	return a;
 }
