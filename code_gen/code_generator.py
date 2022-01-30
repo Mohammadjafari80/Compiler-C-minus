@@ -46,6 +46,7 @@ class CodeGenerator:
         self.routine_dict['#save_if_else'] = self.save_if_else
         self.routine_dict['#end_simple_if'] = self.end_simple_if
         self.routine_dict['#save_if'] = self.save_if
+        self.routine_dict['#push'] = self.push
 
     def parse_token(self, token):
         lexeme = token.split(",")[1] if token != '$' else token
@@ -70,6 +71,9 @@ class CodeGenerator:
         lexeme, var_type = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
         address = self.mem.get_static_address()
         self.scope_record.insert_record(lexeme=lexeme, args=None, type='VAR', var_type=var_type, address=address)
+
+    def push(self, token):
+        self.semantic_analyzer.push(val=token)  # it's actually a number
 
     def push_num(self, token):
         self.semantic_analyzer.push(val=token)  # it's actually a number
@@ -160,12 +164,11 @@ class CodeGenerator:
         temp = self.mem.get_temp()
 
         if op == '==':
-            self.program_block.append(Three_Address_Code('EQ',  rhs, lhs, temp))
+            self.program_block.append(Three_Address_Code('EQ', rhs, lhs, temp))
         elif op == '<':
             self.program_block.append(Three_Address_Code('LT', rhs, lhs, temp))
 
         self.semantic_analyzer.push(temp)
-
 
 
 """

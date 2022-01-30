@@ -68,6 +68,7 @@ class Parser:
         self.errors = []
         self.is_stable = True
         self.code_generator = code_generator.CodeGenerator()
+        self.last_token = ""
 
     def front(self) -> TD.State:
         return self.stack[len(self.stack) - 1]
@@ -81,6 +82,7 @@ class Parser:
     def get_next_token(self):
         #if self.scanner.get_line_number() == 3:
             #print("here")
+        self.last_token = self.current_token
         self.current_token = self.scanner.get_next_token()
         if self.current_token != "$":
             self.p_token.set_info(self.current_token)
@@ -117,7 +119,10 @@ class Parser:
                         next_state = next_state.states[next_node]
 
     def code_gen(self, action):
-        self.code_generator.generate_code(action,self.current_token)
+        if (action == "#push"):
+            self.code_generator.generate_code(action, self.last_token)
+        else:
+            self.code_generator.generate_code(action,self.current_token)
 
     def parse(self):
         action_flag = False
