@@ -153,7 +153,20 @@ class CodeGenerator:
         self.semantic_analyzer.push(token)
 
     def compare_operate(self, token):
-        pass
+        rhs, op, lhs = self.semantic_analyzer.pop().val, \
+                       self.semantic_analyzer.pop().val, \
+                       self.semantic_analyzer.pop().val
+
+        self.mem.get_program_block()
+        temp = self.mem.get_temp()
+
+        if op == '==':
+            self.program_block.append(Three_Address_Code('EQ',  rhs, lhs, temp))
+        elif op == '<':
+            self.program_block.append(Three_Address_Code('LT', rhs, lhs, temp))
+
+        self.semantic_analyzer.push(temp)
+
 
 
 """
