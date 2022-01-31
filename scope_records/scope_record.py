@@ -20,6 +20,7 @@ class Record:
         self.var_type = var_type
         self.scope_num = scope_number
         self.address = address
+        self.local_var = 0
 
     def __str__(self):
         return f'lexeme : {self.lexeme} , type = {self.type} , args : {self.args} , var_type : {self.var_type} , scope_num : {self.scope_num} , address : {self.address}'
@@ -34,6 +35,7 @@ class Scope:
         self.scope_record = []
         self.current_scope = 0
         self.head_pointer = 0
+        self.current_fun = None
 
     def front(self):
         return self.scope_stack[self.current_scope]

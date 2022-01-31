@@ -1,10 +1,5 @@
 #push_type : pushing type of id into stack for future use
-#declare_id :  declare id and push it
-#finish_var_declare : pop two object 
-#push_num : push constant number 
-#end_array_declare : pop objext and number of required member and fill symbol table.
-#into_scope : declare new scope
-#outo_scope : delete last scope
+#push_num : push constant number
 #push_id : push address of id
 #assign : pop two address assign tow each other
 #indirect_adr : sum with array address and calculate new address
@@ -18,3 +13,12 @@
 #end_if_else
 #compare_operate
 #push_compare_operand
+#fun_declare_init
+#fun_declare_end
+#set_offset_function
+#declare_id :  declare id and push it *
+#finish_var_declare : pop two object  *
+#end_array_declare : pop objext and number of required member and fill symbol table. *
+#into_scope : declare new scope *
+#outo_scope : delete last scope *
+
