@@ -13,10 +13,11 @@
 #end_if_else
 #compare_operate
 #push_compare_operand
-
 #fun_declare_init
 #fun_declare_end
 #set_offset_function
+#set_offset_function_arr
+
 #before_call
 #call
 #push_arg

@@ -13,7 +13,7 @@ class Type(Enum):
 
 
 class Record:
-    def __init__(self, lexeme, scope_number, args=0, type=Type.VOID, var_type=VarTYPE.var, address=0):
+    def __init__(self, lexeme, scope_number, args=0, type=Type.VOID, var_type=VarTYPE.var, address=0, arr_size=1):
         self.lexeme = lexeme
         self.type = type
         self.args = args
@@ -21,6 +21,14 @@ class Record:
         self.scope_num = scope_number
         self.address = address
         self.local_var = 0
+        self.arr_size = arr_size
+
+    def update_args(self, val=1):
+        self.args += val
+        self.local_var += val
+
+    def update_local_car(self, val=1):
+        self.local_var += val
 
     def __str__(self):
         return f'lexeme : {self.lexeme} , type = {self.type} , args : {self.args} , var_type : {self.var_type} , scope_num : {self.scope_num} , address : {self.address}'
@@ -41,9 +49,11 @@ class Scope:
     def front(self):
         return self.scope_stack[self.current_scope]
 
-    def insert_record(self, lexeme, args=0, type=Type.VOID, var_type=VarTYPE.var, address=0):
+    def insert_record(self, lexeme, args=0, type=Type.VOID, var_type=VarTYPE.var, address=0, arr_size=1):
         self.head_pointer += 1
-        self.scope_record.append(Record(lexeme, self.current_scope, args, type, var_type, address))
+        r = Record(lexeme, self.current_scope, args, type, var_type, address, arr_size)
+        self.scope_record.append(r)
+        return r
 
     def delete_current_scope(self):
         begin = self.scope_stack.pop()

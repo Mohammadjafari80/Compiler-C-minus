@@ -74,6 +74,16 @@ class CodeGenerator:
         print(self.scope_record.print_records())
         print(self.semantic_analyzer.semantic_stack)
 
+    def push_run_time_stack(self, val, size=1):
+        self.mem.get_program_block()
+        self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code('ASSIGN', f'#{val}', f'@{self.mem.sp}', None))
+        self.program_block.append(Three_Address_Code('ADD', f'#{4 * size}', f'{self.mem.sp}', f'{self.mem.sp}'))
+
+    def pop_run_time_stack(self, size):
+        self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code('SUB', f'{self.mem.sp}', f'#{size * 4}', f'{self.mem.sp}'))
+
     def save_break(self, token):
         i = self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('JP', "?", None, None))
@@ -89,10 +99,18 @@ class CodeGenerator:
     def declare_id(self, token):  # TODO CHNAGE
         self.semantic_analyzer.push(val=token)
 
-    def finish_var_declare(self, token):  # TODO CHNAGE
-        lexeme, var_type = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
-        address = self.mem.get_static_address()
-        self.scope_record.insert_record(lexeme=lexeme, args=None, type='VAR', var_type=var_type, address=address)
+    def finish_var_declare(self, token):
+        if self.scope_record.current_scope == 0:
+            lexeme, var_type = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
+            address = self.mem.get_static_address()
+            self.scope_record.insert_record(lexeme=lexeme, args=None, type='global_var', var_type=var_type,
+                                            address=address)
+        else:
+            lexeme, var_type = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
+            address = self.scope_record.current_fun.local_var
+            self.scope_record.current_fun.update_local_var()
+            self.scope_record.insert_record(lexeme=lexeme, args=None, type='local_var', var_type=var_type,
+                                            address=address)
 
     def push(self, token):
         self.semantic_analyzer.push(val=token)  # it's actually a number
@@ -100,20 +118,35 @@ class CodeGenerator:
     def push_num(self, token):
         self.semantic_analyzer.push(val=f'#{token}')  # it's actually a number
 
-    def end_array_declare(self, token):  # TODO CHNAGE
+    def end_array_declare(self, token):
         val = self.semantic_analyzer.pop().val
         val = val.replace("#", "")
         val = val.replace(" ", "")
         size = int(val)
-        lexeme = self.semantic_analyzer.pop().val
-        var_type = self.semantic_analyzer.pop().val
-        address = self.mem.get_static_address(size * 4)
-        self.scope_record.insert_record(lexeme=lexeme, args=size, type='ARRAY', var_type=var_type, address=address)
+        if self.scope_record.current_scope == 0:
+            lexeme = self.semantic_analyzer.pop().val
+            var_type = self.semantic_analyzer.pop().val
+            address = self.mem.get_static_address(size * 4)
+            self.scope_record.insert_record(lexeme=lexeme, args=size, type='global_var_arr', var_type=var_type,
+                                            address=address, arr_size=size)
+        else:
+            lexeme, var_type = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
+            address = self.scope_record.current_fun.local_var
+            self.scope_record.current_fun.update_local_var(size)
+            self.scope_record.insert_record(lexeme=lexeme, args=None, type='local_var_arr', var_type=var_type,
+                                            address=address, arr_size=size)
 
     def into_scope(self, token):  # TODO CHNAGE
         self.scope_record.new_scope()
 
     def out_of_scope(self, token):  # TODO CHNAGE
+        if (
+                self.scope_record.current_fun != None) and self.scope_record.current_fun.scope == self.scope_record.current_scope - 1:
+            r = self.scope_record.current_fun
+            size = r.local_var
+            self.pop_run_time_stack(size)
+            self.reverse_display()
+            # TODO should put return value in semantic stack
         self.scope_record.delete_current_scope()
 
     def push_id(self, token):  # Not sure if that's what we were supposed to do
@@ -186,7 +219,8 @@ class CodeGenerator:
         self.semantic_analyzer.push(i)
 
     def end_if_else(self, token):
-        self.program_block[int(self.semantic_analyzer.pop().val)] = Three_Address_Code('JP', self.mem.get_front_code(),
+        self.program_block[int(self.semantic_analyzer.pop().val)] = Three_Address_Code('JP',
+                                                                                       self.mem.get_front_code(),
                                                                                        None,
                                                                                        None)
 
@@ -233,56 +267,61 @@ class CodeGenerator:
 
     def fun_declare_init(self, token):
         lexeme, var_type = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
-        self.scope_record.insert_record(lexeme=lexeme, args=0, type='FUN', var_type=var_type,
-                                        address=self.mem.get_front_code())
+        r = self.scope_record.insert_record(lexeme=lexeme, args=0, type='FUN', var_type=var_type,
+                                            address=self.mem.get_front_code())
+        self.scope_record.current_fun = r
         self.scope_record.new_scope()
         self.scope_record.in_function = True
         self.save_stack_address_in_stack()
 
+    def reverse_display(self):
+        self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code('ASSIGN', f'@{self.mem.sp}', f'{self.mem.display}', None))
+        self.pop_run_time_stack()
+
     def save_stack_address_in_stack(self):
         self.mem.get_program_block()
-        self.mem.get_program_block()
-        self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('ASSIGN', f'{self.mem.sp}', f'{self.mem.display}', None))
-        self.program_block.append(Three_Address_Code('ASSIGN', f'{self.mem.display}', f'@{self.mem.sp}', None))
-        self.program_block.append(Three_Address_Code('ADD', f'#4', f'{self.mem.sp}', f'{self.mem.sp}'))
-        # self.program_block.append(Three_Address_Code('ADD', f'#4', f'{self.mem.sp}', f'{self.mem.sp}'))
+        self.push_run_time_stack(self.mem.display, 1)
 
     def fun_declare_end(self, token):
         pass
 
-    def set_offset_function(self, token):
+    def set_offset_function(self, token, ):
+        lexeme, var_type = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
+        address = self.scope_record.current_fun.args
+        self.scope_record.current_fun.update_arg()
+        self.scope_record.insert_record(lexeme=lexeme, args=None, type='arg_var', var_type=var_type,
+                                        address=address)
+
+    def set_offset_function_arr(self, token):
+        lexeme, var_type = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
+        address = self.scope_record.current_fun.args
+        self.scope_record.current_fun.update_arg()
+        self.scope_record.insert_record(lexeme=lexeme, args=None, type='arg_var_arr', var_type=var_type,
+                                        address=address)
+
         pass
 
     def before_call(self, token):
         pass
 
-    def push_run_time_stack(self, val):
-        self.mem.get_program_block()
-        self.mem.get_program_block()
-        self.program_block.append(Three_Address_Code('ASSIGN', f'#{val}', f'@{self.mem.sp}', None))
-        self.program_block.append(Three_Address_Code('ADD', f'#4', f'{self.mem.sp}', f'{self.mem.sp}'))
-
-    def pop_run_time_stack(self):
-        pass
+        """
+        #fun_declare_init
+        #fun_declare_end
+        #set_offset_function
+        #before_call Args
+        #call
+        #push_arg
+        #declare_id :  declare id and push it *
+        #finish_var_declare : pop two object  *
+        #end_array_declare : pop objext and number of required member and fill symbol table. *
+        #into_scope : declare new scope *
+        #outo_scope : delete last scope *
+        """
 
     """
-    #fun_declare_init
-    #fun_declare_end
-    #set_offset_function
-    #before_call Args
-    #call
-    #push_arg
-    #declare_id :  declare id and push it *
-    #finish_var_declare : pop two object  *
-    #end_array_declare : pop objext and number of required member and fill symbol table. *
-    #into_scope : declare new scope *
-    #outo_scope : delete last scope *
+    Selection-stmt -> if ( Expression ) #save_if Statement Else-stmt
+    Else-stmt -> endif #end_simple_if | else #save_if_else Statement endif #end_if_else
+    Iteration-stmt -> repeat #label Statement until ( Expression ) #jump_repeat
     """
-
-
-"""
-Selection-stmt -> if ( Expression ) #save_if Statement Else-stmt
-Else-stmt -> endif #end_simple_if | else #save_if_else Statement endif #end_if_else
-Iteration-stmt -> repeat #label Statement until ( Expression ) #jump_repeat
-"""
