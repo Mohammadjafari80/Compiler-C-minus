@@ -149,14 +149,28 @@ class CodeGenerator:
             # TODO Jump to return address
         self.scope_record.delete_current_scope()
 
-    def push_id(self, token):  # Not sure if that's what we were supposed to do
+    def push_id(self, token):  # Not sure if that's what we were supposed to do #push all to stack
         lexeme = token
-        address = self.scope_record.find_record(lexeme).address
+        address = self.scope_record.find_record(lexeme)
         self.semantic_analyzer.push(val=address)  # it's actually an address
 
+    def analyse_id(self, val):
+        if type(val) == sr.Record:
+            if (val.type == "global_var_arr") or (val.type == "global_var"):
+                return val.address
+            if (val.type == "local_var_arr") or (val.type == "global_var") or (val.type == "arg_var") or (
+                    val.type == "arg_var_arr"):
+                size = (val.address + 1) * 4
+                temp = self.mem.get_temp()
+                self.mem.get_program_block()
+                self.program_block.append(Three_Address_Code("ADD", f"#{size}", self.mem.display), temp)
+                return temp
+        return val
+
     def assign(self, token):
-        address_rhs, address_lhs = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
-        address = self.mem.get_program_block()
+        address_rhs, address_lhs = self.analyse_id(self.semantic_analyzer.pop().val), self.analyse_id(
+            self.semantic_analyzer.pop().val)
+        self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('ASSIGN', address_rhs, address_lhs, None))
         self.semantic_analyzer.push(address_lhs)
 
@@ -164,10 +178,10 @@ class CodeGenerator:
         self.semantic_analyzer.pop()
 
     def indirect_adr(self, token):
-        index = self.semantic_analyzer.pop().val
+        index = self.analyse_id(self.semantic_analyzer.pop().val)
         # lexeme = self.semantic_analyzer.pop().val
         # address = self.scope_record.find_record(lexeme).address
-        address = self.semantic_analyzer.pop().val
+        address = self.analyse_id(self.semantic_analyzer.pop().val)
         if type(index) == str and "#" in index:
             index = index.replace("#", "")
             index = index.replace(" ", "")
@@ -187,9 +201,9 @@ class CodeGenerator:
         self.semantic_analyzer.push(val=token)  # it's an operand
 
     def operate(self, token):
-        rhs, op, lhs = self.semantic_analyzer.pop().val, \
+        rhs, op, lhs = self.analyse_id(self.semantic_analyzer.pop().val), \
                        self.semantic_analyzer.pop().val, \
-                       self.semantic_analyzer.pop().val
+                       self.analyse_id(self.semantic_analyzer.pop().val)
         temp = self.mem.get_temp()
         op = op.strip()
         operation = ''
@@ -245,9 +259,9 @@ class CodeGenerator:
         self.semantic_analyzer.push(token)
 
     def compare_operate(self, token):
-        rhs, op, lhs = self.semantic_analyzer.pop().val, \
+        rhs, op, lhs = self.analyse_id(self.semantic_analyzer.pop().val), \
                        self.semantic_analyzer.pop().val, \
-                       self.semantic_analyzer.pop().val
+                       self.analyse_id(self.semantic_analyzer.pop().val)
 
         self.mem.get_program_block()
         temp = self.mem.get_temp()
@@ -311,7 +325,7 @@ class CodeGenerator:
         pass
 
     def return_expression(self, token):
-        val = self.semantic_analyzer.pop().val
+        val = self.analyse_id(self.semantic_analyzer.pop().val)
         self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('ASSIGN', val, self.mem.return_val))
         self.semantic_analyzer.push(self.mem.return_val)
