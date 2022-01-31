@@ -136,7 +136,7 @@ class CodeGenerator:
             self.scope_record.insert_record(lexeme=lexeme, args=None, type='local_var_arr', var_type=var_type,
                                             address=address, arr_size=size)
 
-    def into_scope(self, token):  # TODO CHNAGE
+    def into_scope(self, token):
         self.scope_record.new_scope()
 
     def out_of_scope(self, token):  # TODO CHNAGE
@@ -146,7 +146,7 @@ class CodeGenerator:
             size = r.local_var
             self.pop_run_time_stack(size)
             self.reverse_display()
-            # TODO should put return value in semantic stack
+            # TODO Jump to return address
         self.scope_record.delete_current_scope()
 
     def push_id(self, token):  # Not sure if that's what we were supposed to do
@@ -158,6 +158,10 @@ class CodeGenerator:
         address_rhs, address_lhs = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
         address = self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('ASSIGN', address_rhs, address_lhs, None))
+        self.semantic_analyzer.push(address_lhs)
+
+    def pop_exp(self, token):
+        self.semantic_analyzer.pop()
 
     def indirect_adr(self, token):
         index = self.semantic_analyzer.pop().val
@@ -303,25 +307,14 @@ class CodeGenerator:
 
         pass
 
-    def before_call(self, token):
+    def return_void(self, token):
         pass
 
-        """
-        #fun_declare_init
-        #fun_declare_end
-        #set_offset_function
-        #before_call Args
-        #call
-        #push_arg
-        #declare_id :  declare id and push it *
-        #finish_var_declare : pop two object  *
-        #end_array_declare : pop objext and number of required member and fill symbol table. *
-        #into_scope : declare new scope *
-        #outo_scope : delete last scope *
-        """
+    def return_expression(self, token):
+        val = self.semantic_analyzer.pop().val
+        self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code('ASSIGN', val, self.mem.return_val))
+        self.semantic_analyzer.push(self.mem.return_val)
 
-    """
-    Selection-stmt -> if ( Expression ) #save_if Statement Else-stmt
-    Else-stmt -> endif #end_simple_if | else #save_if_else Statement endif #end_if_else
-    Iteration-stmt -> repeat #label Statement until ( Expression ) #jump_repeat
-    """
+    def before_call(self, token):
+        pass

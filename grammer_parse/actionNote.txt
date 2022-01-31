@@ -17,13 +17,18 @@
 #fun_declare_end
 #set_offset_function
 #set_offset_function_arr
+#pop_exp
 
 #before_call
 #call
 #push_arg
-#declare_id :  declare id and push it *
-#finish_var_declare : pop two object  *
-#end_array_declare : pop objext and number of required member and fill symbol table. *
-#into_scope : declare new scope *
-#outo_scope : delete last scope *
+#return_void
+#return_expresion
+
+
+#declare_id :  declare id and push it
+#finish_var_declare : pop two object
+#end_array_declare : pop objext and number of required member and fill symbol table.
+#into_scope : declare new scope
+#outo_scope : delete last scope
 

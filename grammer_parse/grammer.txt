@@ -6,19 +6,19 @@ Declaration-prime -> Fun-declaration-prime | Var-declaration-prime
 Var-declaration-prime ->  ; #finish_var_declare | [  NUM #push_num ]  ; #end_array_declare
 Fun-declaration-prime -> ( #fun_declare_init Params ) #fun_declare_end Compound-stmt
 Type-specifier -> int | void
-Params -> int #push ID #push_id Param-prime Param-list | void
+Params -> int #push ID #declare_id Param-prime Param-list | void
 Param-list -> , Param Param-list | EPSILON
 Param -> Declaration-initial Param-prime
 Param-prime -> [ ] #set_offset_function_arr | #set_offset_function EPSILON
 Compound-stmt -> { #into_scope Declaration-list Statement-list } #outo_scope
 Statement-list -> Statement Statement-list | EPSILON
 Statement -> Expression-stmt | Compound-stmt | Selection-stmt | Iteration-stmt | Return-stmt
-Expression-stmt -> Expression ; | break #save_break ; | ;
+Expression-stmt -> Expression ; #pop_exp | break #save_break ; | ;
 Selection-stmt -> if ( Expression ) #save_if Statement Else-stmt
 Else-stmt -> endif #end_simple_if | else #save_if_else Statement endif #end_if_else
 Iteration-stmt -> repeat #label_break_repeat Statement until ( Expression ) #jump_repeat
 Return-stmt -> return Return-stmt-prime
-Return-stmt-prime -> ; | Expression ;
+Return-stmt-prime ->  ; #return_void | Expression  ; #return_expression
 Expression -> Simple-expression-zegond |  ID #push_id B
 B -> = Expression #assign | [ Expression ] #indirect_adr H | Simple-expression-prime
 H -> = Expression #assign | G D C
