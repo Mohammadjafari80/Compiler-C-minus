@@ -163,7 +163,7 @@ class CodeGenerator:
                 size = (val.address + 1) * 4
                 temp = self.mem.get_temp()
                 self.mem.get_program_block()
-                self.program_block.append(Three_Address_Code("ADD", f"#{size}", self.mem.display), temp)
+                self.program_block.append(Three_Address_Code("ADD", f"#{size}", self.mem.display, temp))
                 return temp
         return val
 
