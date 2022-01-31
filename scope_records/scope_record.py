@@ -36,6 +36,7 @@ class Scope:
         self.current_scope = 0
         self.head_pointer = 0
         self.current_fun = None
+        self.in_function = False
 
     def front(self):
         return self.scope_stack[self.current_scope]
@@ -65,6 +66,9 @@ class Scope:
                 break
 
     def new_scope(self):
+        if self.in_function:
+            self.in_function = False
+            return
         self.current_scope += 1
         self.scope_stack.append(self.head_pointer)
 

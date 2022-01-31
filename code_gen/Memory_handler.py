@@ -24,3 +24,7 @@ class Memory():
 
     def get_front_code(self):
         return self.code_add
+
+    def increase_stack_p(self):
+        self.sp += 4
+        return self.sp - 4

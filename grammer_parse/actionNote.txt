@@ -17,7 +17,7 @@
 #fun_declare_init
 #fun_declare_end
 #set_offset_function
-#before_call Args
+#before_call
 #call
 #push_arg
 #declare_id :  declare id and push it *
