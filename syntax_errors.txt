@@ -1,3 +1,13 @@
 #11 : syntax error, missing endif
-#23 : syntax error, missing Else-stmt
-#29 : syntax error, missing Else-stmt
+#15 : syntax error, illegal }
+#15 : syntax error, illegal until
+#15 : syntax error, illegal (
+#15 : syntax error, illegal ID
+#15 : syntax error, illegal [
+#15 : syntax error, illegal NUM
+#15 : syntax error, missing ;
+#15 : syntax error, illegal ]
+#15 : syntax error, illegal ==
+#15 : syntax error, missing ;
+#15 : syntax error, illegal )
+#18 : syntax error, Unexpected EOF
