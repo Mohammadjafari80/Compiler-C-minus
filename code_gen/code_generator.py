@@ -52,6 +52,8 @@ class CodeGenerator:
         self.routine_dict['#save_break'] = self.save_break
         self.routine_dict['#label_break_repeat'] = self.label_break_repeat
         self.routine_dict['#compare_operate'] = self.compare_operate
+        self.routine_dict['#push_arg'] = self.push_arg
+        self.routine_dict['#call'] = self.call
 
     def parse_token(self, token):
         lexeme = token.split(",")[1] if token != '$' else token
@@ -222,6 +224,13 @@ class CodeGenerator:
     def print_program_block(self):
         for p in self.program_block:
             print(p)
+
+    def push_arg(self, token):
+        self.semantic_analyzer.push(token)
+
+    def call(self, token):
+        pass
+
 
 
 """
