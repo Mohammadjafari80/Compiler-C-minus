@@ -4,7 +4,8 @@ from scope_records import scope_record as sr
 class Memory():
     def __init__(self):
         self.code_add = 0
-        self.sp = 1000
+        self.sp = 3004
+        self.display = 3000
         self.static_data = 100
         self.dynamic_data = 500
         # self.dynamic_stack = 1000
