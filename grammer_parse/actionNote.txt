@@ -13,9 +13,13 @@
 #end_if_else
 #compare_operate
 #push_compare_operand
+
 #fun_declare_init
 #fun_declare_end
 #set_offset_function
+#before_call Args
+#call
+#push_arg
 #declare_id :  declare id and push it *
 #finish_var_declare : pop two object  *
 #end_array_declare : pop objext and number of required member and fill symbol table. *
