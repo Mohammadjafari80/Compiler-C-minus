@@ -380,7 +380,7 @@ class CodeGenerator:
         self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('ASSIGN', "val", self.mem.return_val, None))
         self.program_block.append(Three_Address_Code('ASSIGN', "val", self.mem.return_val, None))
-        self.semantic_analyzer.push(self.mem.get_front_code())
+        self.semantic_analyzer.push(self.mem.get_front_code() - 1)
         self.save_stack_address_in_stack()
 
     def push_arg(self, token):
