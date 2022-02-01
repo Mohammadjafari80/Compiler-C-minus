@@ -53,7 +53,7 @@ class CodeGenerator:
         self.program_block[self.init_main_pb] = Three_Address_Code('JP', address, None, None)
 
     def __init__(self, parser):
-        self.init_main_pb = 3
+        self.init_main_pb = 5
         self.parser = parser
         self.semantic_analyzer = sa.SemanticAnalyzer()
         self.mem = Memory()
