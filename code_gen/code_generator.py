@@ -24,7 +24,7 @@ Three_Address_Code = namedtuple('ThreeAddressCode', 'op y z x')
 class CodeGenerator:
     def initial(self):
         self.before_call("a")
-        i = int(self.semantic_analyzer.pop())
+        i = int(self.semantic_analyzer.pop().val)
         self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('JP', "?", None, None))
         self.program_block[i - 1] = Three_Address_Code('ASSIGN', f'#{self.mem.get_front_code()}', f'@{self.mem.sp}',

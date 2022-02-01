@@ -1,1 +1,13 @@
-There is no syntax error.
+#14 : syntax error, missing endif
+#18 : syntax error, illegal }
+#18 : syntax error, illegal until
+#18 : syntax error, illegal (
+#18 : syntax error, illegal ID
+#18 : syntax error, illegal [
+#18 : syntax error, illegal NUM
+#18 : syntax error, missing ;
+#18 : syntax error, illegal ]
+#18 : syntax error, illegal ==
+#18 : syntax error, missing ;
+#18 : syntax error, illegal )
+#21 : syntax error, Unexpected EOF
