@@ -27,7 +27,7 @@ class Record:
         self.args += val
         self.local_var += val
 
-    def update_local_car(self, val=1):
+    def update_local_var(self, val=1):
         self.local_var += val
 
     def __str__(self):

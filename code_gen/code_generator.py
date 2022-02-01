@@ -55,6 +55,52 @@ class CodeGenerator:
         self.routine_dict['#push_arg'] = self.push_arg
         self.routine_dict['#call'] = self.call
 
+        self.routine_dict['#before_call'] = self.before_call
+        self.routine_dict['#return_expression'] = self.return_expression
+        self.routine_dict['#return_void'] = self.return_void
+        self.routine_dict['#pop_exp'] = self.pop_exp
+        self.routine_dict['#set_offset_function_arr'] = self.set_offset_function_arr
+        self.routine_dict['#set_offset_function'] = self.set_offset_function
+        self.routine_dict['#fun_declare_end'] = self.fun_declare_end
+        self.routine_dict['#fun_declare_init'] = self.fun_declare_init
+        """
+        #push_type : pushing type of id into stack for future use
+#push_num : push constant number
+#push_id : push address of id
+#assign : pop two address assign tow each other
+#indirect_adr : sum with array address and calculate new address
+#push_op : push operand
+#operate : pop two and get tempory address and calculate and push address
+#label
+#jump_repeat
+#save_if
+#end_simple_if
+#save_if_else
+#end_if_else
+#compare_operate
+#push_compare_operand
+#fun_declare_init
+#fun_declare_end
+#set_offset_function
+#set_offset_function_arr
+#pop_exp
+#return_void
+#return_expresion
+
+#before_call
+#call
+#push_arg
+
+
+
+#declare_id :  declare id and push it
+#finish_var_declare : pop two object
+#end_array_declare : pop objext and number of required member and fill symbol table.
+#into_scope : declare new scope
+#outo_scope : delete last scope
+
+        """
+
     def parse_token(self, token):
         lexeme = token.split(",")[1] if token != '$' else token
         lexeme = lexeme.replace(")", "")
@@ -80,7 +126,7 @@ class CodeGenerator:
         self.program_block.append(Three_Address_Code('ASSIGN', f'{val}', f'@{self.mem.sp}', None))
         self.program_block.append(Three_Address_Code('ADD', f'#{4 * size}', f'{self.mem.sp}', f'{self.mem.sp}'))
 
-    def pop_run_time_stack(self, size):
+    def pop_run_time_stack(self, size = 1):
         self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('SUB', f'{self.mem.sp}', f'#{size * 4}', f'{self.mem.sp}'))
 
@@ -145,7 +191,7 @@ class CodeGenerator:
 
     def out_of_scope(self, token):  # TODO CHNAGE
         if (
-                self.scope_record.current_fun != None) and self.scope_record.current_fun.scope == self.scope_record.current_scope - 1:
+                self.scope_record.current_fun != None) and self.scope_record.current_fun.scope_num == self.scope_record.current_scope - 1:
             r = self.scope_record.current_fun
             size = r.local_var
             self.pop_run_time_stack(size)
@@ -353,5 +399,5 @@ class CodeGenerator:
     def return_expression(self, token):  # TODO
         val = self.analyse_id(self.semantic_analyzer.pop().val)
         self.mem.get_program_block()
-        self.program_block.append(Three_Address_Code('ASSIGN', val, self.mem.return_val))
+        self.program_block.append(Three_Address_Code('ASSIGN', val, self.mem.return_val,None))
         self.semantic_analyzer.push(self.mem.return_val)
