@@ -77,7 +77,7 @@ class CodeGenerator:
     def push_run_time_stack(self, val, size=1):
         self.mem.get_program_block()
         self.mem.get_program_block()
-        self.program_block.append(Three_Address_Code('ASSIGN', f'#{val}', f'@{self.mem.sp}', None))
+        self.program_block.append(Three_Address_Code('ASSIGN', f'{val}', f'@{self.mem.sp}', None))
         self.program_block.append(Three_Address_Code('ADD', f'#{4 * size}', f'{self.mem.sp}', f'{self.mem.sp}'))
 
     def pop_run_time_stack(self, size):
@@ -105,10 +105,12 @@ class CodeGenerator:
             address = self.mem.get_static_address()
             self.scope_record.insert_record(lexeme=lexeme, args=None, type='global_var', var_type=var_type,
                                             address=address)
-        else:
+        else:  # TODO move stack pointer
             lexeme, var_type = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
             address = self.scope_record.current_fun.local_var
             self.scope_record.current_fun.update_local_var()
+            self.mem.get_program_block()
+            self.program_block.append(Three_Address_Code('ADD', f'#{4 * 1}', f'{self.mem.sp}', f'{self.mem.sp}'))
             self.scope_record.insert_record(lexeme=lexeme, args=None, type='local_var', var_type=var_type,
                                             address=address)
 
@@ -133,6 +135,8 @@ class CodeGenerator:
             lexeme, var_type = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
             address = self.scope_record.current_fun.local_var
             self.scope_record.current_fun.update_local_var(size)
+            self.mem.get_program_block()
+            self.program_block.append(Three_Address_Code('ADD', f'#{4 * size}', f'{self.mem.sp}', f'{self.mem.sp}'))
             self.scope_record.insert_record(lexeme=lexeme, args=None, type='local_var_arr', var_type=var_type,
                                             address=address, arr_size=size)
 
@@ -146,6 +150,10 @@ class CodeGenerator:
             size = r.local_var
             self.pop_run_time_stack(size)
             self.reverse_display()
+            temp = self.mem.get_temp()
+            self.mem.get_program_block(), self.mem.get_program_block()
+            self.program_block.append(Three_Address_Code('ASSIGN', f"@{self.mem.sp}", temp, None))
+            self.program_block.append(Three_Address_Code('JP', f"@{temp}", None, None))
             # TODO Jump to return address
         self.scope_record.delete_current_scope()
 
@@ -158,13 +166,15 @@ class CodeGenerator:
         if type(val) == sr.Record:
             if (val.type == "global_var_arr") or (val.type == "global_var"):
                 return val.address
-            if (val.type == "local_var_arr") or (val.type == "global_var") or (val.type == "arg_var") or (
-                    val.type == "arg_var_arr"):
+            if (val.type == "local_var_arr") or (val.type == "local_var") or (val.type == "arg_var"):
                 size = (val.address + 1) * 4
                 temp = self.mem.get_temp()
                 self.mem.get_program_block()
                 self.program_block.append(Three_Address_Code("ADD", f"#{size}", self.mem.display, temp))
+                if val.type == "arg_var_arr":
+                    self.program_block.append(Three_Address_Code("ASSIGN", f"@{temp}", temp))
                 return f'@{temp}'
+
         return val
 
     def assign(self, token):  # todo
@@ -179,8 +189,6 @@ class CodeGenerator:
 
     def indirect_adr(self, token):  # TODO _ change
         index = self.analyse_id(self.semantic_analyzer.pop().val)
-        # lexeme = self.semantic_analyzer.pop().val
-        # address = self.scope_record.find_record(lexeme).address
         address = self.analyse_id(self.semantic_analyzer.pop().val)
         if type(index) == str and "#" in index:
             index = index.replace("#", "")
@@ -282,11 +290,24 @@ class CodeGenerator:
         for p in self.program_block:
             print(p)
 
-    def push_arg(self, token):  # TODO
-        self.semantic_analyzer.push(token)
+    def before_call(self, token):
+        self.mem.get_program_block()
+        self.mem.get_program_block()
+        self.semantic_analyzer.push(self.mem.get_front_code())
+        self.save_stack_address_in_stack()
 
-    def call(self, token):  # TODO
-        pass
+    def push_arg(self, token):
+        self.push_run_time_stack(self.analyse_id(self.semantic_analyzer.pop().val))
+
+    def call(self, token):
+        i = self.semantic_analyzer.pop()
+        record = self.semantic_analyzer.pop().val
+        self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code('JP', record.address, None, None))
+        self.program_block[i - 1] = Three_Address_Code('ASSIGN', f'{self.mem.get_front_code()}', f'@{self.mem.sp}',
+                                                       None)
+        self.program_block[i] = Three_Address_Code('ADD', f'#{4 * 1}', f'{self.mem.sp}', f'{self.mem.sp}')
+        self.pop_run_time_stack()
 
     def fun_declare_init(self, token):
         lexeme, var_type = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
@@ -295,7 +316,6 @@ class CodeGenerator:
         self.scope_record.current_fun = r
         self.scope_record.new_scope()
         self.scope_record.in_function = True
-        self.save_stack_address_in_stack()
 
     def reverse_display(self):
         self.mem.get_program_block()
@@ -327,6 +347,7 @@ class CodeGenerator:
         pass
 
     def return_void(self, token):
+        self.semantic_analyzer.push('void')
         pass
 
     def return_expression(self, token):  # TODO
@@ -334,6 +355,3 @@ class CodeGenerator:
         self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('ASSIGN', val, self.mem.return_val))
         self.semantic_analyzer.push(self.mem.return_val)
-
-    def before_call(self, token):
-        pass
