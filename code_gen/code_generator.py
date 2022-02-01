@@ -251,6 +251,9 @@ class CodeGenerator:
     def handle_num_indexing(self, index, address):
         pass
 
+    def handle_add_indexing(self, index, address):
+        pass
+
     def indirect_adr(self, token):  # TODO _ change
         index = self.semantic_analyzer.pop().val
         address = self.semantic_analyzer.pop().val
@@ -259,16 +262,7 @@ class CodeGenerator:
         elif type(index) == str and "#" in index:
             self.handle_num_indexing(index, address)
         else:
-            size = index
-            (r, temp) = self.get_temp()
-            self.mem.get_program_block()
-            self.program_block.append(Three_Address_Code("MULT", f'#4', size, f'@{temp}'))
-            self.mem.get_program_block()
-            if '@' in address:
-                self.program_block.append(Three_Address_Code("ADD", f'{address}', temp, temp))
-                self.semantic_analyzer.push(val=f'@{temp}')
-                return  # it's actually an address not a Lexeme
-            self.program_block.append(Three_Address_Code("ADD", f'#{address}', temp, temp))
+            self.handle_add_indexing(index, address)
 
     def push_op(self, token):
         self.semantic_analyzer.push(val=token)  # it's an operand
