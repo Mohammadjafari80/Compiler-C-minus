@@ -67,7 +67,7 @@ class Parser:
         self.line_number = 1
         self.errors = []
         self.is_stable = True
-        self.code_generator = code_generator.CodeGenerator()
+        self.code_generator = code_generator.CodeGenerator(self)
         self.last_token = ""
 
     def front(self) -> TD.State:
@@ -119,7 +119,8 @@ class Parser:
                         next_state = next_state.states[next_node]
 
     def code_gen(self, action):
-        if (action == "#push" or action == "#push_num" or  action == "#push_id"):
+        print(f'line = {self.scanner.get_line_number()}')
+        if (action == "#push" or action == "#push_num" or action == "#push_id"):
             self.code_generator.generate_code(action, self.last_token)
         else:
             self.code_generator.generate_code(action, self.current_token)
@@ -240,6 +241,12 @@ class Parser:
         for pre, fill, node in RenderTree(self.root):
             tree += "%s%s\n" % (pre, node.name)
 
+        code_gen = ''
+
+        for i, val in enumerate(self.code_generator.program_block):
+            op, y, z, x = val
+            code_gen += "%d\t(%s, %s, %s, %s)\n" % (i, op, y, '' if z is None else z, '' if x is None else x)
+
         syntax_errors = ''
         if len(self.errors) == 0:
             syntax_errors = 'There is no syntax error.'
@@ -258,4 +265,9 @@ class Parser:
 
         with open(self.save_path + syntax_errors_address, "w", encoding="utf-8") as opened_file:
             opened_file.write(syntax_errors)
+        opened_file.close()
+
+        with open(self.save_path + '/output.txt', "w", encoding="utf-8") as opened_file:
+            opened_file.write(code_gen)
+
         opened_file.close()
