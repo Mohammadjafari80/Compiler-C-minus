@@ -31,25 +31,28 @@ class Record:
         self.local_var += val
 
     def __str__(self):
-        return f'lexeme : {self.lexeme} , type = {self.type} , args : {self.args} , var_type : {self.var_type} , scope_num : {self.scope_num} , address : {self.address}'
+        return f'lexeme : {self.lexeme} , type = {self.type} , args : {self.args} , var_type : {self.var_type} , scope_num : {self.scope_num} , address : {self.address} , arr_size : {self.arr_size}'
 
     def __repr__(self):
-        return f'(lexeme={self.lexeme}, type={self.type}, args={self.args}, var_type={self.var_type}, scope={self.scope_num}, address={self.address})'
+        return f'(lexeme={self.lexeme}, type={self.type}, args={self.args}, var_type={self.var_type}, scope={self.scope_num}, address={self.address} , arr_size : {self.arr_size})'
 
 
 class Scope:
-    def __init__(self):
+    def __init__(self, CG):
         self.scope_stack = [0]
         self.scope_record = []
         self.current_scope = 0
         self.head_pointer = 0
         self.current_fun = None
         self.in_function = False
+        self.code_gen = CG
 
     def front(self):
         return self.scope_stack[self.current_scope]
 
     def insert_record(self, lexeme, args=0, type=Type.VOID, var_type=VarTYPE.var, address=0, arr_size=1):
+        if lexeme == "main":
+            self.code_gen.set_main_address(address)
         self.head_pointer += 1
         r = Record(lexeme, self.current_scope, args, type, var_type, address, arr_size)
         self.scope_record.append(r)
@@ -57,7 +60,7 @@ class Scope:
 
     def delete_current_scope(self):
         begin = self.scope_stack.pop()
-        for _ in range(self.head_pointer - begin - 1):
+        for _ in range(self.head_pointer - begin):
             self.scope_record.pop()
         self.head_pointer = begin
         self.current_scope -= 1
@@ -85,3 +88,6 @@ class Scope:
     def print_records(self):
         for p in self.scope_record:
             print(p)
+
+    def get_last_record(self):
+        return self.scope_record[len(self.scope_record) - 1]

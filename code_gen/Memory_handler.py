@@ -6,8 +6,8 @@ class Memory():
         self.code_add = 0
         self.sp = 3008
         self.display = 3004
-        self.static_data = 100
-        self.dynamic_data = 500
+        self.static_data = 500
+        self.dynamic_data = 1000
         self.return_val = 3000
         # self.dynamic_stack = 1000
 
