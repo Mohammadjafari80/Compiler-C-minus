@@ -3,6 +3,7 @@ from code_gen.Memory_handler import Memory
 from scope_records import scope_record as sr
 from collections import namedtuple
 from code_gen.Break_handler import Break
+import scope_records
 
 """"
 #push_type : pushing type of id into stack for future use
@@ -34,9 +35,10 @@ class CodeGenerator:
         self.mem.get_program_block()
         self.program_block.append(Three_Address_Code(None, None, None, None))
         r = self.scope_record.insert_record("output", 1, "FUN", "void", self.mem.get_front_code())
+        self.scope_record.current_fun = r
         r.update_local_var()
         r.update_args()
-        temp = self.mem.get_temp()
+        temp = self.get_temp()
         self.mem.get_program_block()
         self.program_block.append(Three_Address_Code("ADD", "#4", f"@{self.mem.display}", temp))
         self.mem.get_program_block()
@@ -44,11 +46,15 @@ class CodeGenerator:
         size = r.local_var
         self.pop_run_time_stack(size)
         self.reverse_display()
-        temp = self.mem.get_temp()
+        # temp = self.get_temp()
         self.mem.get_program_block(), self.mem.get_program_block()
-        self.program_block.append(Three_Address_Code('ASSIGN', f"@{self.mem.sp}", temp, None))
+        self.program_block.append(Three_Address_Code('ASSIGN', f"@{self.mem.sp}", self.mem.return_add, None))
         self.pop_run_time_stack()
         self.program_block.append(Three_Address_Code('JP', f"@{temp}", None, None))
+        self.return_void("a")
+        (r, _) = self.handle_temp_for_stack(self.mem.return_val)
+        self.semantic_analyzer.push(r)
+        self.scope_record.current_fun = None
 
     def set_main_address(self, address):
         self.program_block[self.init_main_pb] = Three_Address_Code('JP', address, None, None)
@@ -113,18 +119,7 @@ class CodeGenerator:
         return (lexeme.strip())
 
     def generate_code(self, action, token):
-        print(action)
-        print("befor ---------------------------")
-        print(self.print_program_block())
-        print(self.scope_record.scope_stack)
-        print(self.scope_record.print_records())
-        print(self.semantic_analyzer.semantic_stack)
-        print("after ---------------------------")
         self.routine_dict.get(action)(self.parse_token(token))
-        print(self.print_program_block())
-        print(self.scope_record.scope_stack)
-        print(self.scope_record.print_records())
-        print(self.semantic_analyzer.semantic_stack)
 
     def push_run_time_stack(self, val="#0", size=1):
         self.mem.get_program_block()
@@ -207,12 +202,13 @@ class CodeGenerator:
             size = r.local_var
             self.pop_run_time_stack(size)
             self.reverse_display()
-            temp = self.mem.return_add()  #
+            temp = self.mem.return_add  #
             self.mem.get_program_block()
             self.program_block.append(Three_Address_Code('ASSIGN', f"@{self.mem.sp}", temp, None))
             self.pop_run_time_stack()
             self.mem.get_program_block()
             self.program_block.append(Three_Address_Code('JP', f"@{temp}", None, None))
+            self.scope_record.current_fun = None
 
         self.scope_record.delete_current_scope()  # TODO check whether because we changed it
 
@@ -222,10 +218,14 @@ class CodeGenerator:
         self.semantic_analyzer.push(val=address)  # it's actually an address
 
     def analyse_id(self, val):
-        if type(val) == sr.Record:
+        try:
+            val.address
+            # if type(val) == sr.Record or type(val) == scope_records.scope_record.Record:
+
             if (val.type == "global_var_arr") or (val.type == "global_var"):
                 return val.address
-            if (val.type == "local_var_arr") or (val.type == "local_var") or (val.type == "arg_var"):
+            if (val.type == "local_var_arr") or (val.type == "local_var") or (val.type == "arg_var") or (
+                    val.type == "arg_var_arr"):
                 size = (val.address + 1) * 4
                 temp = self.get_temp()
                 self.mem.get_program_block()
@@ -233,7 +233,10 @@ class CodeGenerator:
                 if val.type == "arg_var_arr":
                     self.program_block.append(Three_Address_Code("ASSIGN", f"@{temp}", temp, None))
                 return f'@{temp}'
-        return val
+        except:
+            print(val)
+            print(type(val) == sr.Record)
+            return val
 
     def assign(self, token):
         address_rhs, address_lhs = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
@@ -245,24 +248,37 @@ class CodeGenerator:
     def pop_exp(self, token):
         self.semantic_analyzer.pop()
 
+    def handle_num_indexing(self, index, address):
+        (r, temp) = self.handle_temp_for_stack('#0', 'args_var_arr')
+        self.mem.get_program_block()
+        self.program_block.append(
+            Three_Address_Code('ADD', f'#{index}', f'{address}', f'@{temp}'))
+        return r
+
+    def handle_add_indexing(self, index, address):
+        (r, temp) = self.handle_temp_for_stack('#0', 'args_var_arr')
+        self.mem.get_program_block()
+        self.program_block.append(
+            Three_Address_Code('ADD', f'{index}', f'{address}', f'@{temp}'))
+        return r
+
     def handle_ind_record_indexing(self, index, address):
         pass
 
-    def handle_num_indexing(self, index, address):
-        pass
-
-    def handle_add_indexing(self, index, address):
-        pass
-
     def indirect_adr(self, token):  # TODO _ change
-        index = self.semantic_analyzer.pop().val
-        address = self.semantic_analyzer.pop().val
-        if type(index) == sr.Record:
-            self.handle_ind_record_indexing(index, address)
-        elif type(index) == str and "#" in index:
-            self.handle_num_indexing(index, address)
-        else:
-            self.handle_add_indexing(index, address)
+        index = self.analyse_id(self.semantic_analyzer.pop().val)
+        address = self.analyse_id(self.semantic_analyzer.pop().val)
+        (r, temp) = self.handle_temp_for_stack('#0', 'arg_var_arr')
+        self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code('ADD', f'{index}', f'{address}', f'@{temp}'))
+        self.semantic_analyzer.push(r)
+
+        # if type(index) == sr.Record:
+        #   self.handle_ind_record_indexing(index, address)
+        # else:# type(index) == str and "#" in index:
+        #    self.program_block.append(Three_Address_Code('ADD', f'{index}', f'{address}', f'@{temp}'))
+        # else:
+        # self.program_block.append(Three_Address_Code('ADD', f'{index}', f'{address}', f'@{temp}'))
 
     def push_op(self, token):
         self.semantic_analyzer.push(val=token)  # it's an operand
@@ -286,12 +302,13 @@ class CodeGenerator:
 
     def save_if(self, token):
         i = self.mem.get_program_block()
-        self.program_block.append(Three_Address_Code('JPF', self.semantic_analyzer.front().val, "?", None))
+        self.program_block.append(
+            Three_Address_Code('JPF', self.analyse_id(self.semantic_analyzer.front().val), "?", None))
         self.semantic_analyzer.push(i)
 
     def end_simple_if(self, token):
         self.program_block[self.semantic_analyzer.pop().val] = Three_Address_Code('JPF',
-                                                                                  self.semantic_analyzer.pop().val,
+                                                                                  self.analyse_id(self.semantic_analyzer.pop().val),
                                                                                   self.mem.get_front_code(), None)
 
     def save_if_else(self, token):
@@ -299,7 +316,7 @@ class CodeGenerator:
         self.program_block.append(Three_Address_Code('JP', "?", None, None))
         index = int(self.semantic_analyzer.pop().val)
         self.program_block[index] = Three_Address_Code('JPF',
-                                                       self.semantic_analyzer.pop().val,
+                                                       self.analyse_id(self.semantic_analyzer.pop().val),
                                                        self.mem.get_front_code(), None)
         self.semantic_analyzer.push(i)
 
@@ -367,8 +384,8 @@ class CodeGenerator:
         (r, _) = self.handle_temp_for_stack(self.mem.return_val)
         self.semantic_analyzer.push(r)
 
-    def handle_temp_for_stack(self, val):
-        r = self.get_temp_exp()
+    def handle_temp_for_stack(self, val, type='local_var'):
+        r = self.get_temp_exp(type)
         temp = self.get_temp()
         self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('ADD', self.mem.display, f'#{(r.address + 1) * 4}', temp))

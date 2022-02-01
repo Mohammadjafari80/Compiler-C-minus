@@ -31,6 +31,8 @@ class Memory():
 
     def get_program_block(self):
         self.code_add += 1
+        if self.code_add == 71:
+            print("here")
         return self.code_add - 1
 
     def get_front_code(self):
