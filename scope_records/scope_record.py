@@ -58,17 +58,18 @@ class Scope:
         self.scope_record.append(r)
         return r
 
-
     def delete_current_scope(self):
+        temp = 0
         begin = self.scope_stack.pop()
         for _ in range(self.head_pointer - begin):
             deleted = self.scope_record.pop()
-            if deleted.var_type == 'temp':
-                self.code_gen.semantic_analyzer.pop()
-                self.code_gen.mem.get_static_address(-4)
+            if self.current_fun != None:
+                if deleted.var_type == 'temp':
+                    temp += 1
+                self.code_gen.pop_run_time_stack(temp)
+                self.current_fun.update_local_var(-temp)
         self.head_pointer = begin
         self.current_scope -= 1
-
 
     def find_record(self, lexeme):
         last_scope_index = self.current_scope
