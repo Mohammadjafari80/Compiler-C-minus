@@ -134,10 +134,13 @@ class CodeGenerator:
         print(self.semantic_analyzer.semantic_stack)
         self.scope_record.print_records()
 
-    def push_run_time_stack(self, val="#0"):
+    def push_run_time_stack(self, val="#0", declare=False):
         self.mem.get_program_block()
-        self.mem.get_program_block()
-        self.program_block.append(Three_Address_Code('ASSIGN', f'{val}', f'@{self.mem.sp}', None))
+
+        if declare:
+            self.mem.get_program_block()
+            self.program_block.append(Three_Address_Code('ASSIGN', f'{val}', f'@{self.mem.sp}', None))
+
         self.program_block.append(Three_Address_Code('ADD', f'#{4}', f'{self.mem.sp}', f'{self.mem.sp}'))
 
     def assign_zero_to_stack(self, address):
@@ -149,8 +152,7 @@ class CodeGenerator:
 
     def save_break(self, token):
         i = self.mem.get_program_block()
-        self.program_block.append(Three_Address_Code('JP', "?", None, None))
-        self.breakH.add_break(i)
+        pself.breakH.add_break(i)
 
     def label_break_repeat(self, token):
         self.semantic_analyzer.push(self.mem.get_front_code())
@@ -172,7 +174,7 @@ class CodeGenerator:
             lexeme, var_type = self.semantic_analyzer.pop().val, self.semantic_analyzer.pop().val
             address = self.scope_record.current_fun.local_var
             self.scope_record.current_fun.update_local_var()
-            self.push_run_time_stack()
+            self.push_run_time_stack(declare=True)
             self.scope_record.insert_record(lexeme=lexeme, args=None, type='local_var', var_type=var_type,
                                             address=address)
 
@@ -201,7 +203,7 @@ class CodeGenerator:
             address = self.scope_record.current_fun.local_var
             self.scope_record.current_fun.update_local_var(size)
             for i in range(size):
-                self.push_run_time_stack()
+                self.push_run_time_stack(declare=True)
             self.scope_record.insert_record(lexeme=lexeme, args=None, type='local_var_arr', var_type=var_type,
                                             address=address, arr_size=size)
 

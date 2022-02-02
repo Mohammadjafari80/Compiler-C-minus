@@ -32,12 +32,21 @@ Program
 │   │               │       │       └── Var-declaration-prime
 │   │               │       │           └── (SYMBOL, ;)
 │   │               │       └── Declaration-list
-│   │               │           └── epsilon
+│   │               │           ├── Declaration
+│   │               │           │   ├── Declaration-initial
+│   │               │           │   │   ├── Type-specifier
+│   │               │           │   │   │   └── (KEYWORD, int)
+│   │               │           │   │   └── (ID, k)
+│   │               │           │   └── Declaration-prime
+│   │               │           │       └── Var-declaration-prime
+│   │               │           │           └── (SYMBOL, ;)
+│   │               │           └── Declaration-list
+│   │               │               └── epsilon
 │   │               ├── Statement-list
 │   │               │   ├── Statement
 │   │               │   │   └── Expression-stmt
 │   │               │   │       ├── Expression
-│   │               │   │       │   ├── (ID, j)
+│   │               │   │       │   ├── (ID, i)
 │   │               │   │       │   └── B
 │   │               │   │       │       ├── (SYMBOL, =)
 │   │               │   │       │       └── Expression
@@ -45,7 +54,7 @@ Program
 │   │               │   │       │               ├── Additive-expression-zegond
 │   │               │   │       │               │   ├── Term-zegond
 │   │               │   │       │               │   │   ├── Factor-zegond
-│   │               │   │       │               │   │   │   └── (NUM, 5)
+│   │               │   │       │               │   │   │   └── (NUM, 23)
 │   │               │   │       │               │   │   └── G
 │   │               │   │       │               │   │       └── epsilon
 │   │               │   │       │               │   └── D
@@ -57,7 +66,7 @@ Program
 │   │               │       ├── Statement
 │   │               │       │   └── Expression-stmt
 │   │               │       │       ├── Expression
-│   │               │       │       │   ├── (ID, i)
+│   │               │       │       │   ├── (ID, j)
 │   │               │       │       │   └── B
 │   │               │       │       │       ├── (SYMBOL, =)
 │   │               │       │       │       └── Expression
@@ -65,7 +74,7 @@ Program
 │   │               │       │       │               ├── Additive-expression-zegond
 │   │               │       │       │               │   ├── Term-zegond
 │   │               │       │       │               │   │   ├── Factor-zegond
-│   │               │       │       │               │   │   │   └── (NUM, 10)
+│   │               │       │       │               │   │   │   └── (NUM, 53)
 │   │               │       │       │               │   │   └── G
 │   │               │       │       │               │   │       └── epsilon
 │   │               │       │       │               │   └── D
@@ -77,150 +86,105 @@ Program
 │   │               │           ├── Statement
 │   │               │           │   └── Expression-stmt
 │   │               │           │       ├── Expression
-│   │               │           │       │   ├── (ID, j)
+│   │               │           │       │   ├── (ID, k)
 │   │               │           │       │   └── B
 │   │               │           │       │       ├── (SYMBOL, =)
 │   │               │           │       │       └── Expression
-│   │               │           │       │           ├── (ID, j)
-│   │               │           │       │           └── B
-│   │               │           │       │               └── Simple-expression-prime
-│   │               │           │       │                   ├── Additive-expression-prime
-│   │               │           │       │                   │   ├── Term-prime
-│   │               │           │       │                   │   │   ├── Factor-prime
-│   │               │           │       │                   │   │   │   └── epsilon
-│   │               │           │       │                   │   │   └── G
-│   │               │           │       │                   │   │       ├── (SYMBOL, *)
-│   │               │           │       │                   │   │       ├── Factor
-│   │               │           │       │                   │   │       │   ├── (ID, i)
-│   │               │           │       │                   │   │       │   └── Var-call-prime
-│   │               │           │       │                   │   │       │       └── Var-prime
-│   │               │           │       │                   │   │       │           └── epsilon
-│   │               │           │       │                   │   │       └── G
-│   │               │           │       │                   │   │           └── epsilon
-│   │               │           │       │                   │   └── D
-│   │               │           │       │                   │       └── epsilon
-│   │               │           │       │                   └── C
-│   │               │           │       │                       └── epsilon
+│   │               │           │       │           └── Simple-expression-zegond
+│   │               │           │       │               ├── Additive-expression-zegond
+│   │               │           │       │               │   ├── Term-zegond
+│   │               │           │       │               │   │   ├── Factor-zegond
+│   │               │           │       │               │   │   │   └── (NUM, 71)
+│   │               │           │       │               │   │   └── G
+│   │               │           │       │               │   │       └── epsilon
+│   │               │           │       │               │   └── D
+│   │               │           │       │               │       └── epsilon
+│   │               │           │       │               └── C
+│   │               │           │       │                   └── epsilon
 │   │               │           │       └── (SYMBOL, ;)
 │   │               │           └── Statement-list
 │   │               │               ├── Statement
 │   │               │               │   └── Expression-stmt
 │   │               │               │       ├── Expression
-│   │               │               │       │   ├── (ID, output)
+│   │               │               │       │   ├── (ID, k)
 │   │               │               │       │   └── B
-│   │               │               │       │       └── Simple-expression-prime
-│   │               │               │       │           ├── Additive-expression-prime
-│   │               │               │       │           │   ├── Term-prime
-│   │               │               │       │           │   │   ├── Factor-prime
-│   │               │               │       │           │   │   │   ├── (SYMBOL, ()
-│   │               │               │       │           │   │   │   ├── Args
-│   │               │               │       │           │   │   │   │   └── Arg-list
-│   │               │               │       │           │   │   │   │       ├── Expression
-│   │               │               │       │           │   │   │   │       │   ├── (ID, j)
-│   │               │               │       │           │   │   │   │       │   └── B
-│   │               │               │       │           │   │   │   │       │       └── Simple-expression-prime
-│   │               │               │       │           │   │   │   │       │           ├── Additive-expression-prime
-│   │               │               │       │           │   │   │   │       │           │   ├── Term-prime
-│   │               │               │       │           │   │   │   │       │           │   │   ├── Factor-prime
-│   │               │               │       │           │   │   │   │       │           │   │   │   └── epsilon
-│   │               │               │       │           │   │   │   │       │           │   │   └── G
-│   │               │               │       │           │   │   │   │       │           │   │       ├── (SYMBOL, *)
-│   │               │               │       │           │   │   │   │       │           │   │       ├── Factor
-│   │               │               │       │           │   │   │   │       │           │   │       │   ├── (ID, i)
-│   │               │               │       │           │   │   │   │       │           │   │       │   └── Var-call-prime
-│   │               │               │       │           │   │   │   │       │           │   │       │       └── Var-prime
-│   │               │               │       │           │   │   │   │       │           │   │       │           └── epsilon
-│   │               │               │       │           │   │   │   │       │           │   │       └── G
-│   │               │               │       │           │   │   │   │       │           │   │           └── epsilon
-│   │               │               │       │           │   │   │   │       │           │   └── D
-│   │               │               │       │           │   │   │   │       │           │       └── epsilon
-│   │               │               │       │           │   │   │   │       │           └── C
-│   │               │               │       │           │   │   │   │       │               └── epsilon
-│   │               │               │       │           │   │   │   │       └── Arg-list-prime
-│   │               │               │       │           │   │   │   │           └── epsilon
-│   │               │               │       │           │   │   │   └── (SYMBOL, ))
-│   │               │               │       │           │   │   └── G
-│   │               │               │       │           │   │       └── epsilon
-│   │               │               │       │           │   └── D
-│   │               │               │       │           │       └── epsilon
-│   │               │               │       │           └── C
-│   │               │               │       │               └── epsilon
+│   │               │               │       │       ├── (SYMBOL, =)
+│   │               │               │       │       └── Expression
+│   │               │               │       │           ├── (ID, i)
+│   │               │               │       │           └── B
+│   │               │               │       │               └── Simple-expression-prime
+│   │               │               │       │                   ├── Additive-expression-prime
+│   │               │               │       │                   │   ├── Term-prime
+│   │               │               │       │                   │   │   ├── Factor-prime
+│   │               │               │       │                   │   │   │   └── epsilon
+│   │               │               │       │                   │   │   └── G
+│   │               │               │       │                   │   │       └── epsilon
+│   │               │               │       │                   │   └── D
+│   │               │               │       │                   │       ├── Addop
+│   │               │               │       │                   │       │   └── (SYMBOL, +)
+│   │               │               │       │                   │       ├── Term
+│   │               │               │       │                   │       │   ├── Factor
+│   │               │               │       │                   │       │   │   ├── (ID, j)
+│   │               │               │       │                   │       │   │   └── Var-call-prime
+│   │               │               │       │                   │       │   │       └── Var-prime
+│   │               │               │       │                   │       │   │           └── epsilon
+│   │               │               │       │                   │       │   └── G
+│   │               │               │       │                   │       │       └── epsilon
+│   │               │               │       │                   │       └── D
+│   │               │               │       │                   │           ├── Addop
+│   │               │               │       │                   │           │   └── (SYMBOL, +)
+│   │               │               │       │                   │           ├── Term
+│   │               │               │       │                   │           │   ├── Factor
+│   │               │               │       │                   │           │   │   ├── (ID, k)
+│   │               │               │       │                   │           │   │   └── Var-call-prime
+│   │               │               │       │                   │           │   │       └── Var-prime
+│   │               │               │       │                   │           │   │           └── epsilon
+│   │               │               │       │                   │           │   └── G
+│   │               │               │       │                   │           │       └── epsilon
+│   │               │               │       │                   │           └── D
+│   │               │               │       │                   │               └── epsilon
+│   │               │               │       │                   └── C
+│   │               │               │       │                       └── epsilon
 │   │               │               │       └── (SYMBOL, ;)
 │   │               │               └── Statement-list
 │   │               │                   ├── Statement
 │   │               │                   │   └── Expression-stmt
-│   │               │                   │       └── Expression
-│   │               │                   │           ├── (ID, i)
-│   │               │                   │           └── B
-│   │               │                   │               ├── (SYMBOL, =)
-│   │               │                   │               └── Expression
-│   │               │                   │                   └── Simple-expression-zegond
-│   │               │                   │                       ├── Additive-expression-zegond
-│   │               │                   │                       │   ├── Term-zegond
-│   │               │                   │                       │   │   ├── Factor-zegond
-│   │               │                   │                       │   │   │   └── (NUM, 1)
-│   │               │                   │                       │   │   └── G
-│   │               │                   │                       │   │       └── epsilon
-│   │               │                   │                       │   └── D
-│   │               │                   │                       │       └── epsilon
-│   │               │                   │                       └── C
-│   │               │                   │                           ├── Relop
-│   │               │                   │                           │   └── (SYMBOL, ==)
-│   │               │                   │                           └── Additive-expression
-│   │               │                   │                               ├── Term
-│   │               │                   │                               │   ├── Factor
-│   │               │                   │                               │   │   └── (NUM, 1)
-│   │               │                   │                               │   └── G
-│   │               │                   │                               │       └── epsilon
-│   │               │                   │                               └── D
-│   │               │                   │                                   └── epsilon
+│   │               │                   │       ├── Expression
+│   │               │                   │       │   ├── (ID, output)
+│   │               │                   │       │   └── B
+│   │               │                   │       │       └── Simple-expression-prime
+│   │               │                   │       │           ├── Additive-expression-prime
+│   │               │                   │       │           │   ├── Term-prime
+│   │               │                   │       │           │   │   ├── Factor-prime
+│   │               │                   │       │           │   │   │   ├── (SYMBOL, ()
+│   │               │                   │       │           │   │   │   ├── Args
+│   │               │                   │       │           │   │   │   │   └── Arg-list
+│   │               │                   │       │           │   │   │   │       ├── Expression
+│   │               │                   │       │           │   │   │   │       │   ├── (ID, k)
+│   │               │                   │       │           │   │   │   │       │   └── B
+│   │               │                   │       │           │   │   │   │       │       └── Simple-expression-prime
+│   │               │                   │       │           │   │   │   │       │           ├── Additive-expression-prime
+│   │               │                   │       │           │   │   │   │       │           │   ├── Term-prime
+│   │               │                   │       │           │   │   │   │       │           │   │   ├── Factor-prime
+│   │               │                   │       │           │   │   │   │       │           │   │   │   └── epsilon
+│   │               │                   │       │           │   │   │   │       │           │   │   └── G
+│   │               │                   │       │           │   │   │   │       │           │   │       └── epsilon
+│   │               │                   │       │           │   │   │   │       │           │   └── D
+│   │               │                   │       │           │   │   │   │       │           │       └── epsilon
+│   │               │                   │       │           │   │   │   │       │           └── C
+│   │               │                   │       │           │   │   │   │       │               └── epsilon
+│   │               │                   │       │           │   │   │   │       └── Arg-list-prime
+│   │               │                   │       │           │   │   │   │           └── epsilon
+│   │               │                   │       │           │   │   │   └── (SYMBOL, ))
+│   │               │                   │       │           │   │   └── G
+│   │               │                   │       │           │   │       └── epsilon
+│   │               │                   │       │           │   └── D
+│   │               │                   │       │           │       └── epsilon
+│   │               │                   │       │           └── C
+│   │               │                   │       │               └── epsilon
+│   │               │                   │       └── (SYMBOL, ;)
 │   │               │                   └── Statement-list
-│   │               │                       ├── Statement
-│   │               │                       │   └── Compound-stmt
-│   │               │                       │       ├── (SYMBOL, {)
-│   │               │                       │       ├── Declaration-list
-│   │               │                       │       │   └── epsilon
-│   │               │                       │       ├── Statement-list
-│   │               │                       │       │   ├── Statement
-│   │               │                       │       │   │   └── Expression-stmt
-│   │               │                       │       │   │       └── Expression
-│   │               │                       │       │   │           ├── (ID, output)
-│   │               │                       │       │   │           └── B
-│   │               │                       │       │   │               └── Simple-expression-prime
-│   │               │                       │       │   │                   ├── Additive-expression-prime
-│   │               │                       │       │   │                   │   ├── Term-prime
-│   │               │                       │       │   │                   │   │   ├── Factor-prime
-│   │               │                       │       │   │                   │   │   │   ├── (SYMBOL, ()
-│   │               │                       │       │   │                   │   │   │   ├── Args
-│   │               │                       │       │   │                   │   │   │   │   └── Arg-list
-│   │               │                       │       │   │                   │   │   │   │       ├── Expression
-│   │               │                       │       │   │                   │   │   │   │       │   ├── (ID, i)
-│   │               │                       │       │   │                   │   │   │   │       │   └── B
-│   │               │                       │       │   │                   │   │   │   │       │       └── Simple-expression-prime
-│   │               │                       │       │   │                   │   │   │   │       │           ├── Additive-expression-prime
-│   │               │                       │       │   │                   │   │   │   │       │           │   ├── Term-prime
-│   │               │                       │       │   │                   │   │   │   │       │           │   │   ├── Factor-prime
-│   │               │                       │       │   │                   │   │   │   │       │           │   │   │   └── epsilon
-│   │               │                       │       │   │                   │   │   │   │       │           │   │   └── G
-│   │               │                       │       │   │                   │   │   │   │       │           │   │       └── epsilon
-│   │               │                       │       │   │                   │   │   │   │       │           │   └── D
-│   │               │                       │       │   │                   │   │   │   │       │           │       └── epsilon
-│   │               │                       │       │   │                   │   │   │   │       │           └── C
-│   │               │                       │       │   │                   │   │   │   │       │               └── epsilon
-│   │               │                       │       │   │                   │   │   │   │       └── Arg-list-prime
-│   │               │                       │       │   │                   │   │   │   │           └── epsilon
-│   │               │                       │       │   │                   │   │   │   └── (SYMBOL, ))
-│   │               │                       │       │   │                   │   │   └── G
-│   │               │                       │       │   │                   │   │       └── epsilon
-│   │               │                       │       │   │                   │   └── D
-│   │               │                       │       │   │                   │       └── epsilon
-│   │               │                       │       │   │                   └── C
-│   │               │                       │       │   │                       └── epsilon
-│   │               │                       │       │   └── Statement-list
-│   │               │                       │       │       └── epsilon
-│   │               │                       │       └── (SYMBOL, })
-│   │               │                       └── Statement-list
-│   │               │                           └── epsilon
+│   │               │                       └── epsilon
 │   │               └── (SYMBOL, })
 │   └── Declaration-list
 │       └── epsilon

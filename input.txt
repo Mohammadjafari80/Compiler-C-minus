@@ -2,14 +2,10 @@
 void main(void){
     int i;
     int j;
-    j = 5;
-    i = 10;
-    j = j*i;
-    output(j*i);
-    i = 1:
-    if (i==1){
-        output(i)
-    } else {
-        output(5)
-    }
+    int k;
+    i = 23;
+    j = 53;
+    k = 71;
+    k = i + j + k;
+    output(k);
 }
