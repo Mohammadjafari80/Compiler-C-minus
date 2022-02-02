@@ -108,7 +108,7 @@ class CodeGenerator:
     def get_temp_exp(self, type='local_var'):
         self.scope_record.current_fun.update_local_var()
         address = self.scope_record.current_fun.local_var
-        r = sr.Record("", self.scope_record.current_scope, 0, type, "", address)
+        r = sr.Record("temp", self.scope_record.current_scope, 0, type, "", address)
         self.push_run_time_stack()
         return r
 
@@ -127,11 +127,11 @@ class CodeGenerator:
         self.print_program_block()
         print(self.semantic_analyzer.semantic_stack)
 
-    def push_run_time_stack(self, val="#0", size=1):
+    def push_run_time_stack(self, val="#0"):
         self.mem.get_program_block()
         self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('ASSIGN', f'{val}', f'@{self.mem.sp}', None))
-        self.program_block.append(Three_Address_Code('ADD', f'#{4 * size}', f'{self.mem.sp}', f'{self.mem.sp}'))
+        self.program_block.append(Three_Address_Code('ADD', f'#{4}', f'{self.mem.sp}', f'{self.mem.sp}'))
 
     def assign_zero_to_stack(self, address):
         pass
@@ -274,8 +274,14 @@ class CodeGenerator:
         index = self.analyse_id(self.semantic_analyzer.pop().val)
         address = self.analyse_id(self.semantic_analyzer.pop().val)
         (r, temp) = self.handle_temp_for_stack('#0', 'arg_var_arr')
-        self.mem.get_program_block()
-        self.program_block.append(Three_Address_Code('ADD', f'{index}', f'{address}', f'@{temp}'))
+        if type(address) == str and '@' in address:
+            t = address.replace("@", "")
+            self.mem.get_program_block()
+            self.program_block.append(Three_Address_Code('ADD', f'{index}', f'{t}', f'@{temp}'))
+        else:
+            self.mem.get_program_block()
+            self.program_block.append(Three_Address_Code('ADD', f'{index}', f'#{address}', f'@{temp}'))
+
         self.semantic_analyzer.push(r)
 
         # if type(index) == sr.Record:
@@ -369,7 +375,7 @@ class CodeGenerator:
         i = 0
         for p in self.program_block:
             if i >= self.last_print:
-                print(p)
+                print(f'{i} : {p}')
             i += 1
         self.last_print = i
 
@@ -421,7 +427,7 @@ class CodeGenerator:
     def save_stack_address_in_stack(self):
         self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('ASSIGN', f'{self.mem.sp}', f'{self.mem.display}', None))
-        self.push_run_time_stack(self.mem.display, 1)
+        self.push_run_time_stack(self.mem.display)
 
     def fun_declare_end(self, token):  # TODO
         pass
