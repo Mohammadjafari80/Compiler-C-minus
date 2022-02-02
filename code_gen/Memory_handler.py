@@ -16,7 +16,8 @@ class Memory():
         self.get_program_block()
         self.code_g.program_block.append(code_generator.Three_Address_Code("ASSIGN", f"#{self.sp + 4}", self.sp, None))
         self.get_program_block()
-        self.code_g.program_block.append(code_generator.Three_Address_Code("ASSIGN", f"#0", self.display, None))
+        self.code_g.program_block.append(
+            code_generator.Three_Address_Code("ASSIGN", f"#{self.sp + 4}", self.display, None))
         self.get_program_block()
         self.code_g.program_block.append(code_generator.Three_Address_Code("ASSIGN", f"#0", self.return_val, None))
         self.get_program_block()
@@ -24,8 +25,8 @@ class Memory():
         # self.dynamic_stack = 1000
 
     def get_static_address(self, skip=4):
-        # self.get_program_block()
-        # self.code_g.program_block.append(code_generator.Three_Address_Code("ASSIGN", "#0", self.static_data, None))
+        #self.get_program_block()
+        #self.code_g.program_block.append(code_generator.Three_Address_Code("ASSIGN", "#0", self.static_data, None))
         self.static_data += skip
         return self.static_data - skip
 

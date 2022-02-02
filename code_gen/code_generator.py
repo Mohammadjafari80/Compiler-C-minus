@@ -47,9 +47,9 @@ class CodeGenerator:
         size = r.local_var
         self.pop_run_time_stack(size)
         self.reverse_display()
+        self.pop_run_time_stack()
         self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('ASSIGN', f"@{self.mem.sp}", self.mem.return_add, None))
-        self.pop_run_time_stack()
         self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('JP', f"@{self.mem.return_add}", None, None))
         self.return_void("a")
@@ -210,9 +210,9 @@ class CodeGenerator:
             self.pop_run_time_stack(size)
             self.reverse_display()
             temp = self.mem.return_add  #
+            self.pop_run_time_stack()
             self.mem.get_program_block()
             self.program_block.append(Three_Address_Code('ASSIGN', f"@{self.mem.sp}", temp, None))
-            self.pop_run_time_stack()
             self.mem.get_program_block()
             self.program_block.append(Three_Address_Code('JP', f"@{temp}", None, None))
             self.scope_record.current_fun = None
@@ -392,7 +392,19 @@ class CodeGenerator:
         self.save_stack_address_in_stack()
 
     def push_arg(self, token):
-        self.push_run_time_stack(self.analyse_id(self.semantic_analyzer.pop().val))
+        arg = self.semantic_analyzer.pop().val
+        try:
+            arg.address
+            a = self.analyse_id(arg)
+            if 'arr' in arg.type:
+                self.push_run_time_stack(a)
+                return
+            tmp = self.get_temp()
+            self.mem.get_program_block()
+            self.program_block.append(Three_Address_Code("ASSIGN", a, tmp, None))
+            self.push_run_time_stack(tmp)
+        except:
+            self.push_run_time_stack(arg)
 
     def call(self, token):
         i = self.semantic_analyzer.pop().val
@@ -425,9 +437,9 @@ class CodeGenerator:
         self.scope_record.in_function = True
 
     def reverse_display(self):
+        self.pop_run_time_stack()
         self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('ASSIGN', f'@{self.mem.sp}', f'{self.mem.display}', None))
-        self.pop_run_time_stack()
 
     def save_stack_address_in_stack(self):
         self.push_run_time_stack(self.mem.display)
@@ -449,12 +461,26 @@ class CodeGenerator:
         r.type = 'arg_var_arr'
 
     def return_void(self, token):
-        self.mem.get_program_block()
-        self.program_block.append(Three_Address_Code('ASSIGN', "#0", self.mem.return_val, None))
+        # self.mem.get_program_block()
+        # self.program_block.append(Three_Address_Code('ASSIGN', "#0", self.mem.return_val, None))
+        self.pop_and_jump()
         pass
 
     def return_expression(self, token):  # TODO
         val = self.analyse_id(self.semantic_analyzer.pop().val)
         self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('ASSIGN', val, self.mem.return_val, None))
+        self.pop_and_jump()
         # self.semantic_analyzer.push(self.mem.return_val)
+
+    def pop_and_jump(self):
+        r = self.scope_record.current_fun
+        size = r.local_var
+        self.pop_run_time_stack(size)
+        self.reverse_display()
+        temp = self.mem.return_add  #
+        self.pop_run_time_stack()
+        self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code('ASSIGN', f"@{self.mem.sp}", temp, None))
+        self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code('JP', f"@{temp}", None, None))
