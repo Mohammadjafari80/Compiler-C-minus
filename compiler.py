@@ -18,3 +18,4 @@ save_path = "./"
 scanner = Scanner.Scanner(path=save_path, save_path=save_path)
 parser = Parser.Parser(read_path, save_path)
 parser.parse()
+print("finish")

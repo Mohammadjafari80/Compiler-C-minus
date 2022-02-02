@@ -25,13 +25,19 @@ Three_Address_Code = namedtuple('ThreeAddressCode', 'op y z x')
 class CodeGenerator:
     def initial(self):
         self.before_call("a")
+        stack_dis_address = int(self.semantic_analyzer.pop().val)
         i = int(self.semantic_analyzer.pop().val)
+        self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code('ASSIGN', f'{self.mem.display}', f'@{stack_dis_address}', None))
+        self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code('ADD', f'{stack_dis_address}', "#4", f'{self.mem.display}'))
         index = self.mem.get_program_block()
         self.init_main_pb = index
         self.program_block.append(Three_Address_Code('JP', "?", None, None))
         self.program_block[i - 1] = Three_Address_Code('ASSIGN', f'#{self.mem.get_front_code()}', f'@{self.mem.sp}',
                                                        None)
         self.program_block[i] = Three_Address_Code('ADD', f'#{4 * 1}', f'{self.mem.sp}', f'{self.mem.sp}')
+
         self.mem.get_program_block()
         self.program_block.append(Three_Address_Code(None, None, None, None))
         ''' # end of program '''
@@ -205,16 +211,7 @@ class CodeGenerator:
     def out_of_scope(self, token):
         if (self.scope_record.current_fun != None) and \
                 self.scope_record.current_fun.scope_num == self.scope_record.current_scope - 1:
-            r = self.scope_record.current_fun
-            size = r.local_var
-            self.pop_run_time_stack(size)
-            self.reverse_display()
-            temp = self.mem.return_add  #
-            self.pop_run_time_stack()
-            self.mem.get_program_block()
-            self.program_block.append(Three_Address_Code('ASSIGN', f"@{self.mem.sp}", temp, None))
-            self.mem.get_program_block()
-            self.program_block.append(Three_Address_Code('JP', f"@{temp}", None, None))
+            self.pop_and_jump()
             self.scope_record.current_fun = None
 
         self.scope_record.delete_current_scope()  # TODO check whether because we changed it
@@ -227,7 +224,6 @@ class CodeGenerator:
     def analyse_id(self, val):
         try:
             val.address
-            # if type(val) == sr.Record or type(val) == scope_records.scope_record.Record:
 
             if (val.type == "global_var_arr") or (val.type == "global_var"):
                 return val.address
@@ -389,7 +385,12 @@ class CodeGenerator:
         self.program_block.append(Three_Address_Code('ASSIGN', "val", self.mem.return_val, None))
         self.program_block.append(Three_Address_Code('ASSIGN', "val", self.mem.return_val, None))
         self.semantic_analyzer.push(self.mem.get_front_code() - 1)
-        self.save_stack_address_in_stack()
+        # self.save_stack_address_in_stack()
+        temp = self.get_temp()
+        self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code('ASSIGN', f"{self.mem.sp}", temp, None))
+        self.semantic_analyzer.push(temp)
+        self.push_run_time_stack()
 
     def push_arg(self, token):
         arg = self.semantic_analyzer.pop().val
@@ -407,6 +408,12 @@ class CodeGenerator:
             self.push_run_time_stack(arg)
 
     def call(self, token):
+        temp = self.semantic_analyzer.pop().val
+        # self.push_run_time_stack(self.mem.display)
+        self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code('ASSIGN', f'{self.mem.display}', f'@{temp}', None))
+        self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code('ADD', f'{temp}', "#4", f'{self.mem.display}'))
         i = self.semantic_analyzer.pop().val
         record = self.semantic_analyzer.pop().val
         self.mem.get_program_block()
@@ -442,9 +449,7 @@ class CodeGenerator:
         self.program_block.append(Three_Address_Code('ASSIGN', f'@{self.mem.sp}', f'{self.mem.display}', None))
 
     def save_stack_address_in_stack(self):
-        self.push_run_time_stack(self.mem.display)
-        self.mem.get_program_block()
-        self.program_block.append(Three_Address_Code('ASSIGN', f'{self.mem.sp}', f'{self.mem.display}', None))
+        pass
 
     def fun_declare_end(self, token):  # TODO
         pass
