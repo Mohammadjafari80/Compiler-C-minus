@@ -1,18 +1,15 @@
 /*===== Sample 1 =====*/
-int foo(int x){
-	if (x < 0){
-		output(x);
-		return 1;
-	}
-	else {
-		output(x);
-		return x + 2;
-	} endif
-}
 void main(void){
-	int i;
-	i= foo(0);
-	output(i);
-	i=foo(10);
-	output(i);
+    int i;
+    int j;
+    j = 5;
+    i = 10;
+    j = j*i;
+    output(j*i);
+    i = 1:
+    if (i==1){
+        output(i)
+    } else {
+        output(5)
+    }
 }

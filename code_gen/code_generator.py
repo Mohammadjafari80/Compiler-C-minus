@@ -39,12 +39,12 @@ class CodeGenerator:
         self.program_block[i] = Three_Address_Code('ADD', f'#{4 * 1}', f'{self.mem.sp}', f'{self.mem.sp}')
 
         self.mem.get_program_block()
-        self.program_block.append(Three_Address_Code(None, None, None, None))
+        self.program_block.append(Three_Address_Code("JP", "100000", None, None))
         ''' # end of program '''
         r = self.scope_record.insert_record("output", 1, "FUN", "void", self.mem.get_front_code())
         self.scope_record.current_fun = r
         r.update_local_var()
-        #r.update_args()
+        # r.update_args()
         # temp = self.get_temp()
         # self.mem.get_program_block()
         # self.program_block.append(Three_Address_Code("ADD", "#4", f"@{self.mem.display}", temp))
@@ -58,9 +58,9 @@ class CodeGenerator:
         self.program_block.append(Three_Address_Code('ASSIGN', f"@{self.mem.sp}", self.mem.return_add, None))
         self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('JP', f"@{self.mem.return_add}", None, None))
-        #self.return_void("a")
-        (r, _) = self.handle_temp_for_stack(self.mem.return_val)
-        self.semantic_analyzer.push(r)
+        # self.return_void("a")
+        # (r, _) = self.handle_temp_for_stack(self.mem.return_val)
+        # self.semantic_analyzer.push(r)
         self.scope_record.current_fun = None
 
     def set_main_address(self, address):
