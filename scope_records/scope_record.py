@@ -31,10 +31,10 @@ class Record:
         self.local_var += val
 
     def __str__(self):
-        return f'lexeme : {self.lexeme} , type = {self.type} , args : {self.args} , var_type : {self.var_type} , scope_num : {self.scope_num} , address : {self.address} , arr_size : {self.arr_size}'
+        return f'lexeme : {self.lexeme} , type = {self.type} , args : {self.args} , var_type : {self.var_type} , scope_num : {self.scope_num} , address : {self.address} , arr_size : {self.arr_size} , local_var : {self.local_var} '
 
     def __repr__(self):
-        return f'(lexeme={self.lexeme}, type={self.type}, args={self.args}, var_type={self.var_type}, scope={self.scope_num}, address={self.address} , arr_size : {self.arr_size})'
+        return f'(lexeme={self.lexeme}, type={self.type}, args={self.args}, var_type={self.var_type}, scope={self.scope_num}, address={self.address} , arr_size : {self.arr_size}) , local_var : {self.local_var} '
 
 
 class Scope:
