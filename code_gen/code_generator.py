@@ -108,7 +108,8 @@ class CodeGenerator:
     def get_temp_exp(self, type='local_var'):
         self.scope_record.current_fun.update_local_var()
         address = self.scope_record.current_fun.local_var
-        r = sr.Record("temp", self.scope_record.current_scope, 0, type, "", address)
+        r = sr.Record("temp", self.scope_record.current_scope, 0, type,'temp', address)
+        self.scope_record.scope_record.append(r)
         self.push_run_time_stack()
         return r
 
