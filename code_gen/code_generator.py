@@ -47,9 +47,10 @@ class CodeGenerator:
         self.pop_run_time_stack(size)
         self.reverse_display()
         # temp = self.get_temp()
-        self.mem.get_program_block(), self.mem.get_program_block()
+        self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('ASSIGN', f"@{self.mem.sp}", self.mem.return_add, None))
         self.pop_run_time_stack()
+        self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('JP', f"@{temp}", None, None))
         self.return_void("a")
         (r, _) = self.handle_temp_for_stack(self.mem.return_val)
@@ -102,6 +103,7 @@ class CodeGenerator:
         self.semantic_analyzer = sa.SemanticAnalyzer()
         self.mem = Memory(self)
         self.initial()
+        self.last_print = 0
 
     def get_temp_exp(self, type='local_var'):
         self.scope_record.current_fun.update_local_var()
@@ -119,7 +121,11 @@ class CodeGenerator:
         return (lexeme.strip())
 
     def generate_code(self, action, token):
+        print("-----------------------------------------------------------------------------------------------")
+        print(action, token)
         self.routine_dict.get(action)(self.parse_token(token))
+        self.print_program_block()
+        print(self.semantic_analyzer.semantic_stack)
 
     def push_run_time_stack(self, val="#0", size=1):
         self.mem.get_program_block()
@@ -231,11 +237,10 @@ class CodeGenerator:
                 self.mem.get_program_block()
                 self.program_block.append(Three_Address_Code("ADD", f"#{size}", self.mem.display, temp))
                 if val.type == "arg_var_arr":
+                    self.mem.get_program_block()
                     self.program_block.append(Three_Address_Code("ASSIGN", f"@{temp}", temp, None))
                 return f'@{temp}'
         except:
-            print(val)
-            print(type(val) == sr.Record)
             return val
 
     def assign(self, token):
@@ -301,15 +306,18 @@ class CodeGenerator:
         self.semantic_analyzer.push(r)
 
     def save_if(self, token):
+        add = self.analyse_id(self.semantic_analyzer.pop().val)
         i = self.mem.get_program_block()
         self.program_block.append(
-            Three_Address_Code('JPF', self.analyse_id(self.semantic_analyzer.front().val), "?", None))
+            Three_Address_Code('JPF', "?", "?", None))
+        self.semantic_analyzer.push(add)
         self.semantic_analyzer.push(i)
 
     def end_simple_if(self, token):
-        self.program_block[self.semantic_analyzer.pop().val] = Three_Address_Code('JPF',
-                                                                                  self.analyse_id(self.semantic_analyzer.pop().val),
-                                                                                  self.mem.get_front_code(), None)
+        self.program_block[int(self.semantic_analyzer.pop().val)] = Three_Address_Code('JPF',
+                                                                                       self.analyse_id(
+                                                                                           self.semantic_analyzer.pop().val),
+                                                                                       self.mem.get_front_code(), None)
 
     def save_if_else(self, token):
         i = self.mem.get_program_block()
@@ -347,8 +355,8 @@ class CodeGenerator:
                        self.semantic_analyzer.pop().val, \
                        self.analyse_id(self.semantic_analyzer.pop().val)
 
-        self.mem.get_program_block()
         (r, temp) = self.handle_temp_for_stack("#0")
+        self.mem.get_program_block()
 
         if op == '==':
             self.program_block.append(Three_Address_Code('EQ', rhs, lhs, f'@{temp}'))
@@ -358,8 +366,12 @@ class CodeGenerator:
         self.semantic_analyzer.push(r)
 
     def print_program_block(self):
+        i = 0
         for p in self.program_block:
-            print(p)
+            if i >= self.last_print:
+                print(p)
+            i += 1
+        self.last_print = i
 
     def before_call(self, token):
         self.mem.get_program_block()
