@@ -40,8 +40,13 @@ class CodeGenerator:
         self.routine_dict['#fun_declare_end'] = self.fun_declare_end
         self.routine_dict['#jump_over_func'] = self.jump_over_func
         self.routine_dict["find_function"] = self.find_function
-
+        self.routine_dict['#operate'] = self.operate
+        self.routine_dict['#indirect_addr'] = self.indirect_addr
         self.routine_dict['#assign_to_local'] = self.assign_to_local
+        self.routine_dict['#call_func'] = self.call_func
+        self.routine_dict['#assign'] = self.assign
+        self.routine_dict['#jp_main'] = self.jp_main
+
         self.routine_dict['#save_label'] = self.save_label
         self.routine_dict['#if_jpf'] = self.if_jpf
         self.routine_dict['#if_jpf_save_label'] = self.if_jpf_save_label
@@ -49,13 +54,6 @@ class CodeGenerator:
         self.routine_dict['#label'] = self.label
         self.routine_dict['#repeat_jump'] = self.repeat_jump
         self.routine_dict["save_break"] = self.save_break
-
-        self.routine_dict['#assign'] = self.assign
-        self.routine_dict['#indirect_addr'] = self.indirect_addr
-        self.routine_dict['#call_func'] = self.call_func
-        self.routine_dict['#operate'] = self.operate
-
-        self.routine_dict['#jp_main'] = self.jp_main
         self.semantic_analyzer = sa.SemanticAnalyzer()
         self.mem = Memory(self)
         self.program_block = []
@@ -63,28 +61,94 @@ class CodeGenerator:
         self.BH = bh.Break()
         self.RT = bh.Return()
         self.function_to_call = None
+        self.output_flag = False
+
+    def assign_to_local(self, token):
+        # offset = self.get_offset_temp()
+        pass
+
+    def assign(self, token):
+        rhs, lhs = self.semantic_analyzer.pop(), self.semantic_analyzer.pop()
+        rhsA, lhsA = self.analyze_exp(rhs), self.analyze_exp(lhs, right=False)
+        self.add_command(Three_Address_Code("ASSIGN", rhsA, lhsA, None))
+        self.semantic_analyzer.push(lhs)
 
     def jp_main(self, token):
         r = self.scope_record.find_record('main')
         self.function_to_call = r
+        self.call_func("a", if_main=True)
         # Whatever we do in call_func
 
     def find_function(self, token):
+        if token == "output":
+            self.output_flag = True
+            return
         r = self.scope_record.find_record(self.semantic_analyzer.pop())
         self.function_to_call = r
 
-    def call_func(self, token):
+    def call_func(self, token, if_main=False):
+        if self.output_flag:
+            value_to_print = self.analyze_exp(self.semantic_analyzer.pop())
+            self.add_command(Three_Address_Code("PRINT", value_to_print, None, None))
+            self.output_flag = False
+            return
         arg_num = self.function_to_call.args
-
-    def analyze_exp(self, exp):  # TODO just for read
+        offset = self.function_to_call.local_arr + 1
+        arg_arr = []
+        for i in range(arg_num):
+            arg_arr.append(self.semantic_analyzer.pop())
+        arg_arr = arg_arr[::-1]
+        save_address = self.PC
+        self.add_command(Three_Address_Code("?", None, None, None))  # offset + 1 #TODO return
+        self.add_command(Three_Address_Code("?", None, None, None))  # offset + 1 #TODO return
+        self.add_command(Three_Address_Code("?", None, None, None))  # offset + 1 #TODO return
+        self.add_command(Three_Address_Code("?", None, None, None))  # offset + 1 #TODO return
         temp = self.mem.get_static_address()
+        for (i, a) in enumerate(arg_arr):
+            self.add_command(Three_Address_Code("ADD", f'#{(offset + i + 2) * 4}', self.mem.activation_record, temp))
+            self.add_command(Three_Address_Code("ASSIGN", self.analyze_exp(a), f'@{temp}', None))
+        self.update_command(save_address + 2, Three_Address_Code("ASSIGN", f'#{(1 + offset) * 4}', f'{temp}', None))
+        self.update_command(save_address + 3,
+                            Three_Address_Code("ASSIGN", self.mem.activation_record, f'@{temp}', None))
+        self.add_command(Three_Address_Code("ADD", f'#{(offset) * 4}', self.mem.activation_record, temp))
+        self.add_command(Three_Address_Code("ASSIGN", temp, self.mem.activation_record, None))
+        self.add_command(Three_Address_Code("JP", self.function_to_call.address, None, None))
+        self.update_command(save_address, Three_Address_Code("ASSIGN", f'#{offset * 4}', f'{temp}', None))
+        self.update_command(save_address + 1, Three_Address_Code("ASSIGN", f'#{self.PC}', f'@{temp}', None))
+        self.add_command(
+            Three_Address_Code("ASSIGN", f'@{self.function_to_call.address}', self.mem.activation_record, None))
+        offset = self.get_offset_temp()
+        self.add_command(Three_Address_Code("ADD", f"#{offset * 4}", self.mem.activation_record, temp))
+        self.add_command(
+            Three_Address_Code("ASSIGN", f'{self.mem.return_val}', f'@{temp}', None))
+        if if_main:
+            self.add_command(Three_Address_Code("JP", "#5000000000000", None, None))
+        self.semantic_analyzer.push(f'!{offset}')
+
+    def analyze_exp(self, exp, right=True):  # TODO just for read
         if "!" in exp:
-            exp = int(exp.replace("!", ""))
+            temp = self.mem.get_static_address()
+            exp = exp.replace("!", "")
+            if "@" in exp:
+                exp = int(exp.replace("@", ""))
+                exp = int(exp)
+                self.add_command(Three_Address_Code("ADD", f'#{exp * 4}', self.mem.activation_record, temp))
+                self.add_command(Three_Address_Code("ASSIGN", f'@{temp}', temp))
+                if right:
+                    self.add_command(Three_Address_Code("ASSIGN", f'@{temp}', temp))
+                    return temp
+                return f'@{temp}'
+            exp = int(exp)
             self.add_command(Three_Address_Code("ADD", f'#{exp * 4}', self.mem.activation_record, temp))
+            if not right:
+                return f'@{temp}'
             self.add_command(Three_Address_Code("ASSIGN", f'@{temp}', temp))
-        else:
+            return f'{temp}'
+        elif right:
+            temp = self.mem.get_static_address()
             self.add_command(Three_Address_Code("ASSIGN", exp, temp, None))
-        return temp
+            return temp
+        return exp
 
     def get_offset_temp(self):
         fun = self.scope_record.current_fun
@@ -106,10 +170,14 @@ class CodeGenerator:
         index, address = self.semantic_analyzer.pop(), self.semantic_analyzer.pop()
         index = self.analyze_exp(index)
         address = self.analyze_exp(address)
+        offset = self.get_offset_temp()
+        temp2 = self.mem.get_static_address()
+        self.add_command(Three_Address_Code("MUL", index, f'#{4}', temp2))
+        self.add_command(Three_Address_Code("ADD", temp2, address, temp2))
         temp = self.mem.get_static_address()
-        self.add_command(Three_Address_Code('MULT', f'#{4}', f'#{index}', temp))
-        self.add_command(Three_Address_Code('ADD', f'{temp}', f'{address}', temp))
-        self.semantic_analyzer.push(temp)
+        self.add_command(Three_Address_Code("ADD", f"#{offset * 4}", self.mem.activation_record, temp))
+        self.add_command(Three_Address_Code("ASSIGN", temp2, f'@{temp}', None))
+        self.semantic_analyzer.push(f"@!{offset}")
 
     def return_void(self, token):
         self.RT.add_return(self.PC)
@@ -183,7 +251,7 @@ class CodeGenerator:
         self.add_command(Three_Address_Code("ADD", f"#{(offset * 4)}", self.mem.activation_record, temp))
         self.add_command(Three_Address_Code("ADD", f"#4", temp, temp_2))
         self.add_command(Three_Address_Code("ASSIGN", f'{temp_2}', f'@{temp}', None))
-        for i in range(1, num):
+        for i in range(1, num + 1):
             self.add_command(Three_Address_Code("ADD", f"#{(offset + i) * 4}", self.mem.activation_record, temp))
             self.add_command(Three_Address_Code("ASSIGN", "#0", f'@{temp}', None))
         return
@@ -240,7 +308,3 @@ class CodeGenerator:
                 self.semantic_analyzer.push(record.address)
         else:
             self.semantic_analyzer.push(f'!{record.address}')
-
-
-
-
