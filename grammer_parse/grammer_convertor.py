@@ -11,7 +11,7 @@ def analysis(line):
         return
     line = line.strip()
     line = line.replace("EPSILON","null")
-    #line = line.replace("\u03b5","null")
+    line = line.replace("\u03b5","null")
     g = line.split("->")
     left = g[0].replace(" ", "").strip()
     right = g[1].split("|")

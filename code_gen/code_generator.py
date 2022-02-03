@@ -24,7 +24,7 @@ Three_Address_Code = namedtuple('ThreeAddressCode', 'op y z x')
 
 class CodeGenerator:
     def initial(self):
-        self.before_call("a")
+        #self.before_call("a")
         stack_dis_address = int(self.semantic_analyzer.pop().val)
         i = int(self.semantic_analyzer.pop().val)
         self.mem.get_program_block()
@@ -112,8 +112,8 @@ class CodeGenerator:
         self.last_print = 0
 
     def get_temp_exp(self, type='local_var'):
-        self.scope_record.current_fun.update_local_var()
         address = self.scope_record.current_fun.local_var
+        self.scope_record.current_fun.update_local_var()
         r = self.scope_record.insert_record(lexeme="temp", args=0, type=type, var_type='temp', address=address)
         self.push_run_time_stack()
         return r
@@ -152,7 +152,7 @@ class CodeGenerator:
 
     def save_break(self, token):
         i = self.mem.get_program_block()
-        pself.breakH.add_break(i)
+        self.breakH.add_break(i)
 
     def label_break_repeat(self, token):
         self.semantic_analyzer.push(self.mem.get_front_code())
@@ -382,17 +382,17 @@ class CodeGenerator:
         self.last_print = i
 
     def before_call(self, token):
+        (r, temp) = self.get_temp_exp()
+        self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code('ASSIGN', f"{self.mem.sp}", f'@{temp}', None))
+        self.semantic_analyzer.push(r)
+        self.push_run_time_stack()
         self.mem.get_program_block()
         self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('ASSIGN', "val", self.mem.return_val, None))
         self.program_block.append(Three_Address_Code('ASSIGN', "val", self.mem.return_val, None))
         self.semantic_analyzer.push(self.mem.get_front_code() - 1)
         # self.save_stack_address_in_stack()
-        temp = self.get_temp()
-        self.mem.get_program_block()
-        self.program_block.append(Three_Address_Code('ASSIGN', f"{self.mem.sp}", temp, None))
-        self.semantic_analyzer.push(temp)
-        self.push_run_time_stack()
 
     def push_arg(self, token):
         arg = self.semantic_analyzer.pop().val
@@ -410,8 +410,10 @@ class CodeGenerator:
             self.push_run_time_stack(arg)
 
     def call(self, token):
-        temp = self.semantic_analyzer.pop().val
+        temp = self.analyse_id(self.semantic_analyzer.pop().val)
         # self.push_run_time_stack(self.mem.display)
+        self.mem.get_program_block()
+        self.program_block.append(Three_Address_Code('ASSIGN', f'{self.mem.display}', f'@{temp}', None))
         self.mem.get_program_block()
         self.program_block.append(Three_Address_Code('ASSIGN', f'{self.mem.display}', f'@{temp}', None))
         self.mem.get_program_block()
