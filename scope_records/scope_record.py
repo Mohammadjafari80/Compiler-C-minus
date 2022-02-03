@@ -52,8 +52,6 @@ class Scope:
         return self.scope_stack[self.current_scope]
 
     def insert_record(self, lexeme, args=0, type=Type.VOID, var_type=VarTYPE.var, address=0, size=1):
-        if lexeme == "main":
-            self.code_gen.set_main_address(address)
         self.head_pointer += 1
         r = Record(lexeme, self.current_scope, args, type, var_type, address, size=size)
         self.scope_record.append(r)

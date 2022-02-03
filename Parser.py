@@ -4,7 +4,7 @@ import anytree
 import parser_utils.Transition_diagram as TD
 from anytree import Node, RenderTree
 from enum import Enum
-from code_gen import code_generator
+from code_gen import code_generator as codGN
 
 EPSILON = None
 
@@ -67,7 +67,7 @@ class Parser:
         self.line_number = 1
         self.errors = []
         self.is_stable = True
-        self.code_generator = code_generator.CodeGenerator(self)
+        self.code_generator = codGN.CodeGenerator(self)
         self.last_token = ""
 
     def front(self) -> TD.State:
@@ -120,7 +120,8 @@ class Parser:
 
     def code_gen(self, action):
         print(f'line = {self.scanner.get_line_number()}')
-        if (action == "#push_op" or action == "#push_id" or action == "#push_num" or action == "#push_num_temp" or action == "#push_id"):
+        if (
+                action == "#push_op" or action == "#push_id" or action == "#push_num" or action == "#push_num_temp" or action == "#decl_id"):
             self.code_generator.generate_code(action, self.last_token)
         else:
             self.code_generator.generate_code(action, self.current_token)

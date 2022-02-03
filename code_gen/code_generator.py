@@ -10,9 +10,11 @@ address
 ! ooffset
 @ address
 """
+from collections import namedtuple
 
 Three_Address_Code = namedtuple('ThreeAddressCode', 'op y z x')
 ops = {'+': 'ADD', '-': 'SUB', '*': 'MULT', "<": "LT", "==": "EQ"}
+
 
 class CodeGenerator:
     def __init__(self, parser):
@@ -38,7 +40,7 @@ class CodeGenerator:
         self.routine_dict['#outo_scope'] = self.outo_scope
         self.routine_dict['#fun_declare_end'] = self.fun_declare_end
         self.routine_dict['#jump_over_func'] = self.jump_over_func
-        self.routine_dict["find_function"] = self.find_function
+        self.routine_dict["#find_function"] = self.find_function
         self.routine_dict['#operate'] = self.operate
         self.routine_dict['#indirect_addr'] = self.indirect_addr
         self.routine_dict['#assign_to_local'] = self.assign_to_local
@@ -54,15 +56,30 @@ class CodeGenerator:
         self.routine_dict['#repeat_jump'] = self.repeat_jump
         self.routine_dict["save_break"] = self.save_break
         self.semantic_analyzer = sa.SemanticAnalyzer()
-        self.mem = Memory(self)
         self.program_block = []
+        self.mem = Memory(self)
         self.PC = self.mem.code_add
+        self.mem.initial()
+
         self.BH = bh.Break()
         self.RT = bh.Return()
         self.function_to_call = None
         self.output_flag = False
         self.cond_jumps = []
+        self.starting_block = self.PC
         self.add_command(Three_Address_Code(None, None, None, None))
+
+    def parse_token(self, token):
+        lexeme = token.split(",")[1] if token != '$' else token
+        lexeme = lexeme.replace(")", "")
+        return (lexeme.strip())
+
+    def generate_code(self, action, token):
+        token = self.parse_token(token)
+        self.routine_dict[action](token)
+
+    def decl_id(self, token):
+        self.semantic_analyzer.push(token)
 
     def save_label(self, token):
         self.semantic_analyzer.push(self.PC)
@@ -112,8 +129,7 @@ class CodeGenerator:
         self.semantic_analyzer.push(lhs)
 
     def jp_main(self, token):
-        self.starting_code = self.PC
-        self.update_command(0, Three_Address_Code("JP", f"#{self.PC}", None, None))
+        self.update_command(0, Three_Address_Code("JP", f"#{self.starting_block}", None, None))
         r = self.scope_record.find_record('main')
         self.function_to_call = r
         self.call_func("a", if_main=True)
@@ -186,7 +202,7 @@ class CodeGenerator:
             self.add_command(Three_Address_Code("ADD", f'#{exp * 4}', self.mem.activation_record, temp))
             if not right:
                 return f'@{temp}'
-            self.add_command(Three_Address_Code("ASSIGN", f'@{temp}', temp))
+            self.add_command(Three_Address_Code("ASSIGN", f'@{temp}', temp, None))
             return f'{temp}'
         elif right:
             temp = self.mem.get_static_address()
@@ -196,7 +212,7 @@ class CodeGenerator:
 
     def get_offset_temp(self):
         fun = self.scope_record.current_fun
-        address = fun.updat_local_var()
+        address = fun.update_local_var()
         return address
 
     def operate(self, token):
@@ -302,7 +318,7 @@ class CodeGenerator:
             self.add_command(Three_Address_Code("ASSIGN", "#0", temp, None))
             return
         fun = self.scope_record.current_fun
-        address = fun.updat_local_var()
+        address = fun.update_local_var()
         self.scope_record.insert_record(lexeme=lexeme, var_type=var_type, type="local_var", address=address)
         temp = self.mem.get_static_address()
         self.add_command(Three_Address_Code("ADD", f"#{address * 4}", self.mem.activation_record, temp))
@@ -338,6 +354,10 @@ class CodeGenerator:
         self.semantic_analyzer.pop()
 
     def push_id(self, token):
+        if token == "output":
+            self.semantic_analyzer.push(token)
+            return
+
         record = self.scope_record.find_record(token)
         if record.scope_num == 0:
             if record.type == 'FUN':
