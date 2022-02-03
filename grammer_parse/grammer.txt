@@ -35,10 +35,10 @@ Term -> Factor G
 Term-prime -> Factor-prime G
 Term-zegond -> Factor-zegond G
 G ->  * #push_op Factor #operate G | EPSILON
-Factor -> ( Expression ) |  ID #push_id Var_call_prime |  NUM #push_num_temp
-Var-call-prime -> #find_function ( Args ) #call_func | Var-prime
+Factor -> ( Expression ) |  ID #push_id Var-call-prime |  NUM #push_num_temp
+Var-call-prime ->  ( #find_function Args ) #call_func | Var-prime
 Var-prime -> [ Expression ] #indirect_addr | EPSILON
-Factor-prime -> #find_function ( Args ) #call_func | EPSILON
+Factor-prime -> (  #find_function Args ) #call_func | EPSILON
 Factor-zegond -> ( Expression ) | NUM #push_num_temp
 Args -> Arg-list | EPSILON
 Arg-list -> Expression Arg-list-prime

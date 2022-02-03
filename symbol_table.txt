@@ -7,8 +7,9 @@
 7.	until
 8.	return
 9.	endif
-10.	main
-11.	arr
-12.	var1
-13.	var2
-14.	output
+10.	arr
+11.	var1
+12.	func
+13.	arg
+14.	main
+15.	output

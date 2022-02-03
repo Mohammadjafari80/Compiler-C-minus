@@ -54,6 +54,7 @@ class CodeGenerator:
         self.routine_dict['#call_func'] = self.call_func
         self.routine_dict['#assign'] = self.assign
         self.routine_dict['#jp_main'] = self.jp_main
+        self.routine_dict["#save_break"] = self.save_break
 
         self.routine_dict['#save_label'] = self.save_label
         self.routine_dict['#if_jpf'] = self.if_jpf
@@ -63,7 +64,7 @@ class CodeGenerator:
         self.routine_dict['#repeat_jump'] = self.repeat_jump
         self.routine_dict["save_break"] = self.save_break
         self.semantic_analyzer = sa.SemanticAnalyzer()
-        self.semantic_analyzer.push("KIR")
+        self.semantic_analyzer.push("K")
         self.program_block = []
         self.mem = Memory(self)
         self.PC = self.mem.code_add
@@ -221,7 +222,7 @@ class CodeGenerator:
         self.semantic_analyzer.push(f'!{offset}')
 
     def analyze_exp(self, exp, right=True):  # TODO just for read
-        if "!" in exp:
+        if "!" in str(exp):
             temp = self.mem.get_static_address()
             exp = exp.replace("!", "")
             if "@" in exp:
@@ -311,12 +312,15 @@ class CodeGenerator:
         self.scope_record.current_fun = r
 
     def end_arr_param(self, token):
-        lexeme, var_type = self.semantic_analyzer.pop(), self.semantic_analyzer.pop()
-        fun = self.scope_record.current_fun
-        address = fun.update_args()
-        self.scope_record.insert_record(lexeme=lexeme, var_type=var_type, type="arg_arr", address=address)
+        r = self.scope_record.get_last_record()
+        r.type = "arg_arr"
+        # lexeme, var_type = self.semantic_analyzer.pop(), self.semantic_analyzer.pop()
+        # fun = self.scope_record.current_fun
+        # address = fun.update_args()
+        # self.scope_record.insert_record(lexeme=lexeme, var_type=var_type, type="arg_arr", address=address)
 
     def end_var_param(self, token):
+
         lexeme, var_type = self.semantic_analyzer.pop(), self.semantic_analyzer.pop()
         fun = self.scope_record.current_fun
         address = fun.update_args()
@@ -363,6 +367,8 @@ class CodeGenerator:
 
     def add_command(self, tp):
         self.program_block.append(tp)
+        if self.PC == 140:
+            print("here")
         self.PC += 1
 
     def update_command(self, index, tp):

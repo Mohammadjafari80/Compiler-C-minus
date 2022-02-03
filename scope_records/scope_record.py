@@ -48,6 +48,9 @@ class Scope:
         self.current_fun = None
         self.code_gen = CG
 
+    def get_last(self):
+        return self.scope_record[len(self.scope_record) - 1]
+
     def front(self):
         return self.scope_stack[self.current_scope]
 
