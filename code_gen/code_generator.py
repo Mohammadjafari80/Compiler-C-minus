@@ -12,8 +12,7 @@ address
 """
 
 Three_Address_Code = namedtuple('ThreeAddressCode', 'op y z x')
-ops = {'+': 'ADD', '-': 'SUB', '*': 'MULT'}
-
+ops = {'+': 'ADD', '-': 'SUB', '*': 'MULT', "<": "LT", "==", "EQ"}
 
 class CodeGenerator:
     def __init__(self, parser):
@@ -63,27 +62,37 @@ class CodeGenerator:
         self.function_to_call = None
         self.output_flag = False
         self.cond_jumps = []
+        self.add_command(Three_Address_Code(None, None, None, None))
 
     def save_label(self, token):
         self.semantic_analyzer.push(self.PC)
-        self.jumps.append(self.PC)
+        # self.cond_jumps.append(self.PC)
         self.add_command(Three_Address_Code('JPF', '?', '?', ))
 
     def if_jpf(self, token):
-        address, cond = self.semantic_analyzer.pop(), self.analyze_exp(self.semantic_analyzer.pop())
-        self.update_command(self.cond_jumps[-1], Three_Address_Code('JPF', cond, address))
-        self.cond_jumps.pop()
+        index, cond = self.semantic_analyzer.pop(), self.analyze_exp(self.semantic_analyzer.pop())
+        self.update_command(index, Three_Address_Code('JPF', cond, f'#{self.PC}', None))
 
     def if_jpf_save_label(self, token):
+        index, cond = self.semantic_analyzer.pop(), self.analyze_exp(self.semantic_analyzer.pop())
+        self.semantic_analyzer.push(self.PC)
+        self.add_command(Three_Address_Code('JP', '?', f'#{index}', None))
+        self.update_command(index, Three_Address_Code('JPF', cond, f'#{self.PC}', None))
+
         pass
 
     def then_jp(self, token):
-        pass
+        index = self.semantic_analyzer.pop()
+        self.update_command(index, Three_Address_Code('JP', f'#{self.PC}', None, None))
 
     def label(self, token):
+        self.semantic_analyzer.push(self.PC)
         self.BH.add_repeat()
 
     def repeat_jump(self, token):
+        cond = self.analyze_exp(self.semantic_analyzer.pop())
+        index = self.semantic_analyzer.pop()
+        self.add_command(Three_Address_Code('JPF', cond, index, None))
         break_list = self.BH.get_breaks_address()
         for br_index in break_list:
             self.update_command(br_index, Three_Address_Code('JP', self.PC, None, None))
@@ -103,6 +112,8 @@ class CodeGenerator:
         self.semantic_analyzer.push(lhs)
 
     def jp_main(self, token):
+        self.starting_code = self.PC
+        self.update_command(0, Three_Address_Code("JP", f"#{self.PC}", None, None))
         r = self.scope_record.find_record('main')
         self.function_to_call = r
         self.call_func("a", if_main=True)
@@ -136,14 +147,18 @@ class CodeGenerator:
         for (i, a) in enumerate(arg_arr):
             self.add_command(Three_Address_Code("ADD", f'#{(offset + i + 2) * 4}', self.mem.activation_record, temp))
             self.add_command(Three_Address_Code("ASSIGN", self.analyze_exp(a), f'@{temp}', None))
-        self.update_command(save_address + 2, Three_Address_Code("ASSIGN", f'#{(1 + offset) * 4}', f'{temp}', None))
+        self.update_command(save_address + 2,
+                            Three_Address_Code("ADD", f'#{(1 + offset) * 4}', self.mem.activation_record, f'{temp}'))
         self.update_command(save_address + 3,
-                            Three_Address_Code("ASSIGN", self.mem.activation_record, f'@{temp}', None))
-        self.add_command(Three_Address_Code("ADD", f'#{(offset) * 4}', self.mem.activation_record, temp))
-        self.add_command(Three_Address_Code("ASSIGN", temp, self.mem.activation_record, None))
+                            Three_Address_Code("ASSIGN", self.mem.activation_record, f'@{temp}',
+                                               None))  # save activation  record in stack
+        self.add_command(Three_Address_Code("ADD", f'#{(offset + 1) * 4}', self.mem.activation_record, temp))
+        self.add_command(Three_Address_Code("ASSIGN", temp, self.mem.activation_record,
+                                            None))  # save new activation  record in activation record
         self.add_command(Three_Address_Code("JP", self.function_to_call.address, None, None))
         self.update_command(save_address, Three_Address_Code("ASSIGN", f'#{offset * 4}', f'{temp}', None))
-        self.update_command(save_address + 1, Three_Address_Code("ASSIGN", f'#{self.PC}', f'@{temp}', None))
+        self.update_command(save_address + 1,
+                            Three_Address_Code("ASSIGN", f'#{self.PC}', f'@{temp}', None))  # save return address
         self.add_command(
             Three_Address_Code("ASSIGN", f'@{self.function_to_call.address}', self.mem.activation_record, None))
         offset = self.get_offset_temp()
@@ -195,13 +210,13 @@ class CodeGenerator:
         self.add_command(Three_Address_Code(operation, rhs, lhs, f'@{temp}'))
         self.semantic_analyzer.push(f'!{offset}')
 
-    def indirect_addr(self, token):
+    def indirect_addr(self, token):  # TODO anylie
         index, address = self.semantic_analyzer.pop(), self.semantic_analyzer.pop()
         index = self.analyze_exp(index)
         address = self.analyze_exp(address)
         offset = self.get_offset_temp()
         temp2 = self.mem.get_static_address()
-        self.add_command(Three_Address_Code("MUL", index, f'#{4}', temp2))
+        self.add_command(Three_Address_Code("MULT", index, f'#{4}', temp2))
         self.add_command(Three_Address_Code("ADD", temp2, address, temp2))
         temp = self.mem.get_static_address()
         self.add_command(Three_Address_Code("ADD", f"#{offset * 4}", self.mem.activation_record, temp))
@@ -224,15 +239,9 @@ class CodeGenerator:
         for index in self.RT.q:
             self.update_command(index, Three_Address_Code("JP", self.PC, None, None))  # TODO fill return packing
         temp = self.mem.get_static_address()
-        self.add_command(Three_Address_Code("SUB", "#4", self.mem.activation_record, temp))
+        self.add_command(Three_Address_Code("SUB", self.mem.activation_record, "#4", temp))
         self.add_command(Three_Address_Code("ASSIGN", f"@{temp}", temp, None))
-        self.add_command(
-            Three_Address_Code("ASSIGN", f"@{self.mem.activation_record}", self.mem.activation_record,
-                               None))  # TODO save display ghabli ro be display felli
-        self.add_command(Three_Address_Code("JP", f'@{temp}', None, None))  # TODO jump return address
-
-        # self.add_command(Three_Address_Code("ASSIGN", "#0", temp, None))
-
+        self.add_command(Three_Address_Code("JP", f'@{temp}', None, None))  # TODO jump return addres
         self.scope_record.delete_current_scope()
 
     def jump_over_func(self, token):
@@ -241,7 +250,7 @@ class CodeGenerator:
     def fun_declare_end(self, token):
         pass
 
-    def into_scope(self, token):
+    def into_scope(self, token):  # TODO
         self.scope_record.new_scope()
 
     def fun_declare_init(self, token):
@@ -267,7 +276,7 @@ class CodeGenerator:
         if self.scope_record.current_scope == 0:
             temp = self.mem.get_static_address()
             self.scope_record.insert_record(lexeme=lexeme, var_type=var_type, type="global_arr", address=temp, size=num)
-            self.add_command(Three_Address_Code("ASSIGN", f"#{temp}", temp, None))
+            self.add_command(Three_Address_Code("ASSIGN", f"#{temp + 4}", temp, None))
             for i in range(0, num):
                 temp = self.mem.get_static_address()
                 self.add_command(Three_Address_Code("ASSIGN", "#0", temp, None))
