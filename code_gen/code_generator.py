@@ -12,6 +12,7 @@ address
 """
 
 Three_Address_Code = namedtuple('ThreeAddressCode', 'op y z x')
+ops = {'+': 'ADD', '-': 'SUB', '*': 'MULT'}
 
 
 class CodeGenerator:
@@ -27,6 +28,7 @@ class CodeGenerator:
         self.routine_dict['#end_decl_var'] = self.end_decl_var
         self.routine_dict['#end_decl_arr'] = self.end_decl_arr
         self.routine_dict['#push_num'] = self.push_num
+        self.routine_dict['#push_num_temp'] = self.push_num_temp
         self.routine_dict['#end_arr_param'] = self.end_arr_param
         self.routine_dict['#end_var_param'] = self.end_var_param
         self.routine_dict['#pop_exp'] = self.pop_exp
@@ -50,7 +52,7 @@ class CodeGenerator:
 
         self.routine_dict['#assign'] = self.assign
         self.routine_dict['#indirect_addr'] = self.indirect_addr
-        self.routine_dict['#'] = self.call_func
+        self.routine_dict['#call_func'] = self.call_func
         self.routine_dict['#operate'] = self.operate
 
         self.routine_dict['#jp_main'] = self.jp_main
@@ -62,6 +64,11 @@ class CodeGenerator:
         self.RT = bh.Return()
         self.function_to_call = None
 
+    def jp_main(self, token):
+        r = self.scope_record.find_record('main')
+        self.function_to_call = r
+        # Whatever we do in call_func
+
     def find_function(self, token):
         r = self.scope_record.find_record(self.semantic_analyzer.pop())
         self.function_to_call = r
@@ -70,22 +77,33 @@ class CodeGenerator:
         arg_num = self.function_to_call.args
 
     def analyze_exp(self, exp):
-        r = self.scope_record.find_record(exp)
-        if not r:
-            temp = self.mem.get_static_address()
-            if "!" in exp:
-                exp = int(exp.replace("!", ""))
-                self.add_command(Three_Address_Code("ADD", f'#{exp * 4}', self.mem.activation_record, temp))
-                self.add_command(Three_Address_Code("ASSIGN", f'@{temp}', temp))
-            else:
-                self.add_command(Three_Address_Code("ASSIGN", exp, temp, None))
-            return temp
-        if 'global_var' in r.type:
-            return r.address
-        elif 'global_arr':
-            temp = self.mem.get_static_address()
-            self.add_command(Three_Address_Code("ASSIGN", f'#{r.address}', temp,None))
+        temp = self.mem.get_static_address()
+        if "!" in exp:
+            exp = int(exp.replace("!", ""))
+            self.add_command(Three_Address_Code("ADD", f'#{exp * 4}', self.mem.activation_record, temp))
+            self.add_command(Three_Address_Code("ASSIGN", f'@{temp}', temp))
+        else:
+            self.add_command(Three_Address_Code("ASSIGN", exp, temp, None))
+        return temp
 
+    def operate(self, token):
+        rhs, op, lhs = self.semantic_analyzer.pop(), self.semantic_analyzer.pop(), self.semantic_analyzer.pop()
+        op = op.strip()
+        temp = self.mem.get_static_address()
+        operation = ops[op]
+        self.add_command(Three_Address_Code(operation, rhs, lhs, f'{temp}'))
+        self.semantic_analyzer.push(temp)
+
+    def indirect_addr(self, token):
+        index, lexeme = self.semantic_analyzer.pop(), self.semantic_analyzer.pop()
+        current_address = self.scope_record.current_fun.address
+        offset = self.scope_record.find_record(lexeme)
+        temp = self.mem.get_static_address()
+        temp_2 = self.mem.get_static_address()
+        self.add_command(Three_Address_Code('ADD', f'#{offset * 4}', f'#{current_address}', temp))
+        self.add_command(Three_Address_Code('ADD', f'#{4}', f'#{index}', temp_2))
+        self.add_command(Three_Address_Code('ADD', f'{temp}', f'{temp_2}', temp))
+        self.semantic_analyzer.push(temp)
 
     def return_void(self, token):
         self.RT.add_return(self.PC)
@@ -192,6 +210,12 @@ class CodeGenerator:
 
     def push_num(self, token):
         self.semantic_analyzer.push(f'#{token}')
+
+    def push_num_temp(self, token):
+        num = int(token)
+        temp = self.mem.get_static_address()
+        self.add_command(Three_Address_Code('ASSIGN', f'#{num}', temp, None))
+        self.semantic_analyzer.push(f'{temp}')
 
     def pop_exp(self, token):
         self.semantic_analyzer.pop()

@@ -62,7 +62,7 @@ G ->  * #push_op Factor #operate G
 G -> ε
 Factor -> ( Expression )
 Factor ->  ID #push_id Var_call_prime
-Factor ->  NUM #push_num
+Factor ->  NUM #push_num_temp
 Var_call_prime -> #find_function ( Args ) #call_func
 Var_call_prime -> Var_prime
 Var_prime -> [ Expression ] #indirect_addr
@@ -70,7 +70,7 @@ Var_prime -> ε
 Factor_prime -> #find_function ( Args ) #call_func
 Factor_prime -> ε
 Factor_zegond -> ( Expression )
-Factor_zegond ->  NUM #push_num
+Factor_zegond ->  NUM #push_num_temp
 Args -> Arg_list
 Args -> ε
 Arg_list -> Expression Arg_list_prime
