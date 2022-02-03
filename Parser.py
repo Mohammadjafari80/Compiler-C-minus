@@ -120,7 +120,7 @@ class Parser:
 
     def code_gen(self, action):
         print(f'line = {self.scanner.get_line_number()}')
-        if (action == "#push" or action == "#push_num" or action == "#push_id"):
+        if (action == "#push_op" or action == "#push_id" or action == "#push_num" or action == "#push_num_temp" or action == "#push_id"):
             self.code_generator.generate_code(action, self.last_token)
         else:
             self.code_generator.generate_code(action, self.current_token)
