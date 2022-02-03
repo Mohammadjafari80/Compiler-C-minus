@@ -62,6 +62,35 @@ class CodeGenerator:
         self.RT = bh.Return()
         self.function_to_call = None
         self.output_flag = False
+        self.cond_jumps = []
+
+    def save_label(self, token):
+        self.semantic_analyzer.push(self.PC)
+        self.jumps.append(self.PC)
+        self.add_command(Three_Address_Code('JPF', '?', '?', ))
+
+    def if_jpf(self, token):
+        address, cond = self.semantic_analyzer.pop(), self.analyze_exp(self.semantic_analyzer.pop())
+        self.update_command(self.cond_jumps[-1], Three_Address_Code('JPF', cond, address))
+        self.cond_jumps.pop()
+
+    def if_jpf_save_label(self, token):
+        pass
+
+    def then_jp(self, token):
+        pass
+
+    def label(self, token):
+        self.BH.add_repeat()
+
+    def repeat_jump(self, token):
+        break_list = self.BH.get_breaks_address()
+        for br_index in break_list:
+            self.update_command(br_index, Three_Address_Code('JP', self.PC, None, None))
+
+    def save_break(self, token):
+        self.BH.add_break(self.PC)
+        self.add_command(Three_Address_Code('?', None, None, None))
 
     def assign_to_local(self, token):
         # offset = self.get_offset_temp()
