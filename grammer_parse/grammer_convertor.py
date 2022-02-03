@@ -44,8 +44,14 @@ json.dump(grammer_for_jason_format, open("jsongrammer.json", 'w'))
 # Read data from file:
 data = json.load(open("grammer.json"))
 print(len(data))
-f = open('grammer.txt')
+
 f2 = open("../parser_utils/grammer.txt", 'w')
-f2.write(f.readlines())
+a = ""
+with open('grammer.txt') as f:
+    line = f.readline()
+    a += (line)
+    while line:
+        line = f.readline()
+        a += (line)
+f2.write(a)
 f2.close()
-f.close()

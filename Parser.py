@@ -120,8 +120,8 @@ class Parser:
 
     def code_gen(self, action):
         print(f'line = {self.scanner.get_line_number()}')
-        if (
-                action == "#push_op" or action == "#push_id" or action == "#push_num" or action == "#push_num_temp" or action == "#decl_id"):
+        if (action == "#push_type" or
+                action == "#push_op" or action == "#push_id" or action == "#push_num" or action == "#push_num_temp"):  # or  # action == "#decl_id"):
             self.code_generator.generate_code(action, self.last_token)
         else:
             self.code_generator.generate_code(action, self.current_token)
@@ -245,8 +245,13 @@ class Parser:
         code_gen = ''
 
         for i, val in enumerate(self.code_generator.program_block):
-            op, y, z, x = val
-            code_gen += "%d\t(%s, %s, %s, %s)\n" % (i, op, y, '' if z is None else z, '' if x is None else x)
+            try:
+                op, y, z, x = val
+                code_gen += "%d\t(%s, %s, %s, %s)\n" % (i, op, y, '' if z is None else z, '' if x is None else x)
+            except:
+                op, y, z, x , dec = val
+                code_gen += "%d\t(%s, %s, %s, %s)\n" % (i, op, y, '' if z is None else z, '' if x is None else x)
+
 
         syntax_errors = ''
         if len(self.errors) == 0:
