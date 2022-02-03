@@ -12,7 +12,7 @@ address
 """
 
 Three_Address_Code = namedtuple('ThreeAddressCode', 'op y z x')
-ops = {'+': 'ADD', '-': 'SUB', '*': 'MULT', "<": "LT", "==", "EQ"}
+ops = {'+': 'ADD', '-': 'SUB', '*': 'MULT', "<": "LT", "==": "EQ"}
 
 class CodeGenerator:
     def __init__(self, parser):
