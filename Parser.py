@@ -67,7 +67,8 @@ class Parser:
         self.line_number = 1
         self.errors = []
         self.is_stable = True
-        self.code_generator = codGN.CodeGenerator(self)
+        self.code_generator = codGN.CodeGenerator(self, self.scanner)
+        self.semantic_errors = self.code_generator.semantic.semantic_analyzer
         self.last_token = ""
 
     def front(self) -> TD.State:
@@ -247,14 +248,23 @@ class Parser:
             tree += "%s%s\n" % (pre, node.name)
 
         code_gen = ''
+        semantic_errors = ''
+        if len(self.semantic_errors.semantic_errors) == 0:
+            semantic_errors = 'The input program is semantically correct.'
+        else:
+            for error in self.semantic_errors.semantic_errors:
+                semantic_errors += error + '\n'
 
-        for i, val in enumerate(self.code_generator.program_block):
-            try:
-                op, y, z, x = val
-                code_gen += "%d\t(%s, %s, %s, %s)\n" % (i, op, y, '' if z is None else z, '' if x is None else x)
-            except:
-                op, y, z, x, dec = val
-                code_gen += "%d\t(%s, %s, %s, %s)\n" % (i, op, y, '' if z is None else z, '' if x is None else x)
+        if len(self.semantic_errors.semantic_errors) != 0:
+            code_gen = 'The output code has not been generated.'
+        else:
+            for i, val in enumerate(self.code_generator.program_block):
+                try:
+                    op, y, z, x = val
+                    code_gen += "%d\t(%s, %s, %s, %s)\n" % (i, op, y, '' if z is None else z, '' if x is None else x)
+                except:
+                    op, y, z, x, dec = val
+                    code_gen += "%d\t(%s, %s, %s, %s)\n" % (i, op, y, '' if z is None else z, '' if x is None else x)
 
         syntax_errors = ''
         if len(self.errors) == 0:
@@ -278,5 +288,8 @@ class Parser:
 
         with open(self.save_path + '/output.txt', "w", encoding="utf-8") as opened_file:
             opened_file.write(code_gen)
+
+        with open(self.save_path + '/semantic_errors.txt', "w", encoding="utf-8") as opened_file:
+            opened_file.write(semantic_errors)
 
         opened_file.close()

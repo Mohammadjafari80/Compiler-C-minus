@@ -1,5 +1,6 @@
 from semantic_analyzer import semantic_analyzer as sa
 from code_gen.Memory_handler import Memory
+from code_gen.semantic import Semantic
 from scope_records import scope_record as sr
 from collections import namedtuple
 import code_gen.Break_handler as bh
@@ -24,7 +25,7 @@ class CodeGenerator:
             print(f'{i} : {p}')
             i += 1
 
-    def __init__(self, parser):
+    def __init__(self, parser, scanner):
         # self.init_main_pb = 5
         self.parser = parser
         self.scope_record = sr.Scope(self)
@@ -63,19 +64,20 @@ class CodeGenerator:
         self.routine_dict['#label'] = self.label
         self.routine_dict['#repeat_jump'] = self.repeat_jump
         self.routine_dict["save_break"] = self.save_break
-        self.semantic_analyzer = sa.SemanticAnalyzer()
+        self.semantic_analyzer = sa.SemanticAnalyzer(scanner)
         self.semantic_analyzer.push("K")
         self.program_block = []
         self.mem = Memory(self)
         self.PC = self.mem.code_add
         self.mem.initial()
-
+        self.semantic = Semantic(parser, scanner)
         self.BH = bh.Break()
         self.RT = bh.Return()
         self.function_to_call = []
         self.cond_jumps = []
         self.starting_block = self.PC
         self.first_time = True
+        self.current_func_init = ''
         # self.add_command(Three_Address_Code(None, None, None, None))
 
     def get_last_fun(self):
@@ -89,7 +91,9 @@ class CodeGenerator:
     def generate_code(self, action, token):
         print("-----------------------------------------------------------------------------------------------")
         print(action, token)
-        self.routine_dict.get(action)(self.parse_token(token))
+        self.semantic.generate_code(action, token)
+        if len(self.semantic.semantic_analyzer.semantic_errors) == 0:
+            self.routine_dict.get(action)(self.parse_token(token))
         self.print_program_block()
         print(self.semantic_analyzer.semantic_stack)
         self.scope_record.print_records()
@@ -177,7 +181,7 @@ class CodeGenerator:
             value_to_print = self.analyze_exp(self.semantic_analyzer.pop())
             self.add_command(Three_Address_Code2(
                 "PRINT", value_to_print, None, None, "print"))
-            self.semantic_analyzer.push(f'0')
+            self.semantic_analyzer.push(f'void_error')
             self.function_to_call.pop()
             return
         arg_num = self.get_last_fun().args
@@ -225,7 +229,10 @@ class CodeGenerator:
             Three_Address_Code2("ASSIGN", f'{self.mem.return_val}', f'@{temp}', None, "set return val to local"))
         if if_main:
             self.add_command(Three_Address_Code("JP", "#5000000000000", None, None))
-        self.semantic_analyzer.push(f'!{offset}')
+        if fun.var_type == "void":
+            self.semantic_analyzer.push(f'void_error')
+        else:
+            self.semantic_analyzer.push(f'!{offset}')
         self.function_to_call.pop()
 
     def analyze_exp(self, exp, right=True):  # TODO just for read
