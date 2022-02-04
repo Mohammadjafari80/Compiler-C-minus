@@ -8,10 +8,10 @@ Three_Address_Code = namedtuple('ThreeAddressCode', 'op y z x')
 class Memory():
     def __init__(self, code_gen):
         self.code_add = 0
-        self.activation_record = 5008  # save activation record # always full
-        self.static_data = 3000
-        self.return_val = 5000
-        self.return_add = 4096
+        self.activation_record = 10008  # save activation record # always full
+        self.static_data = 5000
+        self.return_val = 10000
+        self.return_add = 9996
         self.code_g = code_gen
     def initial(self):
         self.code_g.add_command(Three_Address_Code("ASSIGN", f"#{0}", self.return_add, None))

@@ -292,7 +292,6 @@ class CodeGenerator:
         self.add_command(Three_Address_Code("ASSIGN", add, self.mem.return_val, None))
         self.RT.add_return(self.PC)
         self.add_command(Three_Address_Code("JP", "?", None, None))
-        # TODO
 
     def outo_scope(self, token):
         for index in self.RT.q:
@@ -377,7 +376,7 @@ class CodeGenerator:
 
     def add_command(self, tp):
         self.program_block.append(tp)
-        if self.PC == 283:
+        if self.PC == 420:
             print("here")
         self.PC += 1
 

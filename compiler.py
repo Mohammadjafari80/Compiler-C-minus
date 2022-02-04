@@ -6,7 +6,7 @@ import Scanner
 import Parser
 
 """
-for i in range(10,20):
+for i in range(10,20): 
     read_path = "./parser_T11-T20/T%2d" % (i+1)
     save_path = "./parser_T11-T20/T%2d" % (i+1)
     scanner = Scanner.Scanner(path=save_path, save_path=save_path)
