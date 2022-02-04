@@ -181,7 +181,7 @@ class CodeGenerator:
             self.function_to_call.pop()
             return
         arg_num = self.get_last_fun().args
-        offset = self.get_last_fun().local_var + 1
+        offset = self.scope_record.current_fun.local_var + 1
         arg_arr = []
         for i in range(arg_num):
             arg_arr.append(self.semantic_analyzer.pop())
@@ -195,6 +195,7 @@ class CodeGenerator:
         for (i, a) in enumerate(arg_arr):
             self.add_command(
                 Three_Address_Code2("ADD", f'#{(offset + i + 2) * 4}', self.mem.activation_record, temp, "pass arg"))
+
             self.add_command(Three_Address_Code2("ASSIGN", self.analyze_exp(a), f'@{temp}', None, "pass arg"))
         self.update_command(save_address + 2,
                             Three_Address_Code2("ADD", f'#{(1 + offset) * 4}', self.mem.activation_record, f'{temp}',
@@ -376,7 +377,7 @@ class CodeGenerator:
 
     def add_command(self, tp):
         self.program_block.append(tp)
-        if self.PC == 420:
+        if self.PC == 212:
             print("here")
         self.PC += 1
 

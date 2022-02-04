@@ -119,6 +119,10 @@ class Parser:
                         next_state = next_state.states[next_node]
 
     def code_gen(self, action):
+        if self.scanner.get_line_number() == 47 and action == "#repeat_jump":
+            print("here")
+        if action == "#save_break":
+            print("here")
         print(f'line = {self.scanner.get_line_number()}')
         if (action == "#push_type" or
                 action == "#push_op" or action == "#push_id" or action == "#push_num" or action == "#push_num_temp"):  # or  # action == "#decl_id"):
@@ -249,9 +253,8 @@ class Parser:
                 op, y, z, x = val
                 code_gen += "%d\t(%s, %s, %s, %s)\n" % (i, op, y, '' if z is None else z, '' if x is None else x)
             except:
-                op, y, z, x , dec = val
+                op, y, z, x, dec = val
                 code_gen += "%d\t(%s, %s, %s, %s)\n" % (i, op, y, '' if z is None else z, '' if x is None else x)
-
 
         syntax_errors = ''
         if len(self.errors) == 0:
