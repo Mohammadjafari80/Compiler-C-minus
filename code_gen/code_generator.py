@@ -72,11 +72,14 @@ class CodeGenerator:
 
         self.BH = bh.Break()
         self.RT = bh.Return()
-        self.function_to_call = None
-        self.output_flag = False
+        self.function_to_call = []
         self.cond_jumps = []
         self.starting_block = self.PC
-        self.add_command(Three_Address_Code(None, None, None, None))
+        self.first_time = True
+        # self.add_command(Three_Address_Code(None, None, None, None))
+
+    def get_last_fun(self):
+        return self.function_to_call[len(self.function_to_call) - 1]
 
     def parse_token(self, token):
         lexeme = token.split(",")[1] if token != '$' else token
@@ -90,6 +93,7 @@ class CodeGenerator:
         self.print_program_block()
         print(self.semantic_analyzer.semantic_stack)
         self.scope_record.print_records()
+        print(self.function_to_call)
 
     def decl_id(self, token):
         self.semantic_analyzer.push(token)
@@ -155,28 +159,29 @@ class CodeGenerator:
 
         r = self.scope_record.find_record('main')
         self.update_command(self.starting_block, Three_Address_Code2("JP", f"#{r.address}", None, None, "jp main"))
-        self.function_to_call = r
+        self.function_to_call.append(r)
         self.call_func("a", if_main=True)
         # Whatever we do in call_func
 
     def find_function(self, token):
         token = self.semantic_analyzer.pop()
         if token == "output":
-            self.output_flag = True
+            self.function_to_call.append("output")
             return
         r = self.scope_record.find_record(token)
-        self.function_to_call = r
+        self.function_to_call.append(r)
 
     def call_func(self, token, if_main=False):
-        if self.output_flag:
+        fun = self.get_last_fun()
+        if type(fun) == str and fun == "output":
             value_to_print = self.analyze_exp(self.semantic_analyzer.pop())
             self.add_command(Three_Address_Code2(
                 "PRINT", value_to_print, None, None, "print"))
             self.semantic_analyzer.push(f'0')
-            self.output_flag = False
+            self.function_to_call.pop()
             return
-        arg_num = self.function_to_call.args
-        offset = self.function_to_call.local_var + 1
+        arg_num = self.get_last_fun().args
+        offset = self.get_last_fun().local_var + 1
         arg_arr = []
         for i in range(arg_num):
             arg_arr.append(self.semantic_analyzer.pop())
@@ -202,7 +207,7 @@ class CodeGenerator:
         self.add_command(Three_Address_Code2("ASSIGN", temp, self.mem.activation_record,
                                              None,
                                              "save new acc to acc"))  # save new activation  record in activation record
-        self.add_command(Three_Address_Code("JP", self.function_to_call.address, None, None))
+        self.add_command(Three_Address_Code("JP", self.get_last_fun().address, None, None))
         self.update_command(save_address,
                             Three_Address_Code2("ADD", f'#{offset * 4}', f'{self.mem.activation_record}', temp,
                                                 "return add im temp"))
@@ -220,6 +225,7 @@ class CodeGenerator:
         if if_main:
             self.add_command(Three_Address_Code("JP", "#5000000000000", None, None))
         self.semantic_analyzer.push(f'!{offset}')
+        self.function_to_call.pop()
 
     def analyze_exp(self, exp, right=True):  # TODO just for read
         if "!" in str(exp):
@@ -307,6 +313,10 @@ class CodeGenerator:
         self.scope_record.new_scope()
 
     def fun_declare_init(self, token):
+        if self.first_time:
+            self.starting_block = self.PC
+            self.add_command(Three_Address_Code(None, None, None, None))
+            self.first_time = False
         lexeme, var_type = self.semantic_analyzer.pop(), self.semantic_analyzer.pop()
         r = self.scope_record.insert_record(lexeme=lexeme, var_type=var_type, type="FUN", address=self.PC)
         self.scope_record.current_fun = r
@@ -367,7 +377,7 @@ class CodeGenerator:
 
     def add_command(self, tp):
         self.program_block.append(tp)
-        if self.PC == 140:
+        if self.PC == 283:
             print("here")
         self.PC += 1
 

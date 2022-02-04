@@ -7,9 +7,10 @@
 7.	until
 8.	return
 9.	endif
-10.	arr
-11.	var1
-12.	func
-13.	arg
+10.	count
+11.	result
+12.	f
+13.	a
 14.	main
-15.	output
+15.	i
+16.	output
