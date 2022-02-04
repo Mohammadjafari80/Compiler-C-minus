@@ -177,7 +177,7 @@ class CodeGenerator:
             value_to_print = self.analyze_exp(self.semantic_analyzer.pop())
             self.add_command(Three_Address_Code2(
                 "PRINT", value_to_print, None, None, "print"))
-            self.semantic_analyzer.push(f'0')
+            self.semantic_analyzer.push(f'void_error')
             self.function_to_call.pop()
             return
         arg_num = self.get_last_fun().args
@@ -225,7 +225,10 @@ class CodeGenerator:
             Three_Address_Code2("ASSIGN", f'{self.mem.return_val}', f'@{temp}', None, "set return val to local"))
         if if_main:
             self.add_command(Three_Address_Code("JP", "#5000000000000", None, None))
-        self.semantic_analyzer.push(f'!{offset}')
+        if fun.var_type == "void":
+            self.semantic_analyzer.push(f'void_error')
+        else:
+            self.semantic_analyzer.push(f'!{offset}')
         self.function_to_call.pop()
 
     def analyze_exp(self, exp, right=True):  # TODO just for read
@@ -286,6 +289,7 @@ class CodeGenerator:
     def return_void(self, token):
         self.RT.add_return(self.PC)
         self.add_command(Three_Address_Code("JP", "?", None, None))
+
 
     def return_exp(self, token):
         exp = self.semantic_analyzer.pop()
